@@ -7,3 +7,15 @@ The development documentation:
 * [Milestones](./SimpleOGCAPI_milestones.md)
 
 * __[PostGIS & pgweb Docker](./docker_postgis_inspire.md)__
+
+
+## Run the application
+### Requirements
+* Java 8
+
+### How to run
+In /development/target there is a .war file. This war file can be deployed by a tomcat web server.
+In unix a .war file can also be deployed using the following command:
+````
+java -jar /development/target/development-0.0.1-SNAPSHOT.war
+````
