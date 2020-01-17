@@ -1,0 +1,9 @@
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+./development/frontend/dist
+
+### VS Code ###
+.vscode/

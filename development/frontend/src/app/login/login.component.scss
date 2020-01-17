@@ -1,0 +1,29 @@
+/*
+    Styling for the complete row
+*/
+div#content {
+    margin-top: 5%;
+}
+
+/* The Styling for the part where the login input is displayed */
+div#loginContainer {
+    border-radius: 10px;
+    border: 1px solid #cccecf;
+    margin-left: 20px;
+    margin-right: 30px;
+
+    h2 {
+        text-align: center;  
+        color: black;  
+    }
+
+    input#pwd {
+        margin-top: 5px;
+    }
+
+    button#submit {
+        margin-top: 5px;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+}
