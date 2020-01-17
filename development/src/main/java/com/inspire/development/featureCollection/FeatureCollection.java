@@ -1,12 +1,12 @@
 package com.inspire.development.featureCollection;
 
 public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
-    private String name;
-    public FeatureCollection(String name){
-        this.name = name;
+    private String id;
+    public FeatureCollection(String id){
+        this.id = id;
     }
 
-    public String getName(){
-        return name;
+    public String getId(){
+        return id;
     }
 }

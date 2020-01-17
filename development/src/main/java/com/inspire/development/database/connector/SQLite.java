@@ -5,13 +5,20 @@ import com.inspire.development.featureCollection.FeatureCollection;
 import mil.nga.sf.geojson.Feature;
 import mil.nga.sf.geojson.Point;
 import mil.nga.sf.geojson.Position;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKBReader;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.sqlite.SQLiteConfig;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * DBConnector for a SQLite database
@@ -37,8 +44,15 @@ public class SQLite implements DBConnector {
         Connection connection = null;
         try {
             // create a database connection
-            connection = DriverManager.getConnection("jdbc:sqlite:" + hostname);
+            Properties prop = new Properties();
+            prop.setProperty("enable_shared_cache", "true");
+            prop.setProperty("enable_load_extension", "true");
+            prop.setProperty("enable_spatialite", "true");
+            connection = DriverManager.getConnection("jdbc:spatialite:" + hostname, prop);
             c = connection;
+            Statement stat = c.createStatement();
+            stat.execute("SELECT InitSpatialMetaData()");
+            stat.close();
             updateTablesArray();
             System.out.println(tableNames);
         } catch (SQLException e) {
@@ -52,6 +66,7 @@ public class SQLite implements DBConnector {
      */
     private void updateTablesArray() {
         try {
+            tableNames = new ArrayList<>();
             DatabaseMetaData md = c.getMetaData();
             ResultSet rs = md.getTables(null, null, "%", null);
             while (rs.next()) {
@@ -159,8 +174,9 @@ public class SQLite implements DBConnector {
         ArrayList<FeatureCollection> fc = new ArrayList<>();
         try {
             for (String table : tableNames) {
+
                 Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM " + table);
+                ResultSet rs = stmt.executeQuery("SELECT *, ST_Y(GEOMETRY), ST_X(GEOMETRY) FROM " + table);
                 FeatureCollection fs = resultSetToFeatureCollection(rs, table);
                 fc.add(fs);
             }
@@ -214,20 +230,33 @@ public class SQLite implements DBConnector {
                 HashMap<String, Object> prop = new HashMap<>();
                 ResultSetMetaData md = rs.getMetaData();
 
+                GeometryFactory gm = new GeometryFactory(new PrecisionModel(), 4326);
+                WKBReader wkbr = new WKBReader(gm);
+                double xP = -1;
+                double yP = -1;
+
                 for (int x = 1; x <= md.getColumnCount(); x++) {
-                    if (md.getColumnTypeName(x).contains("GEOMETRY")) {
-                        //Geometry Feature
-                        //f.setGeometry(new Point(new Position("long","lang")));
+                    if (md.getColumnName(x).contains("ST_X")) {
+                        //Geometry Feature X
+                       xP = rs.getFloat(x);
                     } else {
-                        if (md.getColumnLabel(x).contains("OGC_FID")) {
-                            //ID
-                            f.setId(rs.getString(x));
-                        }else{
-                            //Normal Feature
-                            prop.put(md.getColumnName(x),rs.getObject(x));
+                        if (md.getColumnName(x).contains("ST_Y")) {
+                            //Geometry Feature Y
+                            yP = rs.getFloat(x);
+                        }else {
+                            if (md.getColumnLabel(x).contains("OGC_FID")) {
+                                //ID
+                                f.setId(rs.getString(x));
+                            } else {
+                                //Normal Feature
+                                if(!md.getColumnTypeName(x).contains("GEOMETRY"))
+                                    prop.put(md.getColumnName(x), rs.getObject(x));
+                            }
                         }
                     }
                 }
+                if(xP != -1 && yP != -1)
+                    f.setGeometry(new Point(new Position(xP,yP)));
                 f.setProperties(prop);
                 fs.addFeature(f);
             }

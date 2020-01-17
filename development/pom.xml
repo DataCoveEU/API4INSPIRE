@@ -25,6 +25,19 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.spitialight.jdbc</groupId>
+			<artifactId>spiitalight</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/spatialite-jdbc-4.3.0a.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.locationtech.jts</groupId>
+			<artifactId>jts-core</artifactId>
+			<version>1.16.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.zsoltfabok</groupId>
