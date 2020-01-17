@@ -11,6 +11,7 @@ import org.springframework.beans.factory.support.ManagedMap;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -165,6 +166,7 @@ public class SQLite implements DBConnector {
      * @param sql SQL String to be executed
      * @return Feature Collection Array from SQL query result, null if error occurred. Error is stored in errorBuffer. See {@link SQLite#getErrorBuffer()}.
      */
+    //TODO How is the sql GEOMETRY column handled
     @JsonIgnore
     @Override
     public FeatureCollection[] execute(String sql) {
@@ -173,11 +175,20 @@ public class SQLite implements DBConnector {
             Statement stmt = c.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             sqlList.add(sql);
-            while (rs.next()){
-                resultSetToFeatureCollection(rs,"","");
-            }
+            if(rs.getMetaData().getColumnCount() >= 1) {
+                String name = rs.getMetaData().getTableName(1);
+                String alias = name;
+                if(config.containsKey(name))
+                    alias = config.get(name).getAlias();
+                while (rs.next()) {
+                    resultSetToFeatureCollection(rs, name, alias);
+                }
 
-            return new FeatureCollection[0];
+                return fs.toArray(new FeatureCollection[fs.size()]);
+            }else{
+                errorBuffer.add("SQL has to contain at least 1 output");
+                return null;
+            }
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
             return null;
