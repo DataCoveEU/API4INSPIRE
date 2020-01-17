@@ -27,5 +27,5 @@ After running this, the .war file is created
 In /development/target there is a .war file. This war file can be deployed by a tomcat web server.
 In unix a .war file can also be deployed using the following command:
 ````
-java -jar /development/target/development-0.0.1-SNAPSHOT.war
+java -jar /development/target/development-0.0.1.war
 ````
