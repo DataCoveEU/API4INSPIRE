@@ -1,7 +1,7 @@
 package com.inspire.development.controller;
 
+import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.database.connector.SQLite;
-import com.inspire.development.featureCollection.FeatureCollection;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,7 +11,7 @@ public class RESTController {
 
     @GetMapping("/collections")
     public FeatureCollection test() {
-        SQLite c = new SQLite("/home/lukas/Documents/inspireDB.sqlite");
+        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
         //c.checkConnection();
         return c.getAll()[1];
     }
