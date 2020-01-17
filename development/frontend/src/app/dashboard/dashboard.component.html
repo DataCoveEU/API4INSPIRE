@@ -1,1 +1,76 @@
-<p>dashboard works!</p>
+<app-nav></app-nav>
+<div id="content">
+    <div class="row">    
+        <div class="col-sm-3">
+            <select class="form-control" id="exampleFormControlSelect1">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <button class="btn btn-danger" id="delDb">Delete DB connector</button>
+        </div>
+    </div>
+    
+    <div class="row card-deck" id="tables">
+        <div class="card">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Tablename</th>
+                    <th scope="col">Config name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>Tablename 1</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>Tablename 2</td>
+                    <td>Configname 2</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Tablenmame 3</td>
+                    <td>Configname 3</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">4</th>
+                    <td>Tablenmame 4</td>
+                    <td>Configname 4</td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+        <div class="card">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Table name</th>
+                    <th scope="col">Config name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                </tbody>
+              </table>
+        </div>
+    </div>
+
+    <div class="row" id="sql">
+        <div class="col-sm-12">
+            <h3>Write SQL</h3>
+            <hr />
+            <textarea class="form-control" rows="5" placeholder="Write and execute sql here"></textarea>
+            <button class="btn btn-success" id="executeSQL">Execute</button>
+        </div>
+    </div>
+</div>
