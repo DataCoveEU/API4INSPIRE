@@ -1,11 +1,22 @@
 <app-nav></app-nav>
-<div class="row" id="content">
-    <div class="col-sm-4"></div>
-    <div class="col-sm-4" id="loginContainer">
-        <h2>Login</h2>
-        <input class="form-control" type="text" placeholder="Username" id="uname"/>
-        <input class="form-control" type="password" placeholder="Password" id="pwd"/>
-        <button type="button" class="btn btn-success" id="submit">Login</button>
+<div class="sidenav">
+    <div class="login-main-text">
+       <h1>Application Login</h1>
+       <p>Login or register from here to access.</p>
     </div>
-    <div class="col-sm-4"></div>
-</div>
+ </div>
+ <div class="main">
+    <div class="col-md-6 col-sm-12">
+       <div class="login-form">
+          <form>
+             <div class="form-group">
+                <input type="text" class="form-control shadow-sm" placeholder="Username">
+             </div>
+             <div class="form-group">
+                <input type="password" class="form-control shadow-sm" placeholder="Password">
+             </div>
+             <button type="submit" class="btn btn-success shadow-sm">Login</button>
+          </form>
+       </div>
+    </div>
+ </div>
