@@ -1,19 +1,34 @@
 package com.inspire.development.controller;
 
+import com.inspire.development.collections.Collections;
+import com.inspire.development.collections.FeatureCollection;
+import com.inspire.development.config.DBConnectorList;
+import com.inspire.development.core.Core;
 import com.inspire.development.database.connector.SQLite;
-import com.inspire.development.featureCollection.FeatureCollection;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+
 @RestController
 public class RESTController {
+    private Core core;
+
+    public RESTController(){
+        core = new Core();
+        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+        core.getConnectors().add(c);
+        DBConnectorList list = core.parseConfig();
+        if(list != null){
+            core.setConnectors(list);
+        }
+    }
 
     @GetMapping("/collections")
-    public FeatureCollection test() {
-        SQLite c = new SQLite("/home/lukas/Documents/inspireDB.sqlite");
+    public Collections test() {
         //c.checkConnection();
-        return c.getAll()[1];
+        return new Collections(Arrays.asList(core.getConnectors().get(0).getAll()));
     }
 
     /**
@@ -34,9 +49,9 @@ public class RESTController {
      * @return the collection with the id
      */
     @GetMapping("/collections/{collectionId}")
-    public String getCollections(@PathVariable("collectionId") String id) {
+    public FeatureCollection getCollections(@PathVariable("collectionId") String id) {
         //TODO: implement the method to return the feature collection with the matching collection ID
-        return "Collection: " + id;
+        return core.getConnectors().get(0).get(id);
     }
 
     /**
