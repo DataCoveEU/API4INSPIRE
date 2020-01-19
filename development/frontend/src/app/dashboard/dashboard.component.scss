@@ -12,3 +12,18 @@ div#tables, div#sql {
     margin-top: 2%;
 }
 
+.tableRow:hover {
+    background-color: rgb(158, 158, 233)!important;
+}
+
+div#rename {
+    margin-top: 1%;
+}
+
+button#subTableName {
+    margin-top: 1%;
+}
+
+.error {
+    color: red;
+}

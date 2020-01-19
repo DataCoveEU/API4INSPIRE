@@ -21,13 +21,10 @@
 }
 
 @media screen and (max-width: 450px) {
-    .login-form{
-        margin-top: 10%;
+    .properties{
+        margin-top: 1;
     }
 
-    .register-form{
-        margin-top: 10%;
-    }
 }
 
 @media screen and (min-width: 768px){
@@ -43,8 +40,8 @@
         left: 0;
     }
 
-    .login-form{
-        margin-top: 50%;
+    .properties{
+        margin-top: 1%;
     }
 
     .register-form{
@@ -53,21 +50,12 @@
 }
 
 
-.login-main-text{
+.properties-main-text{
     margin-top: 30%;
     padding: 60px;
     color: #000;
 }
 
-.login-main-text h2{
+.properties-main-text h2{
     font-weight: 300;
-}
-
-.btn-black{
-    background-color: #000 !important;
-    color: #fff;
-}
-
-.error {
-    color: red;
 }
