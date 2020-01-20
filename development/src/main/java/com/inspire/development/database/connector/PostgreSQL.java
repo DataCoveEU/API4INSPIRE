@@ -1,101 +1,95 @@
 package com.inspire.development.database.connector;
 
 import com.fasterxml.jackson.annotation.*;
+import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.config.TableConfig;
 import com.inspire.development.database.DBConnector;
-import com.inspire.development.collections.FeatureCollection;
 import mil.nga.sf.geojson.Feature;
-import mil.nga.sf.geojson.Point;
 import mil.nga.sf.geojson.Polygon;
 import mil.nga.sf.geojson.Position;
 import org.postgis.Geometry;
 import org.postgis.PGgeometry;
-import org.springframework.beans.factory.support.ManagedMap;
-import org.sqlite.SQLiteConfig;
+import org.postgis.Point;
+import org.postgresql.util.PGobject;
 
 import java.sql.*;
 import java.util.*;
 
 /**
- * DBConnector for a SQLite database
+ * DBConnector for a PostgreSQL database
  */
-@JsonTypeName("sqlite")
+@JsonTypeName("postgresql")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,visible = true)
-public class SQLite implements DBConnector {
+public class PostgreSQL implements DBConnector {
     private ArrayList<String> errorBuffer;
-    @JsonProperty("path")
+    @JsonProperty("hostname")
     private String hostname;
+
+    private String database;
+    private int port;
+    private String schema;
+
     private Connection c;
     @JsonProperty("name")
     private String name;
+    private ArrayList<String> tableNames; // Stores table names that contain a GEOMETRY column
     @JsonProperty("config")
     private HashMap<String,TableConfig> config;
     @JsonProperty("SQLString")
     private HashMap<String,String> sqlList; //FCName, SQL
 
-    /**
-     * Craete DBConnector for SQLite Database
-     *
-     * @param path Path to the SQLite File
-     * @return true if it worked false if error occurred. Error is stored in errorBuffer. See {@link SQLite#getErrorBuffer()}.
-     */
-    public SQLite(String path, String name) {
+
+    public PostgreSQL(String hostname, int port, String database, String schema, String name) {
         this.name = name;
         errorBuffer = new ArrayList<>();
-        hostname = path;
+        this.hostname = hostname;
+        this.port = port;
+        this.database = database;
+        this.schema = schema;
+        tableNames = new ArrayList<>();
         config = new HashMap<>();
         sqlList = new HashMap<>();
 
         Connection connection = null;
         try {
             // create a database connection
-            //Enable spatialite
+            //jdbc:postgresql://host:port/database
             Properties prop = new Properties();
-            prop.setProperty("enable_shared_cache", "true");
-            prop.setProperty("enable_load_extension", "true");
-            prop.setProperty("enable_spatialite", "true");
-
-            connection = DriverManager.getConnection("jdbc:spatialite:" + hostname, prop);
+            prop.setProperty("user", "inspire");
+            prop.setProperty("password", "1nsp1r3_2#2#");
+            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database + "?currentSchema=" + schema, prop);
             c = connection;
-
-            //Enable spatialite for tables
-            Statement stat = c.createStatement();
-            stat.execute("SELECT InitSpatialMetaData()");
-            stat.close();
-        } catch (SQLException e) {
+            ((org.postgresql.PGConnection)c).addDataType("geometry", (Class<? extends PGobject>) Class.forName("org.postgis.PGgeometry"));
+            ((org.postgresql.PGConnection)c).addDataType("box3d", (Class<? extends PGobject>) Class.forName("org.postgis.PGbox3d"));
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
             errorBuffer.add(e.getMessage());
         }
 
     }
 
     @JsonCreator
-    public SQLite(@JsonProperty("path")String path, @JsonProperty("name")String name, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("SQLString") HashMap<String,String> sql) {
+    public PostgreSQL(@JsonProperty("hostname")String hostname, @JsonProperty("name")String name, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("SQLString") HashMap<String,String> sql, @JsonProperty("port")int port, @JsonProperty("schema")String schema, @JsonProperty("database")String database) {
         this.config = config;
         this.name = name;
         this.sqlList = sql;
         errorBuffer = new ArrayList<>();
-        hostname = path;
+        this.hostname = hostname;
+        this.port = port;
+        this.database = database;
+        this.schema = schema;
+        tableNames = new ArrayList<>();
+
+
 
         Connection connection = null;
         try {
             // create a database connection
-            //Enable spatialite
-            Properties prop = new Properties();
-            prop.setProperty("enable_shared_cache", "true");
-            prop.setProperty("enable_load_extension", "true");
-            prop.setProperty("enable_spatialite", "true");
-            connection = DriverManager.getConnection("jdbc:spatialite:" + hostname, prop);
+            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database);
             c = connection;
-            //Enable spatialite for tables
-            Statement stat = c.createStatement();
-            stat.execute("SELECT InitSpatialMetaData()");
-            stat.close();
-            //updateTablesArray();
-            //System.out.println(tableNames);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
         }
-
     }
 
     /**
@@ -130,7 +124,7 @@ public class SQLite implements DBConnector {
      * Executes given SQL String
      *
      * @param sql SQL String to be executed
-     * @return Feature Collection Array from SQL query result, null if error occurred. Error is stored in errorBuffer. See {@link SQLite#getErrorBuffer()}.
+     * @return Feature Collection Array from SQL query result, null if error occurred. Error is stored in errorBuffer. See {@link PostgreSQL#getErrorBuffer()}.
      */
     //TODO How is the sql GEOMETRY column handled
     @JsonIgnore
@@ -180,7 +174,7 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from " + queryName);
+                    rs = stmt.executeQuery("SELECT * from " + queryName);
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM " + queryName);
                 }
@@ -205,7 +199,7 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(table)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) FROM " + table);
+                    rs = stmt.executeQuery("SELECT * FROM " + table);
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM " + table);
                 }
@@ -268,16 +262,14 @@ public class SQLite implements DBConnector {
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
 
-                    double xP = -1;
-                    double yP = -1;
 
                     for (int x = 1; x <= md.getColumnCount(); x++) {
-                        if (md.getColumnLabel(x).contains("OGC_FID")) {
+                        if (md.getColumnLabel(x).contains("localid")) {
                             //ID
                             f.setId(rs.getString(x));
                         } else {
                             //Normal Feature
-                            if (!md.getColumnName(x).equals("AsEWKB(GEOMETRY)") && !md.getColumnName(x).equals("GEOMETRY")) {
+                            if (!md.getColumnName(x).contains("geom")) {
                                 String col = md.getColumnName(x);
                                 //Check if there is a config for that table and if it has a column rename
                                 if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
@@ -291,16 +283,16 @@ public class SQLite implements DBConnector {
                             }
                         }
                     }
-                    String geometry = rs.getString("AsEWKB(GEOMETRY)");
+
+                    String geometry = rs.getString("geom");
                     if(geometry != null) {
                         Geometry geom = PGgeometry.geomFromString(geometry);
-                        //Type is Polygon
                         if (geom.getType() == 3) {
                             List<List<Position>> l = new ArrayList<>();
                             ArrayList<Position> li = new ArrayList<>();
 
                             int x = 1;
-                            org.postgis.Point p = geom.getFirstPoint();
+                            Point p = geom.getFirstPoint();
                             do {
 
                                 li.add(new Position(p.getX(), p.getY()));
@@ -310,7 +302,6 @@ public class SQLite implements DBConnector {
                             l.add(li);
                             f.setGeometry(new Polygon(l));
                         }
-                        //Type is Point
                         if (geom.getType() == 1) {
                             f.setGeometry(new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY())));
                         }
@@ -360,6 +351,21 @@ public class SQLite implements DBConnector {
         return name;
     }
 
+    @JsonProperty
+    public String getDatabase() {
+        return database;
+    }
+
+    @JsonProperty
+    public int getPort() {
+        return port;
+    }
+
+    @JsonProperty
+    public String getSchema() {
+        return schema;
+    }
+
     /**
      * Gets all tables from connector
      * @return ArrayList with table names
@@ -368,12 +374,12 @@ public class SQLite implements DBConnector {
     public ArrayList<String> getAllTables(){
         try {
             ArrayList<String> out = new ArrayList<>();
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rs = md.getTables(null, null, "%", null);
+            PreparedStatement stmt = c.prepareStatement("select * from information_schema.tables where table_schema =?");
+            stmt.setString(1,schema);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                String table = rs.getString(3);
-                if(!table.contains("spatial_"))
-                    out.add(rs.getString(3));
+                //String table = rs.getString(3);
+                out.add(rs.getString(3));
             }
             return out;
         }catch (SQLException e){
@@ -389,7 +395,7 @@ public class SQLite implements DBConnector {
     public boolean hasGeometry(String table){
         try {
             Statement stmt = c.createStatement();
-            stmt.executeQuery("SELECT GEOMETRY FROM " + table);
+            stmt.executeQuery("SELECT geom FROM " + table);
             return  true;
         } catch (SQLException e) {
             return false;

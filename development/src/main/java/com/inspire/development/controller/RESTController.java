@@ -4,11 +4,15 @@ import com.inspire.development.collections.Collections;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.core.Core;
+import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
+import mil.nga.sf.geojson.Feature;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @RestController
@@ -18,7 +22,11 @@ public class RESTController {
     public RESTController(){
         core = new Core();
         SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+        c.renameTable("tna_insp_navaids", "Tobias");
+        c.renameFeature("tna_insp_navaids", "metadataproperty", "meta");
+        PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres");
         core.getConnectors().add(c);
+        core.getConnectors().add(p);
         DBConnectorList list = core.parseConfig();
         if(list != null){
             core.setConnectors(list);
@@ -26,9 +34,8 @@ public class RESTController {
     }
 
     @GetMapping("/collections")
-    public Collections test() {
-        //c.checkConnection();
-        return new Collections(Arrays.asList(core.getConnectors().get(0).getAll()));
+    public Collections Collections() {
+        return new Collections(Arrays.asList(core.getAll(false)));
     }
 
     /**
@@ -50,8 +57,8 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public FeatureCollection getCollections(@PathVariable("collectionId") String id) {
-        //TODO: implement the method to return the feature collection with the matching collection ID
-        return core.getConnectors().get(0).get(id);
+        //TODO Remove props
+        return core.get(id, false);
     }
 
     /**
@@ -61,9 +68,8 @@ public class RESTController {
      * @return all of the items of the matching feature collection
      */
     @GetMapping("/collections/{collectionId}/items")
-    public String getCollectionItems(@PathVariable("collectionId") String id) {
-        //TODO: implement the method to return all the intems with the matching collection ID
-        return "Features from the collection: " + id;
+    public FeatureCollection getCollectionItems(@PathVariable("collectionId") String id) {
+        return core.get(id, true);
     }
 
     /**
@@ -74,9 +80,9 @@ public class RESTController {
      * @return a special item (=feature) from a collection
      */
     @GetMapping("/collections/{collectionId}/items/{featureId}")
-    public String getItemFromCollection(@PathVariable("collectionId") String collectionId, @PathVariable("featureId") String featureId) {
+    public Feature getItemFromCollection(@PathVariable("collectionId") String collectionId, @PathVariable("featureId") String featureId) {
         //TODO: implement the method to return a special feature from a special collection
-        return "Collection: " + collectionId + "; Feature: " + featureId;
+        return core.getFeature(collectionId,featureId);
 
     }
 }
