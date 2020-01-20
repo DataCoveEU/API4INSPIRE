@@ -1,0 +1,98 @@
+<app-nav></app-nav>
+<div id="content">
+    <div class="row">    
+        <div class="col-sm-3">
+            <select class="form-control" id="selectField">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <button class="btn btn-danger" id="delDb">Delete DB connector</button>
+            <div id="delDbText"></div>
+        </div>
+    </div>
+    
+    <div class="row card-deck" id="tables">
+        <div class="card">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Tablename</th>
+                    <th scope="col">Config name</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr *ngFor="let tablename of tableNames; let i = index;" (click)="onClickTableName(tablename)" [attr.id]=tablename class="tableRow">
+                    <th scope="row">{{ i+1 }}</th>
+                    <td>{{ tablename }}</td>
+                    <td>{{ tableConfigNames[i] }}</td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+        <div class="card">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Table name</th>
+                    <th scope="col">Config name</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="showCols">
+                    <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
+                      <th scope="row">{{ i+1 }}</th>
+                      <td>{{ colname }}</td>
+                      <td>{{ columnConfigNames[i] }}</td>
+                    </tr>
+                </tbody>
+              </table>
+        </div>
+    </div>
+
+    <div class="row" id="rename">
+      <div class="col-sm-6" *ngIf="showRenameTable">
+        <h5>Rename the table</h5>
+        <form [formGroup]="renameTableForm" (ngSubmit)="submitTable()">
+          <label>
+            <input type="text" formControlName="tableName" class="form-control" placeholder="New table name"/>             
+            <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
+              <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
+          </div>
+          </label>
+          <br />
+          <button type="submit" id="subTableName" class="btn btn-success">Submit</button>
+        </form>
+      </div>
+      <div class="col-sm-6" *ngIf="showRenameCol">
+        <h5>Rename the column</h5>
+        <form [formGroup]="renameColumnForm" (ngSubmit)="submitColumn()">
+            <label>
+              <input type="text" formControlName="columnName" class="form-control" placeholder="New column name" />
+              <div *ngIf="columnNameSubmitted && renameColumnForm.controls.columnName.errors" class="error">
+                <div *ngIf="renameColumnForm.controls.columnName.errors.required">A new column name is required</div>
+            </div>
+            </label>
+            <br />
+            <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+       <!--<input type="text" class="form-control" placeholder="New column name" />
+        <button class="btn btn-success" id="subColName">Submit</button>--> 
+      </div>
+    </div>
+
+    <div class="row" id="sql">
+        <div class="col-sm-12">
+            <h3>Write SQL</h3>
+            <hr />
+            <textarea class="form-control" rows="5" placeholder="Write and execute sql here"></textarea>
+            <button class="btn btn-success" id="executeSQL">Execute</button>
+        </div>
+    </div>
+</div>
