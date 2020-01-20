@@ -16,3 +16,12 @@
         margin-bottom: 0;
     }
 }
+
+a#collections {
+    color: black;
+}
+
+a#collections:hover {
+    color: blue;
+    text-decoration: underline;
+}
