@@ -10,25 +10,24 @@
         <div class="properties" style="width: 100%">
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
-                    <select class="form-control" style="width: 100%;">
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
+                    <select class="form-control shadow-sm" style="width: 100%;" id="connector">
+                        <option id="sqlite">SQLite connector</option>
+                        <option id="postgres">PostgreSQL connector</option>
+                    </select>
                 </div>
                 <div class="col-sm-6">
-                    <button class="btn btn-success" style="width: 100%;">Test connection</button>
+                    <button class="btn btn-success shadow-sm" style="width: 100%;">Test connection</button>
                 </div>
             </div>
             <div class="row" style="width: 100%; margin-top: 1%">
                 <div class="col-sm-6">
-                    <input type="text" class="form-control" placeholder="Connectorname" />
+                    <input type="text" class="form-control shadow-sm" placeholder="Connectorname" />
                 </div>
                 <div class="col-sm-6">
-                    <button class="btn btn-success" style="width: 100%">Submit</button>
+                    <button class="btn btn-success shadow-sm" style="width: 100%">Submit</button>
                 </div>
             </div>
+            <div id="content"></div>
         </div>
     </div>
 </div>
