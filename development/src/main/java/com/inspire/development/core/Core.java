@@ -4,13 +4,19 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inspire.development.collections.FeatureCollection;
+import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.SQLite;
+import mil.nga.sf.geojson.Feature;
 import org.sqlite.core.DB;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Core {
     DBConnectorList connectors;
@@ -58,5 +64,38 @@ public class Core {
 
     public void addConnector(DBConnector d){
         this.connectors.add(d);
+    }
+
+    public FeatureCollection get(String featureCollection, boolean withProps){
+        for(DBConnector db:connectors){
+            FeatureCollection f = db.get(featureCollection, withProps);
+            if(f != null)
+                return f;
+        }
+        return null;
+    }
+
+    public FeatureCollection[] getAll(boolean withProps){
+        String hostname = InetAddress.getLoopbackAddress().getHostName();
+        ArrayList<FeatureCollection> fsl = new ArrayList<>();
+        for(DBConnector db:connectors){
+            FeatureCollection[] fca = db.getAll(false);
+            for(FeatureCollection fc:fca){
+                //Add required links
+                fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
+            }
+            fsl.addAll(Arrays.asList(fca));
+        }
+        return fsl.toArray(new FeatureCollection[fsl.size()]);
+    }
+
+    public Feature getFeature(String collection, String feature){
+        FeatureCollection fs = get(collection, true);
+        for(Object o: fs.getFeatures().toArray()){
+            Feature f = (Feature)o;
+            if(f.getId().equals(feature))
+                return f;
+        }
+        return null;
     }
 }

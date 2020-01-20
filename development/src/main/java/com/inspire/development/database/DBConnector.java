@@ -19,11 +19,11 @@ public interface DBConnector {
 
     public void delete(String fc);
 
-    public FeatureCollection[] execute(String sql);
+    public FeatureCollection[] execute(String sql, String fcName);
 
-    public FeatureCollection get(String collectionName);
+    public FeatureCollection get(String collectionName, boolean withProps);
 
-    public FeatureCollection[] getAll();
+    public FeatureCollection[] getAll(boolean withProps);
 
     public void save(FeatureCollection fc);
 
