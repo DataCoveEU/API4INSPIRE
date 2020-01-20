@@ -5,8 +5,11 @@ This PostGIS docker image is based on the PostGIS image from kartoza (see below)
 
 ## __Ressources__
 
-kartoza/postgis (PostGIS) Image on [Docker Hub](https://hub.docker.com/r/kartoza/postgis/)
+kartoza/postgis (PostGIS) Image on
+[Docker Hub](https://hub.docker.com/r/kartoza/postgis/)
+
 [Dockerfile on GitHub](https://github.com/kartoza/docker-postgis)
+
 [PostGIS Database With Docker](https://alexurquhart.com/post/set-up-postgis-with-docker/)
 
 ### __open issues__ 
@@ -29,7 +32,10 @@ This pgweb docker image is based on the pgweb image from sosedoff (see below)
 
 ## __Ressources__
 
-sosedoff/pgweb Image on [Docker Hub](https://hub.docker.com/r/sosedoff/pgweb)
+sosedoff/pgweb Image on
+
+[Docker Hub](https://hub.docker.com/r/sosedoff/pgweb)
+
 [Dockerfile on GitHub](https://github.com/sosedoff/pgweb)
 
 ### __open issues__ 
