@@ -27,10 +27,10 @@ public class RESTController {
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres");
         core.getConnectors().add(c);
         core.getConnectors().add(p);
-        DBConnectorList list = core.parseConfig();
-        if(list != null){
-            core.setConnectors(list);
-        }
+        //DBConnectorList list = core.parseConfig();
+        //if(list != null){
+          //  core.setConnectors(list);
+        //}
     }
 
     @GetMapping("/collections")
@@ -85,4 +85,6 @@ public class RESTController {
         return core.getFeature(collectionId,featureId);
 
     }
+
+
 }

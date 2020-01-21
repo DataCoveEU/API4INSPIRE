@@ -8,6 +8,8 @@ import mil.nga.sf.geojson.Feature;
 import mil.nga.sf.geojson.Point;
 import mil.nga.sf.geojson.Polygon;
 import mil.nga.sf.geojson.Position;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.postgis.Geometry;
 import org.postgis.PGgeometry;
 import org.springframework.beans.factory.support.ManagedMap;
@@ -33,6 +35,8 @@ public class SQLite implements DBConnector {
     @JsonProperty("SQLString")
     private HashMap<String,String> sqlList; //FCName, SQL
 
+    static Logger log = LogManager.getLogger(SQLite.class.getName());
+
     /**
      * Craete DBConnector for SQLite Database
      *
@@ -45,6 +49,8 @@ public class SQLite implements DBConnector {
         hostname = path;
         config = new HashMap<>();
         sqlList = new HashMap<>();
+
+
 
         Connection connection = null;
         try {
@@ -62,7 +68,9 @@ public class SQLite implements DBConnector {
             Statement stat = c.createStatement();
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
+            log.debug("Created SQL Connector with path: " + hostname);
         } catch (SQLException e) {
+            log.error(e.getMessage());
             errorBuffer.add(e.getMessage());
         }
 
@@ -180,7 +188,7 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from " + queryName);
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY), AsEWKB(Extent(GEOMETRY)) from " + queryName);
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM " + queryName);
                 }
@@ -205,7 +213,7 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(table)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) FROM " + table);
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY), AsEWKB(Extent(GEOMETRY)) FROM " + table);
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM " + table);
                 }
@@ -292,29 +300,18 @@ public class SQLite implements DBConnector {
                         }
                     }
                     String geometry = rs.getString("AsEWKB(GEOMETRY)");
-                    if(geometry != null) {
-                        Geometry geom = PGgeometry.geomFromString(geometry);
-                        //Type is Polygon
-                        if (geom.getType() == 3) {
-                            List<List<Position>> l = new ArrayList<>();
-                            ArrayList<Position> li = new ArrayList<>();
-
-                            int x = 1;
-                            org.postgis.Point p = geom.getFirstPoint();
-                            do {
-
-                                li.add(new Position(p.getX(), p.getY()));
-                                p = geom.getPoint(x);
-                                x++;
-                            } while ((!p.equals(geom.getLastPoint())));
-                            l.add(li);
-                            f.setGeometry(new Polygon(l));
-                        }
-                        //Type is Point
-                        if (geom.getType() == 1) {
-                            f.setGeometry(new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY())));
-                        }
+                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
+                    if(geo != null){
+                        f.setGeometry(geo);
                     }
+                    String boundingBox = rs.getString("AsEWKB(Extent(GEOMETRY))");
+                    double[] bb = EWKStoBB(boundingBox);
+                    if(bb != null){
+                        f.setBbox(bb);
+                    }
+
+
+
                     f.setProperties(prop);
                     fs.addFeature(f);
                 }
@@ -411,5 +408,73 @@ public class SQLite implements DBConnector {
             }
         }
         return null;
+    }
+
+    public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
+        try {
+            if (ewkb != null) {
+                Geometry geom = PGgeometry.geomFromString(ewkb);
+                //Type is Polygon
+                if (geom.getType() == 3) {
+                    List<List<Position>> l = new ArrayList<>();
+                    ArrayList<Position> li = new ArrayList<>();
+
+                    int x = 1;
+                    org.postgis.Point p = geom.getFirstPoint();
+                    do {
+
+                        li.add(new Position(p.getX(), p.getY()));
+                        p = geom.getPoint(x);
+                        x++;
+                    } while ((!p.equals(geom.getLastPoint())));
+                    l.add(li);
+                    return new Polygon(l);
+                }
+                //Type is Point
+                if (geom.getType() == 1) {
+                    return new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
+                }
+                return null;
+            }else{
+                return null;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public double[] EWKStoBB(String ewkb) {
+        try {
+            if (ewkb != null) {
+                Geometry geom = PGgeometry.geomFromString(ewkb);
+                //Type is Polygon
+                ArrayList<Double> li = new ArrayList<>();
+
+                int x = 1;
+                org.postgis.Point p = geom.getFirstPoint();
+                do {
+
+                    li.add(p.getX());
+                    li.add(p.getY());
+
+                    p = geom.getPoint(x);
+                    x++;
+                } while ((!p.equals(geom.getLastPoint())));
+
+                //Convert Double[] to double()
+                double[] target = new double[li.size()];
+                for (int i = 0; i < target.length; i++) {
+                    target[i] = li.get(i);
+                }
+                return target;
+            }else{
+                return null;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }

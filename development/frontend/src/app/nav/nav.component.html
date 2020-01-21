@@ -27,10 +27,10 @@
         </li>
       </ul>
       <ul class="navbar-nav">
-          <li [ngClass]="{'activeRoute': this.isLogin}" class="nav-item">
+          <li [ngClass]="{'activeRoute': this.isLogin}" class="nav-item" *ngIf="!this.auth.loggedIn()">
             <a class="nav-link active" routerLink="/login">Login</a>
           </li>  
-          <li *ngIf="false" class="nav-item">
+          <li *ngIf="this.auth.loggedIn()" class="nav-item">
             <a class="nav-link active">Logout</a>
           </li>
       </ul>

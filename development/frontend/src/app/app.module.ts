@@ -10,6 +10,11 @@ import { ErrorComponent } from './error/error.component';
 import { NavComponent } from './nav/nav.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PropertiesComponent } from './properties/properties.component';
+import { JwtModule } from '@auth0/angular-jwt';
+import { AuthService } from './auth.service';
+import { HttpClientModule } from '@angular/common/http';
+
+export function tokenGetter(){return localStorage.getItem('access_token')}
 
 @NgModule({
   declarations: [
@@ -25,9 +30,17 @@ import { PropertiesComponent } from './properties/properties.component';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule,
+    JwtModule.forRoot({
+      config:{
+        tokenGetter:  tokenGetter, 
+        whitelistedDomains: ['*'],
+        blacklistedRoutes: ['/']
+      }
+    })
   ],
-  providers: [],
+  providers: [AuthService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

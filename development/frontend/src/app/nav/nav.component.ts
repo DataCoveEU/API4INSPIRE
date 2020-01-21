@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-nav',
@@ -13,7 +14,9 @@ export class NavComponent implements OnInit {
   isProperties: boolean = false;
   isLogin: boolean = false;
 
-  constructor(private router:Router) { }
+  isLoggedIn:boolean = false;
+
+  constructor(private router:Router, public auth: AuthService) { }
 
   ngOnInit() {
     var url = this.router.url;
