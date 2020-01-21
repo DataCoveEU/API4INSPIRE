@@ -6,23 +6,24 @@
     </div>
  </div>
  <div class="main">
-    <div class="col-md-6 col-sm-12">
+    <div class="col-md-6 col-sm-12" style="width: 100%">
        <div class="login-form">
           <form [formGroup]="loginForm" (ngSubmit)="login()">
-             <label>
-                <input type="text" formControlName="uname" class="form-control" placeholder="Username" />
+             <label style="width: 100%">
+                <input style="width: 100%" type="text" formControlName="uname" class="form-control" placeholder="Username" />
                 <div *ngIf="submitted && loginForm.controls.uname.errors" class="error">
                    <div *ngIf="loginForm.controls.uname.errors.required">Your username is required</div>
                 </div>
              </label>
-             <label>
-                <input type="password" formControlName="pwd" class="form-control" placeholder="Password" />
+             <br />
+             <label style="width: 100%">
+                <input style="width: 100%" type="password" formControlName="pwd" class="form-control" placeholder="Password" />
                 <div *ngIf="submitted && loginForm.controls.pwd.errors" class="error">
                   <div *ngIf="loginForm.controls.pwd.errors.required">Your Password is required</div>
               </div>
              </label>
              <br />
-             <button type="submit" class="btn btn-success" id="check">Login</button>
+             <button type="submit" class="btn btn-success" id="check" style="width: 50%">Login</button>
           </form>
        </div>
     </div>
