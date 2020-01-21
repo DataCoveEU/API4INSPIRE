@@ -14,6 +14,9 @@ import { JwtModule } from '@auth0/angular-jwt';
 import { AuthService } from './auth.service';
 import { HttpClientModule } from '@angular/common/http';
 
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { JwtInterceptor } from './jwt.interceptor';
+
 export function tokenGetter(){return localStorage.getItem('access_token')}
 
 @NgModule({
@@ -40,7 +43,12 @@ export function tokenGetter(){return localStorage.getItem('access_token')}
       }
     })
   ],
-  providers: [AuthService],
+  providers: [AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true
+    }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
