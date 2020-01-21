@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class PATHController implements ErrorController {
 
-    @RequestMapping(value = "/error", method = RequestMethod.GET)
+    @RequestMapping(value = "/error")
     public String handleError() {
         return "/";
     }
