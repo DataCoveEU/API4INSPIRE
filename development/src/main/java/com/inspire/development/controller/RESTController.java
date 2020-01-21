@@ -6,10 +6,9 @@ import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.core.Core;
 import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
+import com.sun.jdi.connect.Connector;
 import mil.nga.sf.geojson.Feature;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -84,6 +83,11 @@ public class RESTController {
         //TODO: implement the method to return a special feature from a special collection
         return core.getFeature(collectionId,featureId);
 
+    }
+
+    @RequestMapping(value = "/api/getConnectors", method = RequestMethod.POST)
+    public DBConnectorList getConnectors(){
+        return core.getConnectors();
     }
 
 
