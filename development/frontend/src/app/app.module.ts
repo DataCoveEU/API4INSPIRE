@@ -10,6 +10,8 @@ import { ErrorComponent } from './error/error.component';
 import { NavComponent } from './nav/nav.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PropertiesComponent } from './properties/properties.component';
+import { AddConnectorComponent } from './add-connector/add-connector.component';
+import { ImprintComponent } from './imprint/imprint.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { PropertiesComponent } from './properties/properties.component';
     ErrorComponent,
     NavComponent,
     DashboardComponent,
-    PropertiesComponent
+    PropertiesComponent,
+    AddConnectorComponent,
+    ImprintComponent
   ],
   imports: [
     BrowserModule,

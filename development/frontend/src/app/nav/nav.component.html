@@ -20,13 +20,16 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a [ngClass]="{'activeRoute': this.isDashboard}" class="dropdown-item" routerLink="/dashboard">Dashboard</a>
             <a [ngClass]="{'activeRoute': this.isProperties}" class="dropdown-item" routerLink="/properties">DB properties</a>
-            <a class="dropdown-item" href="#">Add connector</a>
-           <!-- <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Something else here</a> -->
+            <a class="dropdown-item" routerLink="/connector">Add connector</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">User management</a>
           </div>
         </li>
       </ul>
       <ul class="navbar-nav">
+          <li id="imp" class="nav-item">
+            <a class="nav-link active" routerLink="imprint">Imprint</a>
+          </li>
           <li [ngClass]="{'activeRoute': this.isLogin}" class="nav-item">
             <a class="nav-link active" routerLink="/login">Login</a>
           </li>  

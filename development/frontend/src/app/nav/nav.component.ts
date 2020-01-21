@@ -26,6 +26,9 @@ export class NavComponent implements OnInit {
       this.isProperties = true;
     } else if (url == "/login") {
       this.isLogin = true;
+    } else if(url == "/imprint") {
+      var imp = document.getElementById("imp");
+      imp.style.fontWeight = "bold";
     }
     
   }
