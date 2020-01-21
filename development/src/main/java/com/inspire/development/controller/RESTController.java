@@ -6,13 +6,13 @@ import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.core.Core;
 import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
-import com.sun.jdi.connect.Connector;
 import mil.nga.sf.geojson.Feature;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 @RestController
 public class RESTController {
@@ -34,7 +34,9 @@ public class RESTController {
 
     @GetMapping("/collections")
     public Collections Collections() {
-        return new Collections(Arrays.asList(core.getAll(false)));
+        Collections c = new Collections(Arrays.asList(core.getAll(false)));
+        c.setBB(new ArrayList<>());
+        return c;
     }
 
     /**
@@ -90,5 +92,60 @@ public class RESTController {
         return core.getConnectors();
     }
 
+    /**
+     * Adds a new Database Connector
+     * @param input see APIDoc
+     * @return false if error occurred else false
+     */
+    @RequestMapping(value = "/api/addConnector", method = RequestMethod.POST)
+    public boolean addConnector(@RequestBody Map<String, ?> input){
+        try {
+            String classe = (String) input.get("class");
+            if (classe.equals("postgres")) {
+                String database = (String) input.get("database");
+                String schema = (String) input.get("schema");
+                String hostname = (String) input.get("hostname");
+                int port = Integer.parseInt((String) input.get("port"));
+                String id = (String) input.get("id");
+                core.addConnector(new PostgreSQL(hostname, port, database, schema, id));
+            }
+            if (classe.equals("sqlite")) {
+                String path = (String) input.get("path");
+                String id = (String) input.get("id");
+                core.addConnector(new SQLite(path, id));
+            }
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    /**
+     * change Connector Properties
+     * @param input See APIDoc
+     * @return
+     */
+    @RequestMapping(value = "/api/setConnectorProps", method = RequestMethod.POST)
+    public boolean changeConnectorProperties(@RequestBody Map<String, ?> input){
+        try {
+            String classe = (String) input.get("class");
+            if (classe.equals("postgres")) {
+                String database = (String) input.get("database");
+                String schema = (String) input.get("schema");
+                String hostname = (String) input.get("hostname");
+                int port = Integer.parseInt((String) input.get("port"));
+                String id = (String) input.get("id");
+                core.addConnector(new PostgreSQL(hostname, port, database, schema, id));
+            }
+            if (classe.equals("sqlite")) {
+                String path = (String) input.get("path");
+                String id = (String) input.get("id");
+                core.addConnector(new SQLite(path, id));
+            }
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
 
 }
