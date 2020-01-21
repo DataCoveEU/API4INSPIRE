@@ -6,10 +6,9 @@ import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.core.Core;
 import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
+import com.sun.jdi.connect.Connector;
 import mil.nga.sf.geojson.Feature;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -27,10 +26,10 @@ public class RESTController {
        // PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres");
         core.getConnectors().add(c);
         //core.getConnectors().add(p);
-        DBConnectorList list = core.parseConfig();
-        if(list != null){
-            core.setConnectors(list);
-        }
+        //DBConnectorList list = core.parseConfig();
+        //if(list != null){
+          //  core.setConnectors(list);
+        //}
     }
 
     @GetMapping("/collections")
@@ -85,4 +84,11 @@ public class RESTController {
         return core.getFeature(collectionId,featureId);
 
     }
+
+    @RequestMapping(value = "/api/getConnectors", method = RequestMethod.POST)
+    public DBConnectorList getConnectors(){
+        return core.getConnectors();
+    }
+
+
 }

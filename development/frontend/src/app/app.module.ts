@@ -12,6 +12,14 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { PropertiesComponent } from './properties/properties.component';
 import { AddConnectorComponent } from './add-connector/add-connector.component';
 import { ImprintComponent } from './imprint/imprint.component';
+import { JwtModule } from '@auth0/angular-jwt';
+import { AuthService } from './auth.service';
+import { HttpClientModule } from '@angular/common/http';
+
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { JwtInterceptor } from './jwt.interceptor';
+
+export function tokenGetter(){return localStorage.getItem('access_token')}
 
 @NgModule({
   declarations: [
@@ -29,9 +37,22 @@ import { ImprintComponent } from './imprint/imprint.component';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule,
+    JwtModule.forRoot({
+      config:{
+        tokenGetter:  tokenGetter, 
+        whitelistedDomains: ['*'],
+        blacklistedRoutes: ['/']
+      }
+    })
   ],
-  providers: [],
+  providers: [AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true
+    }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
