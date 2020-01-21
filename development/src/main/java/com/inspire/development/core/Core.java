@@ -66,9 +66,9 @@ public class Core {
         this.connectors.add(d);
     }
 
-    public FeatureCollection get(String featureCollection, boolean withProps){
+    public FeatureCollection get(String featureCollection, boolean withProps, boolean withSpatial){
         for(DBConnector db:connectors){
-            FeatureCollection f = db.get(featureCollection, withProps);
+            FeatureCollection f = db.get(featureCollection, withProps, withSpatial);
             if(f != null)
                 return f;
         }
@@ -83,6 +83,7 @@ public class Core {
             for(FeatureCollection fc:fca){
                 //Add required links
                 fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
+                fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "alternate", "text/html", "this document as html"));
             }
             fsl.addAll(Arrays.asList(fca));
         }
@@ -90,7 +91,7 @@ public class Core {
     }
 
     public Feature getFeature(String collection, String feature){
-        FeatureCollection fs = get(collection, true);
+        FeatureCollection fs = get(collection, true, false);
         for(Object o: fs.getFeatures().toArray()){
             Feature f = (Feature)o;
             if(f.getId().equals(feature))

@@ -23,9 +23,9 @@ public class RESTController {
         SQLite c = new SQLite("inspireDB.sqlite","Inspire");
         c.renameTable("tna_insp_navaids", "Tobias");
         c.renameFeature("tna_insp_navaids", "metadataproperty", "meta");
-       // PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres");
+        PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres");
         core.getConnectors().add(c);
-        //core.getConnectors().add(p);
+        core.getConnectors().add(p);
         //DBConnectorList list = core.parseConfig();
         //if(list != null){
           //  core.setConnectors(list);
@@ -56,7 +56,7 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public FeatureCollection getCollections(@PathVariable("collectionId") String id) {
-        return core.get(id, false);
+        return core.get(id, false, true);
     }
 
     /**
@@ -67,7 +67,7 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}/items")
     public FeatureCollection getCollectionItems(@PathVariable("collectionId") String id) {
-        return core.get(id, true);
+        return core.get(id, true, false);
     }
 
     /**
