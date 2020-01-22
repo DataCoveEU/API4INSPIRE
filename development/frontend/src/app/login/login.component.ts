@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -14,7 +16,7 @@ export class LoginComponent implements OnInit {
   submitted: boolean = false;
   success: boolean = false;
 
-  constructor(private formBuilder: FormBuilder) { }
+  constructor(private formBuilder: FormBuilder,public authservice: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
@@ -25,6 +27,7 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.submitted = true;
+    this.authservice.login(this.loginForm.value.uname,this.loginForm.value.pwd);
   }
 
 }

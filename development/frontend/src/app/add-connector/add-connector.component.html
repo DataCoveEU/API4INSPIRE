@@ -1,0 +1,45 @@
+<app-nav></app-nav>
+<div class="sidenav">
+    <div class="properties-main-text">
+       <h1>Add connector</h1>
+       <p>Add a DB connector</p>
+    </div>
+</div>
+<div class="main">
+    <div class="col-sm-6 col-sm-12">
+        <div class="properties" style="width: 100%">
+            <div class="row" style="width: 100%;">
+                <div class="col-sm-6">
+                    <select class="form-control shadow-sm" style="width: 100%;" id="connector">
+                        <option id="sqlite">SQLite connector</option>
+                        <option id="postgres">PostgreSQL connector</option>
+                    </select>
+                </div>
+            </div>
+            <div [ngClass]="{'isSQLite': this.isSQLite}" id="content">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" placeholder="Connector name"/> 
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" placeholder="Path"/> 
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-success" style="width: 100%">Test connection</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-success" style="width: 100%">Add connector</button>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>

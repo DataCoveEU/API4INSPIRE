@@ -8,13 +8,15 @@ import mil.nga.sf.geojson.Feature;
 import mil.nga.sf.geojson.Point;
 import mil.nga.sf.geojson.Polygon;
 import mil.nga.sf.geojson.Position;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.postgis.Geometry;
 import org.postgis.PGgeometry;
-import org.springframework.beans.factory.support.ManagedMap;
-import org.sqlite.SQLiteConfig;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 /**
  * DBConnector for a SQLite database
@@ -26,12 +28,12 @@ public class SQLite implements DBConnector {
     @JsonProperty("path")
     private String hostname;
     private Connection c;
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("id")
+    private String id;
     @JsonProperty("config")
     private HashMap<String,TableConfig> config;
-    @JsonProperty("SQLString")
-    private HashMap<String,String> sqlList; //FCName, SQL
+
+    static Logger log = LogManager.getLogger(SQLite.class.getName());
 
     /**
      * Craete DBConnector for SQLite Database
@@ -39,12 +41,11 @@ public class SQLite implements DBConnector {
      * @param path Path to the SQLite File
      * @return true if it worked false if error occurred. Error is stored in errorBuffer. See {@link SQLite#getErrorBuffer()}.
      */
-    public SQLite(String path, String name) {
-        this.name = name;
+    public SQLite(String path, String id) {
+        this.id = id;
         errorBuffer = new ArrayList<>();
         hostname = path;
         config = new HashMap<>();
-        sqlList = new HashMap<>();
 
         Connection connection = null;
         try {
@@ -62,17 +63,18 @@ public class SQLite implements DBConnector {
             Statement stat = c.createStatement();
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
+            log.debug("Created SQL Connector with path: " + hostname);
         } catch (SQLException e) {
+            log.error(e.getMessage());
             errorBuffer.add(e.getMessage());
         }
 
     }
 
     @JsonCreator
-    public SQLite(@JsonProperty("path")String path, @JsonProperty("name")String name, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("SQLString") HashMap<String,String> sql) {
+    public SQLite(@JsonProperty("path")String path, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config) {
         this.config = config;
-        this.name = name;
-        this.sqlList = sql;
+        this.id = id;
         errorBuffer = new ArrayList<>();
         hostname = path;
 
@@ -130,28 +132,16 @@ public class SQLite implements DBConnector {
      * Executes given SQL String
      *
      * @param sql SQL String to be executed
-     * @return Feature Collection Array from SQL query result, null if error occurred. Error is stored in errorBuffer. See {@link SQLite#getErrorBuffer()}.
+     * @param featureCollectionName
+     * @return Feature Collection from SQL query result, null if error occurred. Error is stored in errorBuffer. See {@link PostgreSQL#getErrorBuffer()}.
      */
-    //TODO How is the sql GEOMETRY column handled
     @JsonIgnore
     @Override
-    public FeatureCollection[] execute(String sql, String fcn) {
-        ArrayList<FeatureCollection> fs = new ArrayList<>();
+    public FeatureCollection execute(String sql, String featureCollectionName) {
         try {
             Statement stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            sqlList.put(fcn,sql);
-            if(rs.getMetaData().getColumnCount() >= 1) {
-                String name = rs.getMetaData().getTableName(1);
-                while (rs.next()) {
-                    resultSetToFeatureCollection(rs, name, name, true);
-                }
-
-                return fs.toArray(new FeatureCollection[fs.size()]);
-            }else{
-                errorBuffer.add("SQL has to contain at least 1 output");
-                return null;
-            }
+            stmt.executeQuery("CREATE VIEW " + featureCollectionName + " as " + sql);
+            return this.get(featureCollectionName,true,false);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
             return null;
@@ -165,13 +155,8 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection get(String collectionName, boolean withProps) {
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial) {
         try {
-        if(sqlList.containsKey(collectionName)){
-                Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery(sqlList.get(collectionName));
-                return resultSetToFeatureCollection(rs, collectionName, collectionName, withProps);
-        }else {
 
                 String queryName = getNameByAlias(collectionName);
                 if (queryName == null) {
@@ -180,12 +165,11 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from " + queryName);
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from [" + queryName + "?]");
                 }else{
-                    rs = stmt.executeQuery("SELECT * FROM " + queryName);
+                    rs = stmt.executeQuery("SELECT * FROM [" + queryName + "?]");
                 }
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps);
-        }
+                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial);
         } catch (SQLException e) {
                 return null;
             }
@@ -200,27 +184,28 @@ public class SQLite implements DBConnector {
     @Override
     public FeatureCollection[] getAll(boolean withProps) {
         ArrayList<FeatureCollection> fc = new ArrayList<>();
-        try {
-            for (String table : getAllTables()) {
+        for (String table : getAllTables()) {
+            try {
+
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
-                if(hasGeometry(table)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) FROM " + table);
-                }else{
-                    rs = stmt.executeQuery("SELECT * FROM " + table);
+                if (hasGeometry(table)) {
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) FROM [" + table + "]");
+                } else {
+                    rs = stmt.executeQuery("SELECT * FROM [" + table + "]");
                 }
                 String alias = table;
-                if(config.containsKey(table)){
+                if (config.containsKey(table)) {
                     alias = config.get(table).getAlias();
                 }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table,alias, withProps);
-                fc.add(fs);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true);
+                if (fs != null)
+                    fc.add(fs);
+            } catch (SQLException e) {
+
             }
-            return fc.toArray(new FeatureCollection[fc.size()]);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
         }
+        return fc.toArray(new FeatureCollection[fc.size()]);
     }
 
     /**
@@ -259,7 +244,7 @@ public class SQLite implements DBConnector {
      * @param table Table name of query
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
@@ -267,10 +252,6 @@ public class SQLite implements DBConnector {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
-
-                    double xP = -1;
-                    double yP = -1;
-
                     for (int x = 1; x <= md.getColumnCount(); x++) {
                         if (md.getColumnLabel(x).contains("OGC_FID")) {
                             //ID
@@ -284,43 +265,37 @@ public class SQLite implements DBConnector {
                                     col = config.get(table).getMap().get(col);
                                 }
                                 Object o = rs.getObject(x);
-                                /*if(o == null){
-                                       errorBuffer.add("Propertie null at: " + table + ", Id: " + f.getId());
-                                   }*/
                                 prop.put(col, o);
                             }
                         }
                     }
-                    String geometry = rs.getString("AsEWKB(GEOMETRY)");
-                    if(geometry != null) {
-                        Geometry geom = PGgeometry.geomFromString(geometry);
-                        //Type is Polygon
-                        if (geom.getType() == 3) {
-                            List<List<Position>> l = new ArrayList<>();
-                            ArrayList<Position> li = new ArrayList<>();
-
-                            int x = 1;
-                            org.postgis.Point p = geom.getFirstPoint();
-                            do {
-
-                                li.add(new Position(p.getX(), p.getY()));
-                                p = geom.getPoint(x);
-                                x++;
-                            } while ((!p.equals(geom.getLastPoint())));
-                            l.add(li);
-                            f.setGeometry(new Polygon(l));
-                        }
-                        //Type is Point
-                        if (geom.getType() == 1) {
-                            f.setGeometry(new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY())));
+                    if (hasGeometry(table)) {
+                        String geometry = rs.getString("AsEWKB(GEOMETRY)");
+                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
+                        if (geo != null) {
+                            f.setGeometry(geo);
+                            f.setBbox(geo.getBbox());
                         }
                     }
                     f.setProperties(prop);
                     fs.addFeature(f);
                 }
             }
+            if(hasGeometry(table)) {
+                Statement stmt = c.createStatement();
+                ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(GEOMETRY)) as table_extent FROM [" + table + "]");
+                if (resultSet.next()) {
+                    mil.nga.sf.geojson.Geometry g = EWKBtoGeo(resultSet.getString(1));
+                    if(g != null) {
+                        double[] array = g.getBbox();
+                        if (array != null && withSpatial)
+                            fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
+                    }
+                }
+            }
             return fs;
         } catch (SQLException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -356,8 +331,8 @@ public class SQLite implements DBConnector {
     }
 
     @JsonProperty
-    public String getName(){
-        return name;
+    public String getId(){
+        return id;
     }
 
     /**
@@ -373,7 +348,11 @@ public class SQLite implements DBConnector {
             while (rs.next()) {
                 String table = rs.getString(3);
                 if(!table.contains("spatial_"))
-                    out.add(rs.getString(3));
+                    out.add(table);
+            }
+            rs = md.getTables(null, null, null, new String[]{"VIEW"});
+            while (rs.next()) {
+                 out.add(rs.getString("TABLE_NAME"));
             }
             return out;
         }catch (SQLException e){
@@ -388,9 +367,9 @@ public class SQLite implements DBConnector {
      */
     public boolean hasGeometry(String table){
         try {
-            Statement stmt = c.createStatement();
-            stmt.executeQuery("SELECT GEOMETRY FROM " + table);
-            return  true;
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rs = md.getColumns(null, null, table, "GEOMETRY");
+            return rs.next();
         } catch (SQLException e) {
             return false;
         }
@@ -412,4 +391,81 @@ public class SQLite implements DBConnector {
         }
         return null;
     }
+
+    public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
+        try {
+            if (ewkb != null) {
+                double xmin = Integer.MAX_VALUE;
+                double xmax = Integer.MIN_VALUE;
+                double ymin = Integer.MAX_VALUE;
+                double ymax = Integer.MIN_VALUE;
+
+                Geometry geom = PGgeometry.geomFromString(ewkb);
+                //Type is Polygon
+                if (geom.getType() == 3) {
+                    List<List<Position>> l = new ArrayList<>();
+                    ArrayList<Position> li = new ArrayList<>();
+
+                    int x = 1;
+                    org.postgis.Point p = geom.getFirstPoint();
+                    do {
+                        if(p.getX() > xmax)
+                            xmax = p.getX();
+
+                        if(p.getX() < xmin)
+                            xmin = p.getX();
+
+                        if(p.getY() > ymax)
+                            ymax = p.getY();
+
+                        if(p.getY() < ymin)
+                            ymin = p.getY();
+
+                        li.add(new Position(p.getX(), p.getY()));
+                        p = geom.getPoint(x);
+                        x++;
+                    } while ((!p.equals(geom.getLastPoint())));
+                    l.add(li);
+                    Polygon p1 = new Polygon(l);
+                    p1.setBbox(new double[]{xmin,xmax,ymin,ymax});
+                    return p1;
+                }
+                //Type is Point
+                if (geom.getType() == 1) {
+                    double x = geom.getFirstPoint().getX();
+                    double y = geom.getFirstPoint().getY();
+                    Point p = new mil.nga.sf.geojson.Point(new Position(x,y));
+                    p.setBbox(new double[]{x,x,y,y});
+                    return p;
+                }
+                return null;
+            }else{
+                return null;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public void setPath(String path){
+        this.hostname = path;
+    }
+
+    public ArrayList<String> getColumns(String table){
+        ArrayList<String> result = new ArrayList<>();
+        try {
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rset = md.getColumns(null, null, table, null);
+
+            while (rset.next()) {
+                result.add(rset.getString(4));
+            }
+        }catch (SQLException e){
+
+        }
+        return result;
+    }
+
 }

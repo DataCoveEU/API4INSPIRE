@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-nav',
@@ -13,7 +14,9 @@ export class NavComponent implements OnInit {
   isProperties: boolean = false;
   isLogin: boolean = false;
 
-  constructor(private router:Router) { }
+  isLoggedIn:boolean = false;
+
+  constructor(private router:Router, private auth: AuthService) { }
 
   ngOnInit() {
     var url = this.router.url;
@@ -26,8 +29,16 @@ export class NavComponent implements OnInit {
       this.isProperties = true;
     } else if (url == "/login") {
       this.isLogin = true;
+    } else if(url == "/imprint") {
+      var imp = document.getElementById("imp");
+      imp.style.fontWeight = "bold";
     }
     
+  }
+
+
+  logout() {
+    this.auth.logout();
   }
 
 }
