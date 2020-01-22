@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  title: Admin
+  version: '1.0'
+  contact:
+    name: Tobias Pressler
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /api/addConnector:
+    post:
+      summary: AddConnector
+      operationId: post-api-addConnector
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request. A Body parameter is missing '
+      description: Adds a new Database Connector to the Core. The Connector will be added to the config and therefor stored even after a restart.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                class:
+                  type: string
+                  description: The type of the added Connector
+                  enum:
+                    - sqlite
+                    - postgres
+                id:
+                  type: string
+                  description: Id of the added Connector. Must be identical
+                database:
+                  type: string
+                  description: Database name. Only necessary for PostgreSQL
+                schema:
+                  type: string
+                  description: Schema name of database. Only necessary for PostgreSQL
+                hostname:
+                  type: string
+                  description: hostname (IP Adress) of Database. Only necessary for PostgreSQL
+                path:
+                  description: SQLite File. Only necessary for SQLite
+                  type: object
+                port:
+                  type: integer
+                  description: Port of the DB. Only necessary for PostgreSQL
+              required:
+                - class
+            examples:
+              SQLite:
+                value:
+                  path: inspireDB.sqlite
+                  id: InspireDB
+        description: Properties of Connector
+      parameters: []
+      security:
+        - Authentication Header: []
+  /api/getConnectors:
+    get:
+      summary: GetConnectors
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-api-getConnector
+      description: Get all Connectors.
+      security:
+        - Authentication Header: []
+    parameters: []
+  /api/getTables:
+    get:
+      summary: GetTables
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request. Parameter Error
+      operationId: get-api-getTables
+      security:
+        - Authentication Header: []
+      description: 'Get all Tables from Database Connector. Not Alias!'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The id of the Database Connector
+        description: Database Connector Id
+  /api/GetColumns:
+    get:
+      summary: getColumns
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request. Parameter Error
+      operationId: get-api-GetColumns
+      description: 'Get all Columns from Table. Not Alias!'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Id of Database Connector
+                table:
+                  type: string
+                  description: Table name
+components:
+  schemas: {}
+  securitySchemes:
+    Authentication Header:
+      type: http
+      scheme: Bearer
