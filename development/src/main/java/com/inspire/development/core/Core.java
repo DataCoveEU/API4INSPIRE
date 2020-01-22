@@ -82,7 +82,7 @@ public class Core {
             FeatureCollection[] fca = db.getAll(false);
             for(FeatureCollection fc:fca){
                 //Add required links
-                fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
+                //fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
             }
             fsl.addAll(Arrays.asList(fca));
         }

@@ -34,8 +34,7 @@ public class RESTController {
 
     @GetMapping("/collections")
     public Collections Collections() {
-        Collections c = new Collections(Arrays.asList(core.getAll(false)));
-        return c;
+        return new Collections(Arrays.asList(core.getAll(false)));
     }
 
     /**
@@ -57,7 +56,6 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public FeatureCollection getCollections(@PathVariable("collectionId") String id) {
-        //TODO Remove props
         return core.get(id, false);
     }
 

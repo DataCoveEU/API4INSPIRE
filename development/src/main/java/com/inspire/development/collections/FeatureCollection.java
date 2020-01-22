@@ -1,13 +1,16 @@
 package com.inspire.development.collections;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
     private String id;
     private ArrayList<Link> links;
-    HashMap<String,HashMap<String, ArrayList<ArrayList<Double>>>> extent = new HashMap<>();
+    HashMap<String,HashMap<String, ArrayList<List<Double>>>> extent = new HashMap<>();
 
     public FeatureCollection(String id){
         this.id = id;
@@ -22,13 +25,14 @@ public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
         return links;
     }
 
-    public HashMap<String, HashMap<String, ArrayList<ArrayList<Double>>>> getExtent() {
+    @JsonProperty
+    public HashMap<String, HashMap<String, ArrayList<List<Double>>>> getExtent() {
         return extent;
     }
 
-    public void setBB(ArrayList<Double> bb){
-        HashMap<String, ArrayList<ArrayList<Double>>> m = new HashMap<>();
-        ArrayList<ArrayList<Double>> a = new ArrayList<>(Arrays.asList(bb));
+    public void setBB(List<Double> bb){
+        HashMap<String, ArrayList<List<Double>>> m = new HashMap<>();
+        ArrayList<List<Double>> a = new ArrayList<>(Arrays.asList(bb));
         m.put("bbox", a);
         extent.put("spatial", m);
     }

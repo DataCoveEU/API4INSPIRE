@@ -188,7 +188,7 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY), AsEWKB(Extent(GEOMETRY)) from " + queryName);
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from " + queryName);
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM " + queryName);
                 }
@@ -213,7 +213,7 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(table)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY), AsEWKB(Extent(GEOMETRY)) FROM " + table);
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) FROM " + table);
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM " + table);
                 }
@@ -269,15 +269,18 @@ public class SQLite implements DBConnector {
      */
     private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps) {
         try {
+            double xmin = Integer.MAX_VALUE;
+            double xmax = Integer.MIN_VALUE;
+            double ymin = Integer.MAX_VALUE;
+            double ymax = Integer.MIN_VALUE;
             FeatureCollection fs = new FeatureCollection(alias);
-            if(withProps) {
+
                 while (rs.next()) {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
 
-                    double xP = -1;
-                    double yP = -1;
+
 
                     for (int x = 1; x <= md.getColumnCount(); x++) {
                         if (md.getColumnLabel(x).contains("OGC_FID")) {
@@ -303,19 +306,27 @@ public class SQLite implements DBConnector {
                     mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
                     if(geo != null){
                         f.setGeometry(geo);
+                        f.setBbox(geo.getBbox());
+                        if(f.getBbox() != null && f.getBbox().length == 4) {
+                            if (f.getBbox()[0] > xmax)
+                                xmax = f.getBbox()[0];
+
+                            if (f.getBbox()[1] < xmin)
+                                xmin = f.getBbox()[1];
+
+                            if (f.getBbox()[2] > ymax)
+                                ymax = f.getBbox()[2];
+
+                            if (f.getBbox()[3] < ymin)
+                                ymin = f.getBbox()[3];
+                        }
                     }
-                    String boundingBox = rs.getString("AsEWKB(Extent(GEOMETRY))");
-                    double[] bb = EWKStoBB(boundingBox);
-                    if(bb != null){
-                        f.setBbox(bb);
+                    if(withProps) {
+                        f.setProperties(prop);
+                        fs.addFeature(f);
                     }
-
-
-
-                    f.setProperties(prop);
-                    fs.addFeature(f);
                 }
-            }
+            fs.setBB(Arrays.asList(new Double[]{xmin,xmax,ymin,ymax}));
             return fs;
         } catch (SQLException e) {
             return null;
@@ -413,6 +424,11 @@ public class SQLite implements DBConnector {
     public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
         try {
             if (ewkb != null) {
+                double xmin = Integer.MAX_VALUE;
+                double xmax = Integer.MIN_VALUE;
+                double ymin = Integer.MAX_VALUE;
+                double ymax = Integer.MIN_VALUE;
+
                 Geometry geom = PGgeometry.geomFromString(ewkb);
                 //Type is Polygon
                 if (geom.getType() == 3) {
@@ -422,13 +438,26 @@ public class SQLite implements DBConnector {
                     int x = 1;
                     org.postgis.Point p = geom.getFirstPoint();
                     do {
+                        if(p.getX() > xmax)
+                            xmax = p.getX();
+
+                        if(p.getX() < xmin)
+                            xmin = p.getX();
+
+                        if(p.getY() > ymax)
+                            ymax = p.getX();
+
+                        if(p.getY() < ymin)
+                            ymin = p.getX();
 
                         li.add(new Position(p.getX(), p.getY()));
                         p = geom.getPoint(x);
                         x++;
                     } while ((!p.equals(geom.getLastPoint())));
                     l.add(li);
-                    return new Polygon(l);
+                    Polygon p1 = new Polygon(l);
+                    p1.setBbox(new double[]{xmin,xmax,ymin,ymax});
+                    return p1;
                 }
                 //Type is Point
                 if (geom.getType() == 1) {
@@ -444,37 +473,4 @@ public class SQLite implements DBConnector {
         }
     }
 
-
-    public double[] EWKStoBB(String ewkb) {
-        try {
-            if (ewkb != null) {
-                Geometry geom = PGgeometry.geomFromString(ewkb);
-                //Type is Polygon
-                ArrayList<Double> li = new ArrayList<>();
-
-                int x = 1;
-                org.postgis.Point p = geom.getFirstPoint();
-                do {
-
-                    li.add(p.getX());
-                    li.add(p.getY());
-
-                    p = geom.getPoint(x);
-                    x++;
-                } while ((!p.equals(geom.getLastPoint())));
-
-                //Convert Double[] to double()
-                double[] target = new double[li.size()];
-                for (int i = 0; i < target.length; i++) {
-                    target[i] = li.get(i);
-                }
-                return target;
-            }else{
-                return null;
-            }
-        }catch (SQLException e){
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

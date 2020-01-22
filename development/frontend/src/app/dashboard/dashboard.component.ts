@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ConnectorService } from '../connector.service';
 
 
 @Component({
@@ -15,6 +16,8 @@ export class DashboardComponent implements OnInit {
 
   columnNames = ['Col 1', 'Col 2', 'Col 3'];
   columnConfigNames = ['Conf 1', '', 'Conf 2'];
+
+  connectors: any = [{"name": "No connectors available"}];
 
   showCols: boolean = false;
   showRenameTable: boolean = false;
@@ -32,9 +35,11 @@ export class DashboardComponent implements OnInit {
   renameColumnForm: FormGroup;
   columnNameSubmitted: boolean = false;
 
-  constructor(private formBuilder: FormBuilder) { }
+  constructor(private formBuilder: FormBuilder, private conService: ConnectorService) { }
 
-  ngOnInit() {
+  async ngOnInit() {     
+    this.connectors = await this.conService.getConnector();
+
     this.renameTableForm = this.formBuilder.group({
       tableName: ['', Validators.required]
     });
@@ -118,5 +123,10 @@ export class DashboardComponent implements OnInit {
   submitColumn() {
     this.columnNameSubmitted = true;
   }
+
+
+  fillConnectors(res: any) {
+
+  } 
 
 }

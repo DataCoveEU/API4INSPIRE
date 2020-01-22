@@ -8,8 +8,6 @@ import java.util.List;
 
 public class Collections {
     List<FeatureCollection> collections;
-    HashMap<String,HashMap<String, ArrayList<ArrayList<Double>>>> extent = new HashMap<>();
-
     public Collections(List<FeatureCollection> collections){
         this.collections = collections;
     }
