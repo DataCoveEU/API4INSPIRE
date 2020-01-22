@@ -1,9 +1,9 @@
 <app-nav></app-nav>
 <div id="content">
-    <div class="row">    
+    <div class="row">
         <div class="col-sm-3">
             <select class="form-control" id="selectField">
-                <option *ngFor="let connector of connectors">{{ connector.name }}</option>
+                <option *ngFor="let connector of connectors">{{ connector.id }}</option>
             </select>
         </div>
         <div class="col-sm-3">
@@ -11,7 +11,7 @@
             <div id="delDbText"></div>
         </div>
     </div>
-    
+
     <div class="row card-deck" id="tables">
         <div class="card">
             <table class="table">
@@ -57,7 +57,7 @@
         <h5>Rename the table</h5>
         <form [formGroup]="renameTableForm" (ngSubmit)="submitTable()">
           <label>
-            <input type="text" formControlName="tableName" class="form-control" placeholder="New table name"/>             
+            <input type="text" formControlName="tableName" class="form-control" placeholder="New table name"/>
             <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
               <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
           </div>
@@ -79,7 +79,7 @@
             <button type="submit" class="btn btn-success">Submit</button>
         </form>
        <!--<input type="text" class="form-control" placeholder="New column name" />
-        <button class="btn btn-success" id="subColName">Submit</button>--> 
+        <button class="btn btn-success" id="subColName">Submit</button>-->
       </div>
     </div>
 
