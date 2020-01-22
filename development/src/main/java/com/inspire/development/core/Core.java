@@ -99,4 +99,13 @@ public class Core {
         }
         return null;
     }
+
+    public DBConnector getConnectorById(String id){
+        for(DBConnector db:connectors){
+            if(db.getId().equals(id))
+                return db;
+        }
+        return null;
+    }
+
 }
