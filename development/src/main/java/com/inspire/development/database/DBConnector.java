@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.database.connector.SQLite;
 
+import java.util.ArrayList;
+
 @JsonTypeName("dbconnector")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public interface DBConnector {
@@ -19,7 +21,7 @@ public interface DBConnector {
 
     public void delete(String fc);
 
-    public FeatureCollection[] execute(String sql, String fcName);
+    public FeatureCollection execute(String sql, String fcName);
 
     public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial);
 
@@ -28,4 +30,10 @@ public interface DBConnector {
     public void save(FeatureCollection fc);
 
     public void update(FeatureCollection fc);
+
+    public String getId();
+
+    public ArrayList<String> getAllTables();
+
+    public ArrayList<String> getColumns(String table);
 }
