@@ -3,7 +3,7 @@
     <div class="row">    
         <div class="col-sm-3">
             <select class="form-control" id="selectField">
-                <option *ngFor="let connector of connectors">{{ connector.name }}</option>
+                <option *ngFor="let connector of connectors" [attr.id]=connector.class>{{ connector.name }}</option>
             </select>
         </div>
         <div class="col-sm-3">
