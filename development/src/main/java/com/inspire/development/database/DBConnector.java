@@ -21,7 +21,7 @@ public interface DBConnector {
 
     public FeatureCollection[] execute(String sql, String fcName);
 
-    public FeatureCollection get(String collectionName, boolean withProps);
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial);
 
     public FeatureCollection[] getAll(boolean withProps);
 

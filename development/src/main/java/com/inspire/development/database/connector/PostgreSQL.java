@@ -14,6 +14,8 @@ import org.postgresql.util.PGobject;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 /**
  * DBConnector for a PostgreSQL database
@@ -57,7 +59,7 @@ public class PostgreSQL implements DBConnector {
             Properties prop = new Properties();
             prop.setProperty("user", "inspire");
             prop.setProperty("password", "1nsp1r3_2#2#");
-            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database + "?currentSchema=" + schema, prop);
+            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
             ((org.postgresql.PGConnection)c).addDataType("geometry", (Class<? extends PGobject>) Class.forName("org.postgis.PGgeometry"));
             ((org.postgresql.PGConnection)c).addDataType("box3d", (Class<? extends PGobject>) Class.forName("org.postgis.PGbox3d"));
@@ -138,7 +140,7 @@ public class PostgreSQL implements DBConnector {
             if(rs.getMetaData().getColumnCount() >= 1) {
                 String name = rs.getMetaData().getTableName(1);
                 while (rs.next()) {
-                    resultSetToFeatureCollection(rs, name, name, true);
+                    resultSetToFeatureCollection(rs, name, name, true,true);
                 }
 
                 return fs.toArray(new FeatureCollection[fs.size()]);
@@ -159,12 +161,12 @@ public class PostgreSQL implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection get(String collectionName, boolean withProps) {
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial) {
         try {
         if(sqlList.containsKey(collectionName)){
                 Statement stmt = c.createStatement();
                 ResultSet rs = stmt.executeQuery(sqlList.get(collectionName));
-                return resultSetToFeatureCollection(rs, collectionName, collectionName, withProps);
+                return resultSetToFeatureCollection(rs, collectionName, collectionName, withProps,withSpatial);
         }else {
 
                 String queryName = getNameByAlias(collectionName);
@@ -174,11 +176,11 @@ public class PostgreSQL implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT * from " + queryName);
+                    rs = stmt.executeQuery("SELECT * from " + schema + "." + queryName);
                 }else{
-                    rs = stmt.executeQuery("SELECT * FROM " + queryName);
+                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName);
                 }
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps);
+                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial);
         }
         } catch (SQLException e) {
                 return null;
@@ -199,16 +201,17 @@ public class PostgreSQL implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(table)) {
-                    rs = stmt.executeQuery("SELECT * FROM " + table);
+                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + table);
                 }else{
-                    rs = stmt.executeQuery("SELECT * FROM " + table);
+                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + table);
                 }
                 String alias = table;
                 if(config.containsKey(table)){
                     alias = config.get(table).getAlias();
                 }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table,alias, withProps);
-                fc.add(fs);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table,alias, withProps, true);
+                if(fs != null)
+                    fc.add(fs);
             }
             return fc.toArray(new FeatureCollection[fc.size()]);
         } catch (SQLException e) {
@@ -251,9 +254,11 @@ public class PostgreSQL implements DBConnector {
      * Converts a ResultSet from a Table Query to a FeatureCollection
      * @param rs ResultSet from Table query
      * @param table Table name of query
+     * @param withProps boolean if Properties shall be returned
+     * @param withSpatial boolean if BoundingBox shall be added
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
@@ -261,57 +266,54 @@ public class PostgreSQL implements DBConnector {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
-
-
-                    for (int x = 1; x <= md.getColumnCount(); x++) {
-                        if (md.getColumnLabel(x).contains("localid")) {
-                            //ID
-                            f.setId(rs.getString(x));
-                        } else {
-                            //Normal Feature
-                            if (!md.getColumnName(x).contains("geom")) {
-                                String col = md.getColumnName(x);
-                                //Check if there is a config for that table and if it has a column rename
-                                if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
-                                    col = config.get(table).getMap().get(col);
+                    if (withProps) {
+                        for (int x = 1; x <= md.getColumnCount(); x++) {
+                            if (md.getColumnLabel(x).contains("localid")) {
+                                //ID
+                                f.setId(rs.getString(x));
+                            } else {
+                                //Normal Feature
+                                if (!md.getColumnName(x).contains("geom")) {
+                                    String col = md.getColumnName(x);
+                                    //Check if there is a config for that table and if it has a column rename
+                                    if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
+                                        col = config.get(table).getMap().get(col);
+                                    }
+                                    Object o = rs.getObject(x);
+                                    prop.put(col, o);
                                 }
-                                Object o = rs.getObject(x);
-                                /*if(o == null){
-                                       errorBuffer.add("Propertie null at: " + table + ", Id: " + f.getId());
-                                   }*/
-                                prop.put(col, o);
                             }
                         }
                     }
 
-                    String geometry = rs.getString("geom");
-                    if(geometry != null) {
-                        Geometry geom = PGgeometry.geomFromString(geometry);
-                        if (geom.getType() == 3) {
-                            List<List<Position>> l = new ArrayList<>();
-                            ArrayList<Position> li = new ArrayList<>();
-
-                            int x = 1;
-                            Point p = geom.getFirstPoint();
-                            do {
-
-                                li.add(new Position(p.getX(), p.getY()));
-                                p = geom.getPoint(x);
-                                x++;
-                            } while ((!p.equals(geom.getLastPoint())));
-                            l.add(li);
-                            f.setGeometry(new Polygon(l));
-                        }
-                        if (geom.getType() == 1) {
-                            f.setGeometry(new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY())));
+                    if (hasGeometry(table)) {
+                        String geometry = rs.getString("geom");
+                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
+                        if (geo != null) {
+                            f.setGeometry(geo);
+                            f.setBbox(geo.getBbox());
                         }
                     }
                     f.setProperties(prop);
                     fs.addFeature(f);
+
+                }
+            }
+            if(hasGeometry(table)) {
+                Statement stmt = c.createStatement();
+                ResultSet resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(geom), 4326) as table_extent FROM " + schema + "." + table);
+                if (resultSet.next()) {
+                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(resultSet.getString(1));
+                    if(geo != null) {
+                        double[] bounding = geo.getBbox();
+                        if(bounding != null && withSpatial)
+                            fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
+                    }
                 }
             }
             return fs;
         } catch (SQLException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -394,9 +396,9 @@ public class PostgreSQL implements DBConnector {
      */
     public boolean hasGeometry(String table){
         try {
-            Statement stmt = c.createStatement();
-            stmt.executeQuery("SELECT geom FROM " + table);
-            return  true;
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rs = md.getColumns(null, null, table, "geom");
+            return rs.next();
         } catch (SQLException e) {
             return false;
         }
@@ -417,5 +419,57 @@ public class PostgreSQL implements DBConnector {
             }
         }
         return null;
+    }
+
+    public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
+        try {
+            if (ewkb != null) {
+                double xmin = Integer.MAX_VALUE;
+                double xmax = Integer.MIN_VALUE;
+                double ymin = Integer.MAX_VALUE;
+                double ymax = Integer.MIN_VALUE;
+
+                Geometry geom = PGgeometry.geomFromString(ewkb);
+                //Type is Polygon
+                if (geom.getType() == 3) {
+                    List<List<Position>> l = new ArrayList<>();
+                    ArrayList<Position> li = new ArrayList<>();
+
+                    int x = 1;
+                    org.postgis.Point p = geom.getFirstPoint();
+                    do {
+                        if(p.getX() > xmax)
+                            xmax = p.getX();
+
+                        if(p.getX() < xmin)
+                            xmin = p.getX();
+
+                        if(p.getY() > ymax)
+                            ymax = p.getY();
+
+                        if(p.getY() < ymin)
+                            ymin = p.getY();
+
+                        li.add(new Position(p.getX(), p.getY()));
+                        p = geom.getPoint(x);
+                        x++;
+                    } while ((!p.equals(geom.getLastPoint())));
+                    l.add(li);
+                    Polygon p1 = new Polygon(l);
+                    p1.setBbox(new double[]{xmin,xmax,ymin,ymax});
+                    return p1;
+                }
+                //Type is Point
+                if (geom.getType() == 1) {
+                    return new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
+                }
+                return null;
+            }else{
+                return null;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }

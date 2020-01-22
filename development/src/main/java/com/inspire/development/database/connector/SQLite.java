@@ -10,6 +10,7 @@ import mil.nga.sf.geojson.Polygon;
 import mil.nga.sf.geojson.Position;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.util.ArrayUtils;
 import org.postgis.Geometry;
 import org.postgis.PGgeometry;
 import org.springframework.beans.factory.support.ManagedMap;
@@ -17,6 +18,8 @@ import org.sqlite.SQLiteConfig;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 /**
  * DBConnector for a SQLite database
@@ -152,7 +155,7 @@ public class SQLite implements DBConnector {
             if(rs.getMetaData().getColumnCount() >= 1) {
                 String name = rs.getMetaData().getTableName(1);
                 while (rs.next()) {
-                    resultSetToFeatureCollection(rs, name, name, true);
+                    resultSetToFeatureCollection(rs, name, name, true, true);
                 }
 
                 return fs.toArray(new FeatureCollection[fs.size()]);
@@ -173,12 +176,12 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection get(String collectionName, boolean withProps) {
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial) {
         try {
         if(sqlList.containsKey(collectionName)){
                 Statement stmt = c.createStatement();
                 ResultSet rs = stmt.executeQuery(sqlList.get(collectionName));
-                return resultSetToFeatureCollection(rs, collectionName, collectionName, withProps);
+                return resultSetToFeatureCollection(rs, collectionName, collectionName, withProps, withSpatial);
         }else {
 
                 String queryName = getNameByAlias(collectionName);
@@ -192,7 +195,7 @@ public class SQLite implements DBConnector {
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM " + queryName);
                 }
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps);
+                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial);
         }
         } catch (SQLException e) {
                 return null;
@@ -221,8 +224,9 @@ public class SQLite implements DBConnector {
                 if(config.containsKey(table)){
                     alias = config.get(table).getAlias();
                 }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table,alias, withProps);
-                fc.add(fs);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table,alias, withProps, true);
+                if(fs != null)
+                    fc.add(fs);
             }
             return fc.toArray(new FeatureCollection[fc.size()]);
         } catch (SQLException e) {
@@ -267,21 +271,14 @@ public class SQLite implements DBConnector {
      * @param table Table name of query
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial) {
         try {
-            double xmin = Integer.MAX_VALUE;
-            double xmax = Integer.MIN_VALUE;
-            double ymin = Integer.MAX_VALUE;
-            double ymax = Integer.MIN_VALUE;
             FeatureCollection fs = new FeatureCollection(alias);
-
+            if(withProps) {
                 while (rs.next()) {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
-
-
-
                     for (int x = 1; x <= md.getColumnCount(); x++) {
                         if (md.getColumnLabel(x).contains("OGC_FID")) {
                             //ID
@@ -295,40 +292,37 @@ public class SQLite implements DBConnector {
                                     col = config.get(table).getMap().get(col);
                                 }
                                 Object o = rs.getObject(x);
-                                /*if(o == null){
-                                       errorBuffer.add("Propertie null at: " + table + ", Id: " + f.getId());
-                                   }*/
                                 prop.put(col, o);
                             }
                         }
                     }
-                    String geometry = rs.getString("AsEWKB(GEOMETRY)");
-                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
-                    if(geo != null){
-                        f.setGeometry(geo);
-                        f.setBbox(geo.getBbox());
-                        if(f.getBbox() != null && f.getBbox().length == 4) {
-                            if (f.getBbox()[0] > xmax)
-                                xmax = f.getBbox()[0];
-
-                            if (f.getBbox()[1] < xmin)
-                                xmin = f.getBbox()[1];
-
-                            if (f.getBbox()[2] > ymax)
-                                ymax = f.getBbox()[2];
-
-                            if (f.getBbox()[3] < ymin)
-                                ymin = f.getBbox()[3];
+                    if (hasGeometry(table)) {
+                        String geometry = rs.getString("AsEWKB(GEOMETRY)");
+                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
+                        if (geo != null) {
+                            f.setGeometry(geo);
+                            f.setBbox(geo.getBbox());
                         }
-                    }
-                    if(withProps) {
                         f.setProperties(prop);
                         fs.addFeature(f);
                     }
                 }
-            fs.setBB(Arrays.asList(new Double[]{xmin,xmax,ymin,ymax}));
+            }
+            if(hasGeometry(table)) {
+                Statement stmt = c.createStatement();
+                ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(GEOMETRY)) as table_extent FROM " + table);
+                if (resultSet.next()) {
+                    mil.nga.sf.geojson.Geometry g = EWKBtoGeo(resultSet.getString(1));
+                    if(g != null) {
+                        double[] array = g.getBbox();
+                        if (array != null && withSpatial)
+                            fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
+                    }
+                }
+            }
             return fs;
         } catch (SQLException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -396,9 +390,9 @@ public class SQLite implements DBConnector {
      */
     public boolean hasGeometry(String table){
         try {
-            Statement stmt = c.createStatement();
-            stmt.executeQuery("SELECT GEOMETRY FROM " + table);
-            return  true;
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rs = md.getColumns(null, null, table, "GEOMETRY");
+            return rs.next();
         } catch (SQLException e) {
             return false;
         }
@@ -445,10 +439,10 @@ public class SQLite implements DBConnector {
                             xmin = p.getX();
 
                         if(p.getY() > ymax)
-                            ymax = p.getX();
+                            ymax = p.getY();
 
                         if(p.getY() < ymin)
-                            ymin = p.getX();
+                            ymin = p.getY();
 
                         li.add(new Position(p.getX(), p.getY()));
                         p = geom.getPoint(x);
