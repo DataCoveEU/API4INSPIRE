@@ -16,7 +16,7 @@ export class NavComponent implements OnInit {
 
   isLoggedIn:boolean = false;
 
-  constructor(private router:Router, public auth: AuthService) { }
+  constructor(private router:Router, private auth: AuthService) { }
 
   ngOnInit() {
     var url = this.router.url;
@@ -34,6 +34,11 @@ export class NavComponent implements OnInit {
       imp.style.fontWeight = "bold";
     }
     
+  }
+
+
+  logout() {
+    this.auth.logout();
   }
 
 }

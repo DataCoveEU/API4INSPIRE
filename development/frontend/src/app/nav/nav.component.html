@@ -13,7 +13,7 @@
           <a class="nav-link" routerLink="/">Home<span class="sr-only">(current)</span></a>
         </li>
         
-        <li *ngIf="loggedIn" class="nav-item dropdown">
+        <li *ngIf="this.auth.loggedIn()" class="nav-item dropdown">
           <a class="nav-link dropdown-toggle active" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Options
           </a>
@@ -30,10 +30,10 @@
           <li id="imp" class="nav-item">
             <a class="nav-link active" routerLink="/imprint">Imprint</a>
           </li>
-          <li [ngClass]="{'activeRoute': this.isLogin}" class="nav-item">
+          <li *ngIf="!this.auth.loggedIn()" [ngClass]="{'activeRoute': this.isLogin}" class="nav-item">
             <a class="nav-link active" routerLink="/login">Login</a>
           </li>  
-          <li *ngIf="this.auth.loggedIn()" class="nav-item">
+          <li *ngIf="this.auth.loggedIn()" (click)="logout()" class="nav-item">
             <a class="nav-link active">Logout</a>
           </li>
       </ul>
