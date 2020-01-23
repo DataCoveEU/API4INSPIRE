@@ -13,8 +13,10 @@ import org.apache.logging.log4j.LogManager;
 import org.postgis.Geometry;
 import org.postgis.PGgeometry;
 
+import java.awt.*;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -141,7 +143,7 @@ public class SQLite implements DBConnector {
         try {
             Statement stmt = c.createStatement();
             stmt.execute("CREATE VIEW " + featureCollectionName + " as " + sql);
-            return this.get(featureCollectionName,true,false,-1, null);
+            return this.get(featureCollectionName,true,false,-1,0, null);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
             return null;
@@ -155,7 +157,7 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, double[] bbox) {
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
                 String queryName = getNameByAlias(collectionName);
                 if (queryName == null) {
@@ -168,7 +170,7 @@ public class SQLite implements DBConnector {
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
                 }
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial, limit);
+                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial, limit,offset,bbox);
         } catch (SQLException e) {
                 return null;
             }
@@ -197,7 +199,7 @@ public class SQLite implements DBConnector {
                 if (config.containsKey(table)) {
                     alias = config.get(table).getAlias();
                 }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true, 0);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true, 0,0, null);
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
@@ -243,10 +245,13 @@ public class SQLite implements DBConnector {
      * @param table Table name of query
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
+                for(int i = 0;i< offset;i++){
+                    rs.next();
+                }
                 int counter = 0;
                 while (rs.next() && (counter < limit || limit == -1)) {
                     Feature f = new Feature();
@@ -269,16 +274,25 @@ public class SQLite implements DBConnector {
                             }
                         }
                     }
+                    boolean intersect = true;
                     if (hasGeometry(table)) {
                         String geometry = rs.getString("AsEWKB(GEOMETRY)");
                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
                         if (geo != null) {
                             f.setGeometry(geo);
-                            f.setBbox(geo.getBbox());
+                            double[] bboxFeature = geo.getBbox();
+                            f.setBbox(bboxFeature);
+                            if(bbox != null) {
+                                Rectangle a = rectFromBBox(bboxFeature);
+                                Rectangle b = rectFromBBox(bbox);
+                                intersect = a.intersects(b);
+                            }
                         }
                     }
-                    f.setProperties(prop);
-                    fs.addFeature(f);
+                    if(intersect) {
+                        f.setProperties(prop);
+                        fs.addFeature(f);
+                    }
                     counter++;
                 }
             }
@@ -467,6 +481,10 @@ public class SQLite implements DBConnector {
 
         }
         return result;
+    }
+
+    public Rectangle rectFromBBox(double[] bbox){
+        return new Rectangle((int)bbox[0],(int)bbox[3], (int)(bbox[2]-bbox[0]), (int)(bbox[3]-bbox[1]));
     }
 
 }

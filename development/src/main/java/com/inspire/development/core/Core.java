@@ -66,9 +66,9 @@ public class Core {
         this.connectors.add(d);
     }
 
-    public FeatureCollection get(String featureCollection, boolean withProps, boolean withSpatial, int limit, double[] bbox){
+    public FeatureCollection get(String featureCollection, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox){
         for(DBConnector db:connectors){
-            FeatureCollection f = db.get(featureCollection, withProps, withSpatial, limit, bbox);
+            FeatureCollection f = db.get(featureCollection, withProps, withSpatial, limit, offset, bbox);
             if(f != null)
                 return f;
         }
@@ -91,7 +91,7 @@ public class Core {
     }
 
     public Feature getFeature(String collection, String feature){
-        FeatureCollection fs = get(collection, true, false, -1, null);
+        FeatureCollection fs = get(collection, true, false, -1, 0,null);
         for(Object o: fs.getFeatures().toArray()){
             Feature f = (Feature)o;
             if(f.getId().equals(feature))
