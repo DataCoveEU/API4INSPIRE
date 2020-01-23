@@ -18,6 +18,8 @@ export class DashboardComponent implements OnInit {
 
   connectors: any = [{"name": "No connectors available"}];
 
+  selectedConnector: any;
+
   showCols: boolean = false;
   showRenameTable: boolean = false;
   showRenameCol: boolean = false;
@@ -48,10 +50,13 @@ export class DashboardComponent implements OnInit {
       columnName: ['', Validators.required]
     });
 
-    var select = document.getElementById("selectField");
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    this.selectedConnector = this.connectors[select.selectedIndex]
+    console.log(this.selectedConnector.config["tna_insp_navaids"].map)
+
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = (event: any)=>{
-        console.log(event.target.value);
+        this.selectedConnector = event.target.value;
       }
   }
 
@@ -60,7 +65,7 @@ export class DashboardComponent implements OnInit {
    * 
    * @param name the name or the id of the table row that has been clicked
    */
-  onClickTableName(name: string) {
+  async onClickTableName(name: string) {
     // If a "tablename row" is already selected, then 
     // you have to change the style
     if(this.tableSelect) {
@@ -89,6 +94,8 @@ export class DashboardComponent implements OnInit {
     this.tableSelect = true;
     this.idTableSelected = name;
     this.showCols = true;
+
+    this.columnNames = await this.conService.getColumn({'id':'Inspire', 'table':''+name});
   }
 
   /**
