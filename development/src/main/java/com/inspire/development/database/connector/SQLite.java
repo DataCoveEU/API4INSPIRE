@@ -140,7 +140,7 @@ public class SQLite implements DBConnector {
     public FeatureCollection execute(String sql, String featureCollectionName) {
         try {
             Statement stmt = c.createStatement();
-            stmt.executeQuery("CREATE VIEW " + featureCollectionName + " as " + sql);
+            stmt.execute("CREATE VIEW " + featureCollectionName + " as " + sql);
             return this.get(featureCollectionName,true,false);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
@@ -157,7 +157,6 @@ public class SQLite implements DBConnector {
     @Override
     public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial) {
         try {
-
                 String queryName = getNameByAlias(collectionName);
                 if (queryName == null) {
                     queryName = collectionName;
@@ -165,9 +164,9 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from [" + queryName + "?]");
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from [" + queryName + "]");
                 }else{
-                    rs = stmt.executeQuery("SELECT * FROM [" + queryName + "?]");
+                    rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
                 }
                 return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial);
         } catch (SQLException e) {

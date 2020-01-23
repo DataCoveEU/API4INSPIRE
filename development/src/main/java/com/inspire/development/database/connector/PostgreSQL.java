@@ -130,7 +130,7 @@ public class PostgreSQL implements DBConnector {
     public FeatureCollection execute(String sql, String featureCollectionName) {
         try {
             Statement stmt = c.createStatement();
-            stmt.executeQuery("CREATE VIEW " + featureCollectionName + " as " + sql);
+            stmt.execute("CREATE VIEW " + schema + "." + featureCollectionName + " as " + sql);
             return this.get(featureCollectionName,true,false);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
@@ -153,11 +153,7 @@ public class PostgreSQL implements DBConnector {
                 }
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
-                if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT * from " + schema + "." + queryName + "");
-                }else{
-                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
-                }
+                rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
                 return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial);
         } catch (SQLException e) {
                 return null;
@@ -290,6 +286,12 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    /**
+     * Rename a Feature
+     * @param table Table of Feature
+     * @param feature Feature original name
+     * @param featureAlias Feature alias name
+     */
     public void renameFeature(String table, String feature, String featureAlias){
         if(config.containsKey(table)){
             TableConfig conf = config.get(table);
@@ -301,6 +303,11 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    /**
+     * Rename a FeatureCollection id
+     * @param table Original ID
+     * @param tableAlias Alias name to be used
+     */
     public void renameTable(String table, String tableAlias){
         if(config.containsKey(table)){
             config.get(table).setAlias(tableAlias);
@@ -310,6 +317,10 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    /**
+     * Get Config
+     * @return config
+     */
     @JsonProperty
     public HashMap<String,TableConfig> getConfig(){
         return config;
@@ -471,6 +482,11 @@ public class PostgreSQL implements DBConnector {
         return id;
     }
 
+    /**
+     * Get all columns from a Table
+     * @param table Original Table name
+     * @return ArrayList with all names. Null if an error occurred.
+     */
     public ArrayList<String> getColumns(String table){
         ArrayList<String> result = new ArrayList<>();
         try {
@@ -485,4 +501,5 @@ public class PostgreSQL implements DBConnector {
         }
         return result;
     }
+
 }
