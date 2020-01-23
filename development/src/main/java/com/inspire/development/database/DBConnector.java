@@ -36,4 +36,8 @@ public interface DBConnector {
     public ArrayList<String> getAllTables();
 
     public ArrayList<String> getColumns(String table);
+
+    public void renameTable(String table, String tableAlias);
+
+    public void renameFeature(String table, String feature, String featureAlias);
 }

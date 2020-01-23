@@ -26,6 +26,7 @@ public class RESTController {
     public RESTController(){
         core = new Core();
         SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+        c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
         c.renameTable("tna_insp_navaids", "Tobias");
         c.renameFeature("tna_insp_navaids", "metadataproperty", "meta");
         //PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres");
@@ -198,17 +199,18 @@ public class RESTController {
      * @return Array with all Names
      */
     @RequestMapping(value = "/api/getTables", method = RequestMethod.POST)
-    public ResponseEntity<ArrayList<String>> getTable(@RequestBody Map<String, ?> input){
+    public ResponseEntity<Object> getTable(@RequestBody Map<String, ?> input){
         String id = (String)input.get("id");
         if(id != null){
             DBConnector db = core.getConnectorById(id);
             if(db != null) {
                 return new ResponseEntity<>(db.getAllTables(), HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
             }
         }else{
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -233,6 +235,67 @@ public class RESTController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Execute SQL String and store it in DB
+     * @param input se APIDoc
+     * @return  see APIDoc
+     */
+    @RequestMapping(value = "/api/executeSQL", method = RequestMethod.POST)
+    public ResponseEntity<Object> executeSQL(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String sql = (String)input.get("sql");
+            if(sql != null){
+                String collectionName = (String)input.get("collectionName");
+                if(collectionName != null){
+                    DBConnector db = core.getConnectorById(id);
+                    if(db != null){
+                        return new ResponseEntity<>(db.execute(sql,collectionName), HttpStatus.OK);
+                    }else{
+                        return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
+                    }
+                }else{
+                    return new ResponseEntity<>("CollectionName missing", HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                return new ResponseEntity<>("SQL string missing", HttpStatus.BAD_REQUEST);
+            }
+        }else{
+            return new ResponseEntity<>("Connector id missing", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Rename a featureCollection
+      * @param input se APIDoc
+     * @return  see APIDoc
+     */
+    @RequestMapping(value = "/api/renameCollection", method = RequestMethod.POST)
+    public ResponseEntity<Object> renameCollection(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String orgName = (String)input.get("orgName");
+            if(orgName != null){
+                String alias = (String)input.get("alias");
+                if(alias != null){
+                    DBConnector db = core.getConnectorById(id);
+                    if(db != null){
+                        db.renameTable(orgName,alias);
+                        return new ResponseEntity<>("OK", HttpStatus.OK);
+                    }else{
+                        return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
+                    }
+                }else{
+                    return new ResponseEntity<>("CollectionName missing", HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                return new ResponseEntity<>("Original Name missing", HttpStatus.BAD_REQUEST);
+            }
+        }else{
+            return new ResponseEntity<>("Connector id missing", HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
