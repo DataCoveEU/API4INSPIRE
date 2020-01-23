@@ -12,7 +12,6 @@ import { ConnectorService } from '../connector.service';
 export class DashboardComponent implements OnInit {
 
   tableNames = ['Table 1', 'Table 2', 'Table 3', 'Table 4'];
-  tableConfigNames = ['Config 1', '', 'Config 3', ''];
 
   columnNames = ['Col 1', 'Col 2', 'Col 3'];
   columnConfigNames = ['Conf 1', '', 'Conf 2'];
@@ -39,6 +38,7 @@ export class DashboardComponent implements OnInit {
 
   async ngOnInit() {     
     this.connectors = await this.conService.getConnector();
+    this.conService.getTables({"id":"Inspire"})
 
     this.renameTableForm = this.formBuilder.group({
       tableName: ['', Validators.required]
