@@ -243,12 +243,17 @@ public class SQLite implements DBConnector {
      * Converts a ResultSet from a Table Query to a FeatureCollection
      * @param rs ResultSet from Table query
      * @param table Table name of query
+     * @param withProps boolean if properties shall be included
+     * @param limit limit on how many features shall be included
+     * @param offset offset to the start of features
+     * @param bbox optional, if given only features are returned if there bbox intersects the given one
      * @return  ResultSet with content of table
      */
     private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
+                //Creating offset
                 for(int i = 0;i< offset;i++){
                     rs.next();
                 }
@@ -282,7 +287,9 @@ public class SQLite implements DBConnector {
                             f.setGeometry(geo);
                             double[] bboxFeature = geo.getBbox();
                             f.setBbox(bboxFeature);
+                            //If bbox is given
                             if(bbox != null) {
+                                //Check if intersects
                                 Rectangle a = rectFromBBox(bboxFeature);
                                 Rectangle b = rectFromBBox(bbox);
                                 intersect = a.intersects(b);

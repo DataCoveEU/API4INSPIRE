@@ -226,6 +226,9 @@ public class PostgreSQL implements DBConnector {
      * @param table Table name of query
      * @param withProps boolean if Properties shall be returned
      * @param withSpatial boolean if BoundingBox shall be added
+     * @param limit limit on how many features shall be included
+     * @param offset offset to the start of features
+     * @param bbox optional, if given only features are returned if there bbox intersects the given one
      * @return  ResultSet with content of table
      */
     private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
