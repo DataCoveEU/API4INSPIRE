@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit {
 
   async ngOnInit() {     
     this.connectors = await this.conService.getConnector();
-    this.conService.getTables({"id":"Inspire"})
+    this.tableNames = await this.conService.getTables({'id':'Inspire'});
 
     this.renameTableForm = this.formBuilder.group({
       tableName: ['', Validators.required]

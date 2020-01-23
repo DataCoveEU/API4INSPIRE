@@ -22,16 +22,14 @@ export class ConnectorService {
     return this.connectors;
   }
 
-  getTables(obj: object) {
-    this.httpClient.post('/api/getTables' ,{
-      obj
-    },{responseType: 'json'})
-      .subscribe((res)=>{
-        console.log(res);
+  async getTables(json:object) {
+    this.connectors = await new Promise((resolve, reject) =>{
+      this.httpClient.post('/api/getTables', json).subscribe((res)=>{
+        resolve(res);;
       }, (err)=>{
-        console.log(err);
+        reject(err);
       })
+    });
+    return this.connectors;
   }
-
-  
 }
