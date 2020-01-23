@@ -141,7 +141,7 @@ public class SQLite implements DBConnector {
         try {
             Statement stmt = c.createStatement();
             stmt.execute("CREATE VIEW " + featureCollectionName + " as " + sql);
-            return this.get(featureCollectionName,true,false);
+            return this.get(featureCollectionName,true,false,-1, null);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
             return null;
@@ -155,7 +155,7 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial) {
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, double[] bbox) {
         try {
                 String queryName = getNameByAlias(collectionName);
                 if (queryName == null) {
@@ -168,7 +168,7 @@ public class SQLite implements DBConnector {
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
                 }
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial);
+                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial, limit);
         } catch (SQLException e) {
                 return null;
             }
@@ -197,7 +197,7 @@ public class SQLite implements DBConnector {
                 if (config.containsKey(table)) {
                     alias = config.get(table).getAlias();
                 }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true, 0);
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
@@ -243,11 +243,12 @@ public class SQLite implements DBConnector {
      * @param table Table name of query
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
-                while (rs.next()) {
+                int counter = 0;
+                while (rs.next() && (counter < limit || limit == -1)) {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
@@ -278,6 +279,7 @@ public class SQLite implements DBConnector {
                     }
                     f.setProperties(prop);
                     fs.addFeature(f);
+                    counter++;
                 }
             }
             if(hasGeometry(table)) {

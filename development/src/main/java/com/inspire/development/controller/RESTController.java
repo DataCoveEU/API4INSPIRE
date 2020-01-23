@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public FeatureCollection getCollections(@PathVariable("collectionId") String id) {
-        return core.get(id, false, true);
+        return core.get(id, false, true, 0, null);
     }
 
     /**
@@ -72,8 +74,8 @@ public class RESTController {
      * @return all of the items of the matching feature collection
      */
     @GetMapping("/collections/{collectionId}/items")
-    public FeatureCollection getCollectionItems(@PathVariable("collectionId") String id) {
-        return core.get(id, true, false);
+    public FeatureCollection getCollectionItems(@PathVariable("collectionId") String id, @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit, @RequestParam(required = false) double[] bbox) {
+        return core.get(id, true, false, limit, bbox);
     }
 
     /**

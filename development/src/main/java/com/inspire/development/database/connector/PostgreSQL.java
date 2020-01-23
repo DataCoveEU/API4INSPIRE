@@ -12,8 +12,10 @@ import org.postgis.PGgeometry;
 import org.postgis.Point;
 import org.postgresql.util.PGobject;
 
+import java.awt.*;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -131,7 +133,7 @@ public class PostgreSQL implements DBConnector {
         try {
             Statement stmt = c.createStatement();
             stmt.execute("CREATE VIEW " + schema + "." + featureCollectionName + " as " + sql);
-            return this.get(featureCollectionName,true,false);
+            return this.get(featureCollectionName,true,false, -1, null);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
             return null;
@@ -145,7 +147,7 @@ public class PostgreSQL implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial) {
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, double[] bbox) {
         try {
                 String queryName = getNameByAlias(collectionName);
                 if (queryName == null) {
@@ -154,7 +156,7 @@ public class PostgreSQL implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial);
+                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial, limit,bbox);
         } catch (SQLException e) {
                 return null;
             }
@@ -178,7 +180,7 @@ public class PostgreSQL implements DBConnector {
                 if (config.containsKey(table)) {
                     alias = config.get(table).getAlias();
                 }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true,0, null);
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
@@ -226,11 +228,12 @@ public class PostgreSQL implements DBConnector {
      * @param withSpatial boolean if BoundingBox shall be added
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit, double[] bbox) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
-                while (rs.next()) {
+                int counter = 0;
+                while (rs.next() && (counter < limit || limit != -1)) {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
@@ -254,16 +257,26 @@ public class PostgreSQL implements DBConnector {
                         }
                     }
 
+                    boolean intersect = true;
                     if (hasGeometry(table)) {
                         String geometry = rs.getString("geom");
                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
                         if (geo != null) {
                             f.setGeometry(geo);
-                            f.setBbox(geo.getBbox());
+                            double[] bboxFeature = geo.getBbox();
+                            f.setBbox(bboxFeature);
+                            if(bbox != null) {
+                                Rectangle a = rectFromBBox(bboxFeature);
+                                Rectangle b = rectFromBBox(bbox);
+                                intersect = a.intersects(b);
+                            }
                         }
                     }
-                    f.setProperties(prop);
-                    fs.addFeature(f);
+                    if(intersect) {
+                        f.setProperties(prop);
+                        fs.addFeature(f);
+                    }
+                    counter++;
 
                 }
             }
@@ -444,7 +457,7 @@ public class PostgreSQL implements DBConnector {
                     } while ((!p.equals(geom.getLastPoint())));
                     l.add(li);
                     Polygon p1 = new Polygon(l);
-                    p1.setBbox(new double[]{xmin,xmax,ymin,ymax});
+                    p1.setBbox(new double[]{xmin,ymin,xmax,ymax});
                     return p1;
                 }
                 //Type is Point
@@ -500,6 +513,10 @@ public class PostgreSQL implements DBConnector {
 
         }
         return result;
+    }
+
+    public Rectangle rectFromBBox(double[] bbox){
+        return new Rectangle((int)bbox[0],(int)bbox[3], (int)(bbox[2]-bbox[0]), (int)(bbox[3]-bbox[1]));
     }
 
 }
