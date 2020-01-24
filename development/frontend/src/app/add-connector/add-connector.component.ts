@@ -65,8 +65,9 @@ export class AddConnectorComponent implements OnInit {
     var conName = this.addSQLiteConnectorForm.value.conName;
     var path = this.addSQLiteConnectorForm.value.path
     var files: any = document.getElementById('fileSel')
+    console.log(files.value);
     for(var x of files.files) {
-      console.log("file: " + x.path);
+      console.log(x);
     }
     console.log($('#fileSel').files)
     var json = {
@@ -102,11 +103,14 @@ export class AddConnectorComponent implements OnInit {
     var json = {
       "class": "postgres",
       "id": conName,
-      "database": "DatabaseA",
+      "database": "inspire",
       "schema": schema,
       "hostname": host,
-      "path": null,
-      "port": port
+      "port": port,
+      "username": uname,
+      "password": pwd
     };
+
+    this.conService.addConnector(json);
   }
 }

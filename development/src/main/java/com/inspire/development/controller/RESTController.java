@@ -36,6 +36,8 @@ public class RESTController {
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
         core.getConnectors().add(c);
         core.getConnectors().add(p);
+
+        core.writeConfig();
         //DBConnectorList list = core.parseConfig();
         //if(list != null){
           //  core.setConnectors(list);
@@ -77,7 +79,9 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}/items")
     public FeatureCollection getCollectionItems(@PathVariable("collectionId") String id, @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit, @RequestParam(required = false) double[] bbox, @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset) {
-        return core.get(id, true, false, limit, offset, bbox);
+        FeatureCollection fc = core.get(id, true, false, limit, offset, bbox);
+
+        return fc;
     }
 
     /**
@@ -114,9 +118,25 @@ public class RESTController {
                 String hostname = (String) input.get("hostname");
                 String username = (String) input.get("username");
                 String password = (String) input.get("password");
-                int port = Integer.parseInt((String) input.get("port"));
+                int port = (Integer) input.get("port");
                 String id = (String) input.get("id");
-                core.addConnector(new PostgreSQL(hostname, port, database, schema, id,username,password));
+                Object o = input.get("isTest");
+                boolean test = false;
+                if(o != null){
+                    test = (Boolean)o;
+                }
+                PostgreSQL s = new PostgreSQL(hostname, port, database, schema, id,username,password);
+                String error = s.checkConnection();
+                if(error == null) {
+                    if (!test) {
+                        core.addConnector(s);
+                    }
+                    return new ResponseEntity<>("OK", HttpStatus.OK);
+                }else{
+                    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                }
+                //if(s.checkConnection());
+
             }
             if (classe.equals("sqlite")) {
                 String path = (String)input.get("path");

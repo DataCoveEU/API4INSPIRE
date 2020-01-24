@@ -49,9 +49,8 @@ export class ConnectorService {
   }
 
   addConnector(json:object) {
-    this.httpClient.post('/api/addConnector', {
-      json
-    },{
+    this.httpClient.post('/api/addConnector', 
+      json,{
       responseType: 'json'
     }).subscribe((res)=>{
       console.log("Connector added");
