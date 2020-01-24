@@ -54,8 +54,10 @@ export class DashboardComponent implements OnInit {
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
     //Eevent when another conncetor in the dropdown is selected
-    select.onchange = (event: any)=>{
+    select.onchange = async (event: any)=>{
         this.selectedConnector = event.target.value;
+        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id});
+        this.idTableSelected = "";
       }
   }
 
@@ -135,9 +137,6 @@ export class DashboardComponent implements OnInit {
 
     this.conService.renameTable(json).then(
       async ()=>{
-        //this.connectors = await this.conService.getConnector();
-        //this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
-        //this.ngOnInit();
         this.reload();
       }
     ).catch(()=>{
