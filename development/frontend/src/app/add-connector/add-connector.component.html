@@ -17,26 +17,38 @@
                 </div>
             </div>
             <div *ngIf="this.isSQLite" [ngClass]="{'isSQLite': this.isSQLite}" id="content">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" placeholder="Connector name" />
+                <form [formGroup]="addSQLiteConnectorForm" (ngSubmit)="addSQLiteConnector()">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>
+                                <input type="text" formControlName="conName" class="form-control" placeholder="Connector name" />
+                                <div *ngIf="sqliteSubmitted && addSQLiteConnectorForm.controls.conName.errors" class="error">
+                                    <div *ngIf="addSQLiteConnectorForm.controls.conName.errors.required">A connector name is required</div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <input type="file" class="form-control" placeholder="Path" />
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>
+                                <input id="fileSel" type="file" formControlName="path" class="form-control" placeholder="Path" />
+                                <div *ngIf="sqliteSubmitted && addSQLiteConnectorForm.controls.path.errors" class="error">
+                                    <div *ngIf="addSQLiteConnectorForm.controls.path.errors.required">A path is required</div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <button class="btn btn-success" style="width: 100%">Test connection</button>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button class="btn btn-success" style="width: 100%">Test connection</button>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <button class="btn btn-success" style="width: 100%" (click)="addSQLiteConnector()">Add connector</button>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button class="btn btn-success" style="width: 100%" type="submit">Add connector</button>
+                        </div>
                     </div>
-                </div>
+                </form>  
             </div>
 
             <div *ngIf="this.isPostgres">
@@ -51,7 +63,6 @@
                             </label>
                         </div>
                     </div>
-
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
                             <label>
@@ -68,10 +79,8 @@
                                     <div *ngIf="addPostgresConnectorForm.controls.password.errors.required">A password is required</div>
                                 </div>
                             </label>
-
                         </div>
                     </div>
-
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6" style="width: 100%"></div>
                         <div class="col-sm-6">
@@ -84,7 +93,6 @@
                             </label>
                         </div>
                     </div>
-
                     <div class="row" style="width: 100%">
                         <div class="col-sm-6">
                             <input class="form-control" formControlName="hostname" type="text" style="width: 100%" placeholder="Hostname" />
@@ -93,7 +101,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
                             <input type="number" formControlName="port" class="form-control" style="width: 100%" placeholder="Port" />
@@ -102,7 +109,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
                             <input class="form-control" formControlName="schema" type="text" style="width: 100%" placeholder="Schema" />
@@ -111,7 +117,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
                             <button class="btn btn-success" style="width: 100%">Test connction</button>
@@ -121,7 +126,6 @@
                         </div>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>

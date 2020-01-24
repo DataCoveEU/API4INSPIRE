@@ -20,6 +20,9 @@ export class AddConnectorComponent implements OnInit {
   postgresSubmitted: boolean = false;
   passwordsEquals: boolean = false;
 
+  addSQLiteConnectorForm: FormGroup;
+  sqliteSubmitted: boolean = false;
+
   constructor(private conService:ConnectorService, private formBuilder:FormBuilder) { }
 
   ngOnInit() {
@@ -32,6 +35,11 @@ export class AddConnectorComponent implements OnInit {
       port: ['', Validators.required],
       schema: ['', Validators.required]
     });
+
+    this.addSQLiteConnectorForm = this.formBuilder.group({
+      conName: ['', Validators.required],
+      path: ['', Validators.required]
+    })
 
     this.isSQLite = true;
     this.sqlite = document.getElementById("content");
@@ -50,7 +58,26 @@ export class AddConnectorComponent implements OnInit {
   }
 
   addSQLiteConnector() {
-      console.log("SQLite");
+    this.sqliteSubmitted = true;
+    if(this.addSQLiteConnectorForm.invalid) {
+      return;
+    }
+    var conName = this.addSQLiteConnectorForm.value.conName;
+    var path = this.addSQLiteConnectorForm.value.path
+    var files: any = document.getElementById('fileSel')
+    for(var x of files.files) {
+      console.log("file: " + x.path);
+    }
+    console.log($('#fileSel').files)
+    var json = {
+      "class": "sqlite",
+      "id": conName,
+      "database": "DatabaseB",
+      "schema": null,
+      "hostname": null,
+      "path": path,
+      "port": null
+    }
   }
 
   addPostgresConnector() {
@@ -81,6 +108,5 @@ export class AddConnectorComponent implements OnInit {
       "path": null,
       "port": port
     };
-    console.log(json);
   }
 }
