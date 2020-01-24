@@ -87,6 +87,16 @@ public class PostgreSQL implements DBConnector {
         this.zwPassword = password;
     }
 
+    @JsonProperty
+    public String getUsername() {
+        return username;
+    }
+
+    @JsonProperty
+    public String getPassword() {
+        return password;
+    }
+
     @JsonCreator
     public PostgreSQL(@JsonProperty("hostname")String hostname, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("port")int port, @JsonProperty("schema")String schema, @JsonProperty("database")String database, @JsonProperty("username")String username,@JsonProperty("password")String password) {
         this.config = config;
@@ -103,9 +113,13 @@ public class PostgreSQL implements DBConnector {
 
 
         Connection connection = null;
+        // create a database connection
+        //jdbc:postgresql://host:port/database
+        Properties prop = new Properties();
+        prop.setProperty("user", username);
+        prop.setProperty("password", password);
         try {
-            // create a database connection
-            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database);
+            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
@@ -402,16 +416,16 @@ public class PostgreSQL implements DBConnector {
         try {
             ArrayList<String> out = new ArrayList<>();
             DatabaseMetaData md = c.getMetaData();
-            ResultSet rs = md.getTables(null, null, "%", null);
+            ResultSet rs = md.getTables(null, schema, "%", null);
             while (rs.next()) {
                 String table = rs.getString(3);
                 if(!table.contains("pg_"))
                     out.add(rs.getString(3));
             }
-            rs = md.getTables(null, schema, null, new String[]{"VIEW"});
+            /**rs = md.getTables(null, schema, null, new String[]{"VIEW"});
             while (rs.next()) {
                 out.add(rs.getString("TABLE_NAME"));
-            }
+            }**/
             return out;
         }catch (SQLException e){
             return null;

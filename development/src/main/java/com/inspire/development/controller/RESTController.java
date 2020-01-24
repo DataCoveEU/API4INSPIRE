@@ -29,19 +29,19 @@ public class RESTController {
 
     public RESTController(){
         core = new Core();
-        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
-        c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
-        c.renameTable("tna_insp_navaids", "Tobias");
-        c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
-        PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
+        //SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+        //c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
+        //c.renameTable("tna_insp_navaids", "Tobias");
+        //c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
+        //PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
         //core.getConnectors().add(c);
         //core.getConnectors().add(p);
 
-        core.writeConfig();
-        //DBConnectorList list = core.parseConfig();
-        //if(list != null){
-          //  core.setConnectors(list);
-        //}
+
+        DBConnectorList list = core.parseConfig();
+        if(list != null){
+          core.setConnectors(list);
+        }
     }
 
     @GetMapping("/collections")
@@ -67,8 +67,13 @@ public class RESTController {
      * @return the collection with the id
      */
     @GetMapping("/collections/{collectionId}")
-    public FeatureCollection getCollections(@PathVariable("collectionId") String id) {
-        return core.get(id, false, true, 0,0, null);
+    public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id) {
+        FeatureCollection fc = core.get(id, false, true, 0,0, null);
+        if(fc != null){
+            return  new ResponseEntity<>(fc,HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
@@ -78,10 +83,13 @@ public class RESTController {
      * @return all of the items of the matching feature collection
      */
     @GetMapping("/collections/{collectionId}/items")
-    public FeatureCollection getCollectionItems(@PathVariable("collectionId") String id, @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit, @RequestParam(required = false) double[] bbox, @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset) {
-        FeatureCollection fc = core.get(id, true, false, limit, offset, bbox);
-
-        return fc;
+    public ResponseEntity<Object> getCollectionItems(@PathVariable("collectionId") String id, @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit, @RequestParam(required = false) double[] bbox, @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset) {
+        FeatureCollection fc = core.get(id, true, false, limit,offset, bbox);
+        if(fc != null){
+            return  new ResponseEntity<>(fc,HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
@@ -130,6 +138,7 @@ public class RESTController {
                 if(error == null) {
                     if (!test) {
                         core.addConnector(s);
+                        core.writeConfig();
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 }else{
