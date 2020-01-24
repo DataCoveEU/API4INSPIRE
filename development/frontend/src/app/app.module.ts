@@ -18,6 +18,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './jwt.interceptor';
+import { UserManagementComponent } from './user-management/user-management.component';
 
 export function tokenGetter(){return localStorage.getItem('access_token')}
 
@@ -31,7 +32,8 @@ export function tokenGetter(){return localStorage.getItem('access_token')}
     DashboardComponent,
     PropertiesComponent,
     AddConnectorComponent,
-    ImprintComponent
+    ImprintComponent,
+    UserManagementComponent
   ],
   imports: [
     BrowserModule,
