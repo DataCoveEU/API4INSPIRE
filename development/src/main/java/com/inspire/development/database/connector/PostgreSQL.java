@@ -69,8 +69,8 @@ public class PostgreSQL implements DBConnector {
             Properties prop = new Properties();
             prop.setProperty("user", username);
             prop.setProperty("password", password);
-            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
-            c = connection;
+            //connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
+            //c = connection;
             ((org.postgresql.PGConnection)c).addDataType("geometry", (Class<? extends PGobject>) Class.forName("org.postgis.PGgeometry"));
             ((org.postgresql.PGConnection)c).addDataType("box3d", (Class<? extends PGobject>) Class.forName("org.postgis.PGbox3d"));
         } catch (SQLException | ClassNotFoundException e) {

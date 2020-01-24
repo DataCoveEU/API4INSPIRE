@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <label>
-                                <input type="text" formControlName="conName" class="form-control" placeholder="Connector name" />
+                                <input style="width: 100%;" type="text" formControlName="conName" class="form-control" placeholder="Connector name" />
                                 <div *ngIf="sqliteSubmitted && addSQLiteConnectorForm.controls.conName.errors" class="error">
                                     <div *ngIf="addSQLiteConnectorForm.controls.conName.errors.required">A connector name is required</div>
                                 </div>
@@ -114,6 +114,12 @@
                             <input class="form-control" formControlName="schema" type="text" style="width: 100%" placeholder="Schema" />
                             <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.schema.errors" class="error">
                                 <div *ngIf="addPostgresConnectorForm.controls.schema.errors.required">A schema is required</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <input class="form-control" formControlName="database" type="text" style="width: 100%" placeholder="Databse" />
+                            <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.database.errors" class="error">
+                                <div *ngIf="addPostgresConnectorForm.controls.database.errors.required">A database is required</div>
                             </div>
                         </div>
                     </div>
