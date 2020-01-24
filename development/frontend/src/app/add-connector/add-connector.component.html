@@ -1,8 +1,8 @@
 <app-nav></app-nav>
 <div class="sidenav">
     <div class="properties-main-text">
-       <h1>Add connector</h1>
-       <p>Add a DB connector</p>
+        <h1>Add connector</h1>
+        <p>Add a DB connector</p>
     </div>
 </div>
 <div class="main">
@@ -19,12 +19,12 @@
             <div *ngIf="this.isSQLite" [ngClass]="{'isSQLite': this.isSQLite}" id="content">
                 <div class="row">
                     <div class="col-sm-6">
-                        <input type="text" class="form-control" placeholder="Connector name"/> 
+                        <input type="text" class="form-control" placeholder="Connector name" />
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-6">
-                        <input type="file" class="form-control" placeholder="Path"/> 
+                        <input type="file" class="form-control" placeholder="Path" />
                     </div>
                 </div>
                 <div class="row">
@@ -34,53 +34,94 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-6">
-                        <button class="btn btn-success" style="width: 100%">Add connector</button>
+                        <button class="btn btn-success" style="width: 100%" (click)="addSQLiteConnector()">Add connector</button>
                     </div>
                 </div>
             </div>
+
             <div *ngIf="this.isPostgres">
-                <div class="row" style="width: 100%; margin-top: 1%"> 
-                    <div class="col-sm-6"> 
-                      <input type="text" class="form-control" style="width: 100%" placeholder="Conncetor name"/> 
-                    </div> 
-                  </div> 
-                  <div class="row" style="width: 100%; margin-top: 1%"> 
-                    <div class="col-sm-6"> 
-                      <input type="text" class="form-control" style="width: 100%" placeholder="Username" /> 
-                    </div> 
-                    <div class="col-sm-6"> 
-                      <input type="password" class="form-control" style="width: 100%" placeholder="Password" />  
-                    </div> 
-                  </div> 
-                  <div class="row" style="width: 100%; margin-top: 1%"> 
-                    <div class="col-sm-6" style="width: 100%"></div> 
-                    <div class="col-sm-6"> 
-                      <input type="password" class="form-control" style="width: 100%" placeholder="Repeat password" /> 
-                    </div> 
-                  </div> 
-                  <div class="row" style="width: 100%"> 
-                    <div class="col-sm-6"> 
-                      <input class="form-control" type="text" style="width: 100%" placeholder="Hostname" /> 
-                    </div> 
-                  </div> 
-                  <div class="row" style="width: 100%; margin-top: 1%"> 
-                    <div class="col-sm-6"> 
-                      <input type="number" class="form-control" style="width: 100%" placeholder="Port" /> 
-                    </div> 
-                  </div> 
-                  <div class="row" style="width: 100%; margin-top: 1%"> 
-                    <div class="col-sm-6"> 
-                      <input class="form-control" type="text" style="width: 100%" placeholder="Schema" /> 
-                    </div> 
-                  </div>  
-                  <div class="row" style="width: 100%; margin-top: 1%"> 
-                    <div class="col-sm-6"> 
-                      <button class="btn btn-success" style="width: 100%">Test connction</button> 
-                    </div> 
-                    <div class="col-sm-6"> 
-                      <button class="btn btn-success" style="width: 100%">Add connector</button> 
-                    </div> 
-                  </div>
+                <form [formGroup]="addPostgresConnectorForm" (ngSubmit)="addPostgresConnector()">
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <label>
+                                <input type="text" formControlName="connectorName" class="form-control" style="width: 100%" placeholder="Conncetor name" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.connectorName.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.connectorName.errors.required">A connector name is required</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <label>
+                                <input type="text" formControlName="username" class="form-control" style="width: 100%" placeholder="Username" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.username.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.username.errors.required">A username is required</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-sm-6">
+                            <label>
+                                <input type="password" formControlName="password" class="form-control" style="width: 100%" placeholder="Password" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.password.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.password.errors.required">A password is required</div>
+                                </div>
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6" style="width: 100%"></div>
+                        <div class="col-sm-6">
+                            <label>
+                                <input type="password" formControlName="repeatPassword" class="form-control" style="width: 100%" placeholder="Repeat password" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.repeatPassword.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.repeatPassword.errors.required">Please repeat a password</div>
+                                </div>
+                                <div *ngIf="this.passwordsEquals" class="error">The passwords have to be equal</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row" style="width: 100%">
+                        <div class="col-sm-6">
+                            <input class="form-control" formControlName="hostname" type="text" style="width: 100%" placeholder="Hostname" />
+                            <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.hostname.errors" class="error">
+                                <div *ngIf="addPostgresConnectorForm.controls.hostname.errors.required">A hostname is required</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <input type="number" formControlName="port" class="form-control" style="width: 100%" placeholder="Port" />
+                            <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.port.errors" class="error">
+                                <div *ngIf="addPostgresConnectorForm.controls.port.errors.required">A port is required</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <input class="form-control" formControlName="schema" type="text" style="width: 100%" placeholder="Schema" />
+                            <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.schema.errors" class="error">
+                                <div *ngIf="addPostgresConnectorForm.controls.schema.errors.required">A schema is required</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <button class="btn btn-success" style="width: 100%">Test connction</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button class="btn btn-success" style="width: 100%" type="submit">Add connector</button>
+                        </div>
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>

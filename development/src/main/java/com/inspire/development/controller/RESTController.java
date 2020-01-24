@@ -282,7 +282,7 @@ public class RESTController {
                 if(alias != null){
                     DBConnector db = core.getConnectorById(id);
                     if(db != null){
-                        db.renameTable(orgName,alias);
+                        db.renameTable(orgName, alias);
                         return new ResponseEntity<>("OK", HttpStatus.OK);
                     }else{
                         return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);

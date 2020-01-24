@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
 
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -52,7 +51,6 @@ export class DashboardComponent implements OnInit {
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
-    console.log(this.selectedConnector.config["tna_insp_navaids"].map)
 
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = (event: any)=>{

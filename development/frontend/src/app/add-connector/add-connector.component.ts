@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import * as $ from 'jquery';
+import { ConnectorService } from '../connector.service';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-add-connector',
@@ -14,10 +16,23 @@ export class AddConnectorComponent implements OnInit {
 
   isPostgres: boolean = false;
 
+  addPostgresConnectorForm: FormGroup;
+  postgresSubmitted: boolean = false;
+  passwordsEquals: boolean = false;
 
-  constructor() { }
+  constructor(private conService:ConnectorService, private formBuilder:FormBuilder) { }
 
   ngOnInit() {
+    this.addPostgresConnectorForm = this.formBuilder.group({
+      connectorName: ['', Validators.required],
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      repeatPassword: ['', Validators.required],
+      hostname: ['', Validators.required],
+      port: ['', Validators.required],
+      schema: ['', Validators.required]
+    });
+
     this.isSQLite = true;
     this.sqlite = document.getElementById("content");
     var sel = document.getElementById("connector");
@@ -31,5 +46,41 @@ export class AddConnectorComponent implements OnInit {
         this.isPostgres = true;
       }
     };
+    
+  }
+
+  addSQLiteConnector() {
+      console.log("SQLite");
+  }
+
+  addPostgresConnector() {
+    this.postgresSubmitted = true;
+    if(this.addPostgresConnectorForm.invalid){
+      return;
+    }
+    var conName = this.addPostgresConnectorForm.value.connectorName;
+    var uname = this.addPostgresConnectorForm.value.username;
+    var pwd = this.addPostgresConnectorForm.value.password;
+    var repwd = this.addPostgresConnectorForm.value.repeatPassword;
+    var host = this.addPostgresConnectorForm.value.hostname;
+    var port = this.addPostgresConnectorForm.value.port;
+    var schema = this.addPostgresConnectorForm.value.schema;
+
+    if(pwd != repwd) {
+      this.passwordsEquals = true;
+      return;
+    }
+    this.passwordsEquals = false;
+
+    var json = {
+      "class": "postgres",
+      "id": conName,
+      "database": "DatabaseA",
+      "schema": schema,
+      "hostname": host,
+      "path": null,
+      "port": port
+    };
+    console.log(json);
   }
 }

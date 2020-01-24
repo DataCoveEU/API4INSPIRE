@@ -47,4 +47,16 @@ export class ConnectorService {
     })
     return this.columns;
   }
+
+  addConnector(json:object) {
+    this.httpClient.post('/api/addConnector', {
+      json
+    },{
+      responseType: 'json'
+    }).subscribe((res)=>{
+      console.log("Connector added");
+    }, (err)=>{
+      console.log(err);
+    });
+  }
 }
