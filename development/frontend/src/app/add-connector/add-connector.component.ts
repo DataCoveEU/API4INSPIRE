@@ -33,7 +33,8 @@ export class AddConnectorComponent implements OnInit {
       repeatPassword: ['', Validators.required],
       hostname: ['', Validators.required],
       port: ['', Validators.required],
-      schema: ['', Validators.required]
+      schema: ['', Validators.required],
+      database: ['', Validators.required]
     });
 
     this.addSQLiteConnectorForm = this.formBuilder.group({
@@ -78,6 +79,8 @@ export class AddConnectorComponent implements OnInit {
       "path": path,
       "port": null
     }
+
+    alert("It is not yet possible to add a SQLite Connector");
   }
 
   addPostgresConnector() {
@@ -92,6 +95,7 @@ export class AddConnectorComponent implements OnInit {
     var host = this.addPostgresConnectorForm.value.hostname;
     var port = this.addPostgresConnectorForm.value.port;
     var schema = this.addPostgresConnectorForm.value.schema;
+    var database = this.addPostgresConnectorForm.value.database;
 
     if(pwd != repwd) {
       this.passwordsEquals = true;
@@ -102,7 +106,7 @@ export class AddConnectorComponent implements OnInit {
     var json = {
       "class": "postgres",
       "id": conName,
-      "database": "DatabaseA",
+      "database": database,
       "schema": schema,
       "hostname": host,
       "path": null,
