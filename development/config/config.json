@@ -1,0 +1,1 @@
+[{"@class":"com.inspire.development.database.connector.SQLite","path":"inspireDB.sqlite","id":"Inspire","config":{"tna_insp_navaids":{"table":"tna_insp_navaids","alias":"Tobias","map":{"metadataproperty":"meta"}}}}]
