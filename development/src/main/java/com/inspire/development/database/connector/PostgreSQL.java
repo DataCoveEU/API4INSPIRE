@@ -32,6 +32,15 @@ public class PostgreSQL implements DBConnector {
     private String database;
     private int port;
     private String schema;
+    private String username;
+    private String password;
+
+    private String zwPassword;
+    private String zwSchema;
+    private int zwPort = 0;
+    private String zwDatabase;
+    private String zwUsername;
+    private String zwHostname;
 
     private Connection c;
     @JsonProperty("id")
@@ -41,7 +50,7 @@ public class PostgreSQL implements DBConnector {
     private HashMap<String,TableConfig> config;
 
 
-    public PostgreSQL(String hostname, int port, String database, String schema, String id) {
+    public PostgreSQL(String hostname, int port, String database, String schema, String id, String username, String password) {
         this.id = id;
         errorBuffer = new ArrayList<>();
         this.hostname = hostname;
@@ -50,14 +59,16 @@ public class PostgreSQL implements DBConnector {
         this.schema = schema;
         tableNames = new ArrayList<>();
         config = new HashMap<>();
+        this.username = username;
+        this.password = password;
 
         Connection connection = null;
         try {
             // create a database connection
             //jdbc:postgresql://host:port/database
             Properties prop = new Properties();
-            prop.setProperty("user", "inspire");
-            prop.setProperty("password", "1nsp1r3_2#2#");
+            prop.setProperty("user", username);
+            prop.setProperty("password", password);
             connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
             ((org.postgresql.PGConnection)c).addDataType("geometry", (Class<? extends PGobject>) Class.forName("org.postgis.PGgeometry"));
@@ -69,8 +80,16 @@ public class PostgreSQL implements DBConnector {
 
     }
 
+    public void setUsername(String username) {
+        this.zwUsername = username;
+    }
+
+    public void setPassword(String password) {
+        this.zwPassword = password;
+    }
+
     @JsonCreator
-    public PostgreSQL(@JsonProperty("hostname")String hostname, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("port")int port, @JsonProperty("schema")String schema, @JsonProperty("database")String database) {
+    public PostgreSQL(@JsonProperty("hostname")String hostname, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("port")int port, @JsonProperty("schema")String schema, @JsonProperty("database")String database, @JsonProperty("username")String username,@JsonProperty("password")String password) {
         this.config = config;
         this.id = id;
         errorBuffer = new ArrayList<>();
@@ -78,6 +97,8 @@ public class PostgreSQL implements DBConnector {
         this.port = port;
         this.database = database;
         this.schema = schema;
+        this.username = username;
+        this.password = password;
         tableNames = new ArrayList<>();
 
 
@@ -312,7 +333,7 @@ public class PostgreSQL implements DBConnector {
      * @param feature Feature original name
      * @param featureAlias Feature alias name
      */
-    public void renameFeature(String table, String feature, String featureAlias){
+    public void renameProp(String table, String feature, String featureAlias){
         if(config.containsKey(table)){
             TableConfig conf = config.get(table);
             conf.getMap().put(feature,featureAlias);
@@ -382,7 +403,7 @@ public class PostgreSQL implements DBConnector {
                 if(!table.contains("pg_"))
                     out.add(rs.getString(3));
             }
-            rs = md.getTables(null, null, null, new String[]{"VIEW"});
+            rs = md.getTables(null, schema, null, new String[]{"VIEW"});
             while (rs.next()) {
                 out.add(rs.getString("TABLE_NAME"));
             }
@@ -482,19 +503,19 @@ public class PostgreSQL implements DBConnector {
     }
 
     public void setHostname(String hostname) {
-        this.hostname = hostname;
+        this.zwHostname = hostname;
     }
 
     public void setDatabase(String database) {
-        this.database = database;
+        this.zwDatabase = database;
     }
 
     public void setPort(int port) {
-        this.port = port;
+        this.zwPort = port;
     }
 
     public void setSchema(String schema) {
-        this.schema = schema;
+        this.zwSchema = schema;
     }
 
     @JsonProperty
@@ -524,6 +545,69 @@ public class PostgreSQL implements DBConnector {
 
     public Rectangle rectFromBBox(double[] bbox){
         return new Rectangle((int)bbox[0],(int)bbox[3], (int)(bbox[2]-bbox[0]), (int)(bbox[3]-bbox[1]));
+    }
+
+    public String updateConnector(){
+        Connection oldCon = c;
+        try{
+            Properties prop = new Properties();
+            String un = zwUsername;
+            if(un == null){
+                un = username;
+            }
+            String pw = zwPassword;
+            if(pw == null){
+                pw = password;
+            }
+
+            prop.setProperty("user", un);
+            prop.setProperty("password", pw);
+
+
+            String hn = zwHostname;
+            if(hn == null)
+                hn = hostname;
+
+            int pt = zwPort;
+            if(pt == 0)
+                pt = port;
+
+            String db = zwDatabase;
+            if(db == null)
+                db = database;
+
+
+
+
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://" + hn + ":" + pt + "/" + db, prop);
+            c = connection;
+            if(zwSchema != null)
+                schema = zwSchema;
+            //Set properties
+            hostname = hn;
+            password = pw;
+            username = un;
+            port = pt;
+            hostname = hn;
+
+            //Reset zw
+            zwPassword = null;
+            zwHostname = null;
+            zwUsername = null;
+            zwPort = 0;
+            zwSchema = null;
+            zwDatabase = null;
+            return null;
+        } catch (SQLException e) {
+            //Reset zw
+            zwPassword = null;
+            zwHostname = null;
+            zwPort = 0;
+            zwSchema = null;
+            zwDatabase = null;
+            c = oldCon;
+            return e.getMessage();
+        }
     }
 
 }

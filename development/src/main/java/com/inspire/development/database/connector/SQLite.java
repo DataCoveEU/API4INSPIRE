@@ -14,6 +14,7 @@ import org.postgis.Geometry;
 import org.postgis.PGgeometry;
 
 import java.awt.*;
+import java.io.File;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -34,6 +35,8 @@ public class SQLite implements DBConnector {
     private String id;
     @JsonProperty("config")
     private HashMap<String,TableConfig> config;
+
+    private String zwHostname;
 
     static Logger log = LogManager.getLogger(SQLite.class.getName());
 
@@ -322,7 +325,7 @@ public class SQLite implements DBConnector {
         }
     }
 
-    public void renameFeature(String table, String feature, String featureAlias){
+    public void renameProp(String table, String feature, String featureAlias){
         if(config.containsKey(table)){
             TableConfig conf = config.get(table);
             conf.getMap().put(feature,featureAlias);
@@ -449,7 +452,7 @@ public class SQLite implements DBConnector {
                     } while ((!p.equals(geom.getLastPoint())));
                     l.add(li);
                     Polygon p1 = new Polygon(l);
-                    p1.setBbox(new double[]{xmin,xmax,ymin,ymax});
+                    p1.setBbox(new double[]{xmin,ymin,xmax,ymax});
                     return p1;
                 }
                 //Type is Point
@@ -472,7 +475,7 @@ public class SQLite implements DBConnector {
 
 
     public void setPath(String path){
-        this.hostname = path;
+        this.zwHostname = path;
     }
 
     public ArrayList<String> getColumns(String table){
@@ -492,6 +495,35 @@ public class SQLite implements DBConnector {
 
     public Rectangle rectFromBBox(double[] bbox){
         return new Rectangle((int)bbox[0],(int)bbox[3], (int)(bbox[2]-bbox[0]), (int)(bbox[3]-bbox[1]));
+    }
+
+    public String updateConnector(){
+        Connection oldCon = c;
+        if(zwHostname == null){
+            return null;
+        }
+        try {
+            File sqliteFile = new File(zwHostname);
+
+            if(sqliteFile.exists()) {
+                Properties prop = new Properties();
+                prop.setProperty("enable_shared_cache", "true");
+                prop.setProperty("enable_load_extension", "true");
+                prop.setProperty("enable_spatialite", "true");
+                Connection connection = DriverManager.getConnection("jdbc:spatialite:" + zwHostname, prop);
+                c = connection;
+                hostname = zwHostname;
+                zwHostname = null;
+                return null;
+            }else{
+                c = oldCon;
+                return  "File does not exit";
+            }
+        } catch (SQLException e) {
+            //Reset Connector to old params if error occurred
+            c = oldCon;
+            return e.getMessage();
+        }
     }
 
 }
