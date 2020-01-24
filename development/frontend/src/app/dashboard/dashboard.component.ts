@@ -55,9 +55,11 @@ export class DashboardComponent implements OnInit {
 
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = async (event: any)=>{
-        this.selectedConnector = event.target.value;
-        //this.reload();
-        this.loadNewTables();
+        var select = document.getElementById("selectField") as HTMLSelectElement;
+        this.selectedConnector = this.connectors[select.selectedIndex]        //this.reload();
+
+        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+        this.tableSelect = false;
       }
   }
 
