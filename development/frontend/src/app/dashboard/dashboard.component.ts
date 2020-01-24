@@ -134,8 +134,11 @@ export class DashboardComponent implements OnInit {
     };
 
     this.conService.renameTable(json).then(
-      ()=>{
-        location.reload();
+      async ()=>{
+        //this.connectors = await this.conService.getConnector();
+        //this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+        //this.ngOnInit();
+        this.reload();
       }
     ).catch(()=>{
       alert("Not renamed")
@@ -156,17 +159,22 @@ export class DashboardComponent implements OnInit {
       'orgName': this.idColumnSelected
     };
 
-    this.conService.renameColumn(json).then(()=>{
-      alert("renamed")
+    this.conService.renameColumn(json).then(async()=>{
+      this.reload();
+      this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
     }).catch(()=>{
       alert("Not renamed")
     });
 
   }
 
+  async reload() {
+    this.connectors = await this.conService.getConnector();
 
-  fillConnectors(res: any) {
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    this.selectedConnector = this.connectors[select.selectedIndex]
 
-  } 
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
+  }
 }
