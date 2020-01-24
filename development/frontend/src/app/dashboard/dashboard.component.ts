@@ -57,6 +57,7 @@ export class DashboardComponent implements OnInit {
     select.onchange = async (event: any)=>{
         this.selectedConnector = event.target.value;
         this.reload();
+        this.columnNames = [];
       }
   }
 
