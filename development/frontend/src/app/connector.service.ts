@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { renderFlagCheckIfStmt } from '@angular/compiler/src/render3/view/template';
+import { resolve } from 'url';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ export class ConnectorService {
   connectors: any;
   tables: any;
   columns: any;
+
 
   constructor(private httpClient: HttpClient) { }
 
@@ -57,5 +59,29 @@ export class ConnectorService {
     }, (err)=>{
       console.log(err);
     });
+  }
+
+  async renameTable(json:object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post("/api/renameCollection", json, {
+        responseType: 'text'
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    })
+  }
+
+  async renameColumn(json:object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post("/api/renameProp", json, {
+        responseType: 'text'
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      });
+    })
   }
 }

@@ -33,8 +33,8 @@ public class RESTController {
         c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
         c.renameTable("tna_insp_navaids", "Tobias");
         c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
-        PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
-        //core.getConnectors().add(c);
+        //PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
+        core.getConnectors().add(c);
         //core.getConnectors().add(p);
 
         core.writeConfig();

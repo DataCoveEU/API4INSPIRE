@@ -123,11 +123,45 @@ export class DashboardComponent implements OnInit {
 
   submitTable() {
     this.tableNameSubmitted = true;
+    if(this.renameTableForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'orgName': this.idTableSelected,
+      'alias': this.renameTableForm.value.tableName
+    };
+
+    this.conService.renameTable(json).then(
+      ()=>{
+        location.reload();
+      }
+    ).catch(()=>{
+      alert("Not renamed")
+    });
 
   }
 
   submitColumn() {
     this.columnNameSubmitted = true;
+    if(this.renameColumnForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': this.idTableSelected,
+      'alias': this.renameColumnForm.value.columnName,
+      'orgName': this.idColumnSelected
+    };
+
+    this.conService.renameColumn(json).then(()=>{
+      alert("renamed")
+    }).catch(()=>{
+      alert("Not renamed")
+    });
+
   }
 
 
