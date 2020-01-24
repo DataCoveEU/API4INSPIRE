@@ -27,8 +27,7 @@
                   <tr *ngFor="let tablename of tableNames; let i = index;" (click)="onClickTableName(tablename)" [attr.id]=tablename class="tableRow">
                     <th scope="row">{{ i+1 }}</th>
                     <td>{{ tablename }}</td>
-                    <td *ngIf="this.selectedConnector.config[tablename] != undefined; else notHere">{{ this.selectedConnector.config[tablename].alias }}</td>
-                    <ng-template #notHere><td></td></ng-template>
+                    <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
                   </tr>
                 </tbody>
               </table>
