@@ -63,20 +63,19 @@ public class PostgreSQL implements DBConnector {
         this.password = password;
 
         Connection connection = null;
+        // create a database connection
+        //jdbc:postgresql://host:port/database
+        Properties prop = new Properties();
+        prop.setProperty("user", username);
+        prop.setProperty("password", password);
         try {
-            // create a database connection
-            //jdbc:postgresql://host:port/database
-            Properties prop = new Properties();
-            prop.setProperty("user", username);
-            prop.setProperty("password", password);
-            //connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
-            //c = connection;
-            ((org.postgresql.PGConnection)c).addDataType("geometry", (Class<? extends PGobject>) Class.forName("org.postgis.PGgeometry"));
-            ((org.postgresql.PGConnection)c).addDataType("box3d", (Class<? extends PGobject>) Class.forName("org.postgis.PGbox3d"));
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
+            c = connection;
+        } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
         }
+        //((org.postgresql.PGConnection)c).addDataType("geometry", (Class<? extends PGobject>) Class.forName("org.postgis.PGgeometry"));
+        //((org.postgresql.PGConnection)c).addDataType("box3d", (Class<? extends PGobject>) Class.forName("org.postgis.PGbox3d"));
 
     }
 
@@ -121,6 +120,12 @@ public class PostgreSQL implements DBConnector {
     @Override
     public String checkConnection() {
         try {
+            if(c == null){
+                if(errorBuffer.size() > 0)
+                    return errorBuffer.get(errorBuffer.size()-1);
+                else
+                    return "some error occurred";
+            }
             if (!c.isClosed()) {
                 return null;
             } else {

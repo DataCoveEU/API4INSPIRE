@@ -109,8 +109,12 @@ export class AddConnectorComponent implements OnInit {
       "database": database,
       "schema": schema,
       "hostname": host,
-      "path": null,
-      "port": port
+      "port": port,
+      "username": uname,
+      "password": pwd,
+      "isTest": false
     };
+
+    this.conService.addConnector(json);
   }
 }

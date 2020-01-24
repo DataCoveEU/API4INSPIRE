@@ -34,8 +34,8 @@ public class RESTController {
         c.renameTable("tna_insp_navaids", "Tobias");
         c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
-        core.getConnectors().add(c);
-        core.getConnectors().add(p);
+        //core.getConnectors().add(c);
+        //core.getConnectors().add(p);
 
         core.writeConfig();
         //DBConnectorList list = core.parseConfig();
@@ -135,8 +135,6 @@ public class RESTController {
                 }else{
                     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
                 }
-                //if(s.checkConnection());
-
             }
             if (classe.equals("sqlite")) {
                 String path = (String)input.get("path");
