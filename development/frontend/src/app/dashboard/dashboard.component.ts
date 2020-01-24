@@ -39,7 +39,6 @@ export class DashboardComponent implements OnInit {
 
   async ngOnInit() {     
     this.connectors = await this.conService.getConnector();
-    this.tableNames = await this.conService.getTables({'id':'Inspire'});
 
     this.renameTableForm = this.formBuilder.group({
       tableName: ['', Validators.required]
@@ -51,6 +50,8 @@ export class DashboardComponent implements OnInit {
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
+
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = (event: any)=>{
@@ -93,7 +94,7 @@ export class DashboardComponent implements OnInit {
     this.idTableSelected = name;
     this.showCols = true;
 
-    this.columnNames = await this.conService.getColumn({'id':'Inspire', 'table':''+name});
+    this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
   }
 
   /**

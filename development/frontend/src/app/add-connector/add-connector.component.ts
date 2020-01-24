@@ -109,7 +109,6 @@ export class AddConnectorComponent implements OnInit {
       "database": database,
       "schema": schema,
       "hostname": host,
-      "path": null,
       "port": port
     };
   }
