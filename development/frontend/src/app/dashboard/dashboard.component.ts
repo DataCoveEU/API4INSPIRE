@@ -56,8 +56,8 @@ export class DashboardComponent implements OnInit {
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = async (event: any)=>{
         this.selectedConnector = event.target.value;
-        this.reload();
-        this.columnNames = [];
+        //this.reload();
+        this.loadNewTables();
       }
   }
 
@@ -175,5 +175,12 @@ export class DashboardComponent implements OnInit {
 
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
+  }
+
+  async loadNewTables() {
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    this.selectedConnector = this.connectors[select.selectedIndex]
+
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
   }
 }
