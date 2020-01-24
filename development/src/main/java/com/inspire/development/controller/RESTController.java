@@ -10,12 +10,14 @@ import com.inspire.development.database.connector.SQLite;
 import mil.nga.sf.geojson.Feature;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.io.File;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,10 +32,10 @@ public class RESTController {
         SQLite c = new SQLite("inspireDB.sqlite","Inspire");
         c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
         c.renameTable("tna_insp_navaids", "Tobias");
-        c.renameFeature("tna_insp_navaids", "metadataproperty", "meta");
-        //PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres");
+        c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
+        PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
         core.getConnectors().add(c);
-        //core.getConnectors().add(p);
+        core.getConnectors().add(p);
         //DBConnectorList list = core.parseConfig();
         //if(list != null){
           //  core.setConnectors(list);
@@ -103,22 +105,27 @@ public class RESTController {
      * @return false if error occurred else false
      */
     @RequestMapping(value = "/api/addConnector", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> addConnector(@RequestBody Map<String, ?> input,@RequestBody MultipartFile file){
+    public ResponseEntity<Object> addConnector(@RequestBody Map<String, ?> input){
         try {
             String classe = (String) input.get("class");
             if (classe.equals("postgres")) {
                 String database = (String) input.get("database");
                 String schema = (String) input.get("schema");
                 String hostname = (String) input.get("hostname");
+                String username = (String) input.get("username");
+                String password = (String) input.get("password");
                 int port = Integer.parseInt((String) input.get("port"));
                 String id = (String) input.get("id");
-                core.addConnector(new PostgreSQL(hostname, port, database, schema, id));
+                core.addConnector(new PostgreSQL(hostname, port, database, schema, id,username,password));
             }
             if (classe.equals("sqlite")) {
-                file.transferTo(new File("./db/" + file.getName()));
-                String path =  "db/" + file.getName();
+                String path = (String)input.get("path");
                 String id = (String) input.get("id");
-                core.addConnector(new SQLite(path, id));
+                if(new File(id).exists()) {
+                    core.addConnector(new SQLite(path, id));
+                }else{
+                    return new ResponseEntity<>("Path does not exist", HttpStatus.OK);
+                }
             }
             return new ResponseEntity<>(true, HttpStatus.OK);
         }catch (Exception e){
@@ -132,7 +139,7 @@ public class RESTController {
      * @return false if error occurred else true
      */
     @RequestMapping(value = "/api/setConnectorProps", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> changeConnectorProperties(@RequestBody Map<String, ?> input, @RequestBody MultipartFile file) {
+    public ResponseEntity<Object> changeConnectorProperties(@RequestBody Map<String, ?> input) {
         try {
             String classe = (String) input.get("class");
             //Check if classe parameter exits else BAD_REQUEST
@@ -146,23 +153,32 @@ public class RESTController {
                             //Cast Connector
                             PostgreSQL postgreSQL = (PostgreSQL) db;
                             String database = (String) input.get("database");
-                            if (database != null) {
-                                postgreSQL.setDatabase(database);
-                            }
+                            postgreSQL.setDatabase(database);
+
                             String schema = (String) input.get("schema");
-                            if (schema != null) {
-                                postgreSQL.setSchema(schema);
-                            }
+                            postgreSQL.setSchema(schema);
+
                             String hostname = (String) input.get("hostname");
-                            if (hostname != null) {
-                                postgreSQL.setHostname(hostname);
-                            }
+                            postgreSQL.setHostname(hostname);
+
                             String portString = (String) input.get("port");
-                            if (portString != null) {
+                            if(portString != null) {
                                 int port = Integer.parseInt(portString);
                                 postgreSQL.setPort(port);
                             }
-                            return new ResponseEntity<>(true, HttpStatus.OK);
+
+                            String username = (String) input.get("username");
+                            postgreSQL.setUsername(username);
+
+                            String password = (String) input.get("password");
+                            postgreSQL.setPassword(password);
+
+                            String error = db.updateConnector();
+                            if(error == null){
+                                return new ResponseEntity<>("OK", HttpStatus.OK);
+                            }else{
+                                return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+                            }
                         }
                     }
 
@@ -170,20 +186,25 @@ public class RESTController {
                     if (classe.equals("sqlite")) {
                         //Index of connector to be changed
                         String id = (String) input.get("id");
-                        if (file != null) {
-                            //Transfer file to DB folder
-                            file.transferTo(new File("./db/" + file.getName()));
-                            String path = "db/" + file.getName();
+                        if (id != null) {
                             //Get Connector by ID
                             DBConnector db = core.getConnectorById(id);
                             if (db != null) {
                                 //Cast to SQLite Connector to set Path
                                 SQLite sqLite = (SQLite) db;
-                                sqLite.setPath(path);
-                                return new ResponseEntity<>(true, HttpStatus.OK);
+                                String path = (String)input.get("path");
+                                if(path != null){
+                                    sqLite.setPath(path);
+                                    String error = db.updateConnector();
+                                    if(error == null){
+                                        return new ResponseEntity<>("OK", HttpStatus.OK);
+                                    }else{
+                                        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+                                    }
+                                }
                             }
                         } else {
-                            return new ResponseEntity<>(false, HttpStatus.OK);
+                            return new ResponseEntity<>("Connector id is null", HttpStatus.OK);
                         }
                     }
             }else{
@@ -284,7 +305,7 @@ public class RESTController {
                 if(alias != null){
                     DBConnector db = core.getConnectorById(id);
                     if(db != null){
-                        db.renameTable(orgName, alias);
+                        db.renameTable(orgName,alias);
                         return new ResponseEntity<>("OK", HttpStatus.OK);
                     }else{
                         return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
@@ -297,6 +318,62 @@ public class RESTController {
             }
         }else{
             return new ResponseEntity<>("Connector id missing", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Rename a featureCollection
+     * @param input se APIDoc
+     * @return  see APIDoc
+     */
+    @RequestMapping(value = "/api/renameProp", method = RequestMethod.POST)
+    public ResponseEntity<Object> renameProp(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String table = (String)input.get("table");
+            if(table != null){
+                String orgName = (String)input.get("orgName");
+                if(orgName != null){
+                    DBConnector db = core.getConnectorById(id);
+                    if(db != null){
+                        String alias = (String)input.get("alias");
+                        if(alias != null) {
+                            db.renameProp(table, orgName, alias);
+                            return new ResponseEntity<>("OK", HttpStatus.OK);
+                        }else{
+                            return new ResponseEntity<>("Alias is missing", HttpStatus.BAD_REQUEST);
+                        }
+                    }else{
+                        return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
+                    }
+                }else{
+                    return new ResponseEntity<>("CollectionName missing", HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                return new ResponseEntity<>("Original Name missing", HttpStatus.BAD_REQUEST);
+            }
+        }else{
+            return new ResponseEntity<>("Connector id missing", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Change admin Password hashed to a file
+     * @param input password to be saved
+     * @return
+     */
+    @RequestMapping(value = "/api/changePwd", method = RequestMethod.POST)
+    public ResponseEntity<Object> changePassword(@RequestBody Map<String, ?> input){
+        String pwd = (String)input.get("pwd");
+        if(pwd != null){
+            try (PrintWriter out = new PrintWriter("./config/admin.pw")) {
+                out.print(BCrypt.hashpw(pwd, BCrypt.gensalt(12)));
+            }catch (Exception e){
+
+            }
+            return new ResponseEntity<>("OK", HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>("No password provided missing", HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -39,5 +39,7 @@ public interface DBConnector {
 
     public void renameTable(String table, String tableAlias);
 
-    public void renameFeature(String table, String feature, String featureAlias);
+    public void renameProp(String table, String feature, String featureAlias);
+
+    public String updateConnector();
 }
