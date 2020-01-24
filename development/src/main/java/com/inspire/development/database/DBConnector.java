@@ -23,7 +23,7 @@ public interface DBConnector {
 
     public FeatureCollection execute(String sql, String fcName);
 
-    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial);
+    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox);
 
     public FeatureCollection[] getAll(boolean withProps);
 
