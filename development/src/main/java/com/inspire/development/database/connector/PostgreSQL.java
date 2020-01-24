@@ -284,8 +284,8 @@ public class PostgreSQL implements DBConnector {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
-                    if (withProps) {
                         for (int x = 1; x <= md.getColumnCount(); x++) {
+                            System.out.println(md.getColumnLabel(x));
                             if (md.getColumnLabel(x).contains("localid")) {
                                 //ID
                                 f.setId(rs.getString(x));
@@ -302,7 +302,6 @@ public class PostgreSQL implements DBConnector {
                                 }
                             }
                         }
-                    }
 
                     boolean intersect = true;
                     if (hasGeometry(table)) {

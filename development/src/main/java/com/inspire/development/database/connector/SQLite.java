@@ -162,10 +162,26 @@ public class SQLite implements DBConnector {
     @Override
     public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
-                String queryName = getNameByAlias(collectionName);
+                TableConfig conf = getConfByAlias(collectionName);
+                String queryName = collectionName;
+                if(conf != null)
+                    conf.getTable();
+
                 if (queryName == null) {
                     queryName = collectionName;
                 }
+                //We will just asume that the geometry column is named GEOMETRY
+                String geoCol = "GEOMETRY";
+                //Same with id
+                String idCol = null;
+                if(conf != null)
+                if(conf.getGeoCol() != null) {
+                    geoCol = conf.getGeoCol();
+
+                    if (conf.getIdCol() != null)
+                        idCol = conf.getIdCol();
+                }
+
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(hasGeometry(queryName)) {
@@ -173,7 +189,7 @@ public class SQLite implements DBConnector {
                 }else{
                     rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
                 }
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial, limit,offset,bbox);
+                return resultSetToFeatureCollection(rs, queryName, collectionName, geoCol, idCol, withProps, withSpatial, limit,offset,bbox);
         } catch (SQLException e) {
                 return null;
             }
@@ -193,16 +209,25 @@ public class SQLite implements DBConnector {
 
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
+                String geoCol = "GEOMETRY";
+                String alias = table;
+                String idCol = null;
+                if (config.containsKey(table)) {
+                    TableConfig c = config.get(table);
+                    alias = c.getAlias();
+                    if(c.getGeoCol() != null)
+                        geoCol = c.getGeoCol();
+
+                    if(c.getIdCol() != null)
+                        idCol = c.getIdCol();
+                }
                 if (hasGeometry(table)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) FROM [" + table + "]");
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol  + ") FROM [" + table + "]");
                 } else {
                     rs = stmt.executeQuery("SELECT * FROM [" + table + "]");
                 }
-                String alias = table;
-                if (config.containsKey(table)) {
-                    alias = config.get(table).getAlias();
-                }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true, 0,0, null);
+
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, geoCol, idCol, withProps, true, 0,0, null);
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
@@ -252,7 +277,7 @@ public class SQLite implements DBConnector {
      * @param bbox optional, if given only features are returned if there bbox intersects the given one
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, String geoCol, String idCol, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
@@ -265,13 +290,16 @@ public class SQLite implements DBConnector {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
+                    boolean gotId = false;
+                    boolean gotGeo = false;
                     for (int x = 1; x <= md.getColumnCount(); x++) {
-                        if (md.getColumnLabel(x).contains("OGC_FID")) {
+                        if (md.getColumnLabel(x).contains("OGC_FID") && geoCol == null || md.getColumnName(x).equals(idCol)) {
                             //ID
+                            gotId = true;
                             f.setId(rs.getString(x));
                         } else {
                             //Normal Feature
-                            if (!md.getColumnName(x).equals("AsEWKB(GEOMETRY)") && !md.getColumnName(x).equals("GEOMETRY")) {
+                            if (!md.getColumnName(x).contains("AsEWKB(") && !md.getColumnLabel(x).contains("GEOMETRY")) {
                                 String col = md.getColumnName(x);
                                 //Check if there is a config for that table and if it has a column rename
                                 if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
@@ -284,7 +312,7 @@ public class SQLite implements DBConnector {
                     }
                     boolean intersect = true;
                     if (hasGeometry(table)) {
-                        String geometry = rs.getString("AsEWKB(GEOMETRY)");
+                        String geometry = rs.getString("AsEWKB(" + geoCol + ")");
                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
                         if (geo != null) {
                             f.setGeometry(geo);
@@ -308,7 +336,7 @@ public class SQLite implements DBConnector {
             }
             if(hasGeometry(table)) {
                 Statement stmt = c.createStatement();
-                ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(GEOMETRY)) as table_extent FROM [" + table + "]");
+                ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM [" + table + "]");
                 if (resultSet.next()) {
                     mil.nga.sf.geojson.Geometry g = EWKBtoGeo(resultSet.getString(1));
                     if(g != null) {
@@ -405,13 +433,13 @@ public class SQLite implements DBConnector {
      * @param alias Table alias
      * @return real table name
      */
-    public String getNameByAlias(String alias){
+    public TableConfig getConfByAlias(String alias){
         Iterator it = config.entrySet().iterator();
         while(it.hasNext()){
             Map.Entry pair = (Map.Entry)it.next();
             TableConfig t = (TableConfig) pair.getValue();
             if(t.getAlias().equals(alias)){
-                return t.getTable();
+                return t;
             }
         }
         return null;
