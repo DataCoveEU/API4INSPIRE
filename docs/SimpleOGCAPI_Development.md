@@ -10,6 +10,8 @@ The development documentation:
 * __[PostGIS & pgweb Docker](./docker_postgis_inspire.md)__
 
 * [OGC API Examples](https://github.com/opengeospatial/ogcapi-features/blob/master/implementations.md)
+* [Admin design mockup](./Admin-Design.pdf)
+* [User design mockup](./User-Design.pdf) 
 
 
 ## Run the application

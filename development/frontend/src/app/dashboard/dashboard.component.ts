@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
 
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -12,12 +11,13 @@ import { ConnectorService } from '../connector.service';
 export class DashboardComponent implements OnInit {
 
   tableNames = ['Table 1', 'Table 2', 'Table 3', 'Table 4'];
-  tableConfigNames = ['Config 1', '', 'Config 3', ''];
 
   columnNames = ['Col 1', 'Col 2', 'Col 3'];
   columnConfigNames = ['Conf 1', '', 'Conf 2'];
 
   connectors: any = [{"name": "No connectors available"}];
+
+  selectedConnector: any;
 
   showCols: boolean = false;
   showRenameTable: boolean = false;
@@ -49,10 +49,12 @@ export class DashboardComponent implements OnInit {
       columnName: ['', Validators.required]
     });
 
-    var select = document.getElementById("selectField");
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    this.selectedConnector = this.connectors[select.selectedIndex]
+
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = (event: any)=>{
-        console.log(event.target.value);
+        this.selectedConnector = event.target.value;
       }
   }
 
@@ -61,7 +63,7 @@ export class DashboardComponent implements OnInit {
    * 
    * @param name the name or the id of the table row that has been clicked
    */
-  onClickTableName(name: string) {
+  async onClickTableName(name: string) {
     // If a "tablename row" is already selected, then 
     // you have to change the style
     if(this.tableSelect) {
@@ -90,6 +92,8 @@ export class DashboardComponent implements OnInit {
     this.tableSelect = true;
     this.idTableSelected = name;
     this.showCols = true;
+
+    this.columnNames = await this.conService.getColumn({'id':'Inspire', 'table':''+name});
   }
 
   /**

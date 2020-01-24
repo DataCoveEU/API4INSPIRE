@@ -13,7 +13,7 @@
     </div>
 
     <div class="row card-deck" id="tables">
-        <div class="card">
+        <div class="card" style="height: 30vh; overflow: auto">
             <table class="table">
                 <thead>
                   <tr>
@@ -27,12 +27,13 @@
                   <tr *ngFor="let tablename of tableNames; let i = index;" (click)="onClickTableName(tablename)" [attr.id]=tablename class="tableRow">
                     <th scope="row">{{ i+1 }}</th>
                     <td>{{ tablename }}</td>
-                    <td>{{ tableConfigNames[i] }}</td>
+                    <td *ngIf="this.selectedConnector.config[tablename] != undefined; else notHere">{{ this.selectedConnector.config[tablename].alias }}</td>
+                    <ng-template #notHere><td></td></ng-template>
                   </tr>
                 </tbody>
               </table>
         </div>
-        <div class="card">
+        <div class="card" style="height: 30vh; overflow: auto">
             <table class="table">
                 <thead>
                   <tr>
@@ -45,7 +46,9 @@
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                       <th scope="row">{{ i+1 }}</th>
                       <td>{{ colname }}</td>
-                      <td>{{ columnConfigNames[i] }}</td>
+                      <td>{{ this.selectedConnector.config[this.idTableSelected].map[colname] }}</td>
+                      <!--<td>Lukas</td> -->
+                      <!--<td>{{ columnConfigNames[i] }}</td>-->
                     </tr>
                 </tbody>
               </table>
