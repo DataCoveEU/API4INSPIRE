@@ -125,6 +125,10 @@ export class DashboardComponent implements OnInit {
     this.columnSelected = true;
   }
 
+  /**
+   * Handle the click event when the new table name is submitted 
+   * 
+   */
   submitTable() {
     this.tableNameSubmitted = true;
     if(this.renameTableForm.invalid) {
@@ -147,6 +151,9 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Handle the click event when the new column name is submitted
+   */
   submitColumn() {
     this.columnNameSubmitted = true;
     if(this.renameColumnForm.invalid) {
