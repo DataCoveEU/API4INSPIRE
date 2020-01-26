@@ -189,14 +189,21 @@ public class PostgreSQL implements DBConnector {
     @Override
     public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
-                String queryName = getNameByAlias(collectionName);
-                if (queryName == null) {
-                    queryName = collectionName;
+                TableConfig config = getConfByAlias(collectionName);
+                String queryName = collectionName;
+                String geoCol = "geom";
+                String idCol = null;
+                if (config != null) {
+                    queryName = config.getTable();
+                    if(config.getGeoCol() != null)
+                        geoCol =  config.getGeoCol();
+
+                    idCol = config.getIdCol();
                 }
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
-                return resultSetToFeatureCollection(rs, queryName, collectionName, withProps, withSpatial, limit, offset,bbox);
+                return resultSetToFeatureCollection(rs, queryName, collectionName, geoCol, idCol, withProps, withSpatial, limit, offset,bbox);
         } catch (SQLException e) {
                 return null;
             }
@@ -217,10 +224,17 @@ public class PostgreSQL implements DBConnector {
                 ResultSet rs;
                 rs = stmt.executeQuery("SELECT * FROM " + schema + "." + table + "");
                 String alias = table;
+                String geoCol = "geom";
+                String idCol = null;
                 if (config.containsKey(table)) {
-                    alias = config.get(table).getAlias();
+                    TableConfig conf = config.get(table);
+                    alias = conf.getAlias();
+                    if(conf.getGeoCol() != null)
+                        geoCol = conf.getGeoCol();
+
+                    idCol = conf.getIdCol();
                 }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, withProps, true,0,0, null);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias,geoCol, idCol, withProps, true,0,0, null);
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
@@ -271,7 +285,7 @@ public class PostgreSQL implements DBConnector {
      * @param bbox optional, if given only features are returned if there bbox intersects the given one
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, String geoCol, String idCol, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
             if(withProps) {
@@ -285,13 +299,12 @@ public class PostgreSQL implements DBConnector {
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
                         for (int x = 1; x <= md.getColumnCount(); x++) {
-                            System.out.println(md.getColumnLabel(x));
-                            if (md.getColumnLabel(x).contains("localid")) {
+                            if (md.getColumnLabel(x).contains("localid") && idCol == null || md.getColumnName(x).equals(idCol)) {
                                 //ID
                                 f.setId(rs.getString(x));
                             } else {
                                 //Normal Feature
-                                if (!md.getColumnName(x).contains("geom")) {
+                                if (!md.getColumnName(x).contains("geom") && !md.getColumnName(x).equals(geoCol)) {
                                     String col = md.getColumnName(x);
                                     //Check if there is a config for that table and if it has a column rename
                                     if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
@@ -305,7 +318,7 @@ public class PostgreSQL implements DBConnector {
 
                     boolean intersect = true;
                     if (hasGeometry(table)) {
-                        String geometry = rs.getString("geom");
+                        String geometry = rs.getString(geoCol);
                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
                         if (geo != null) {
                             f.setGeometry(geo);
@@ -451,13 +464,13 @@ public class PostgreSQL implements DBConnector {
      * @param alias Table alias
      * @return real table name
      */
-    public String getNameByAlias(String alias){
+    public TableConfig getConfByAlias(String alias){
         Iterator it = config.entrySet().iterator();
         while(it.hasNext()){
             Map.Entry pair = (Map.Entry)it.next();
             TableConfig t = (TableConfig) pair.getValue();
             if(t.getAlias().equals(alias)){
-                return t.getTable();
+                return t;
             }
         }
         return null;

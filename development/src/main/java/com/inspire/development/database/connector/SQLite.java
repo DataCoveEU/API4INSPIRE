@@ -176,10 +176,10 @@ public class SQLite implements DBConnector {
                 String idCol = null;
                 if(conf != null)
                 if(conf.getGeoCol() != null) {
-                    geoCol = conf.getGeoCol();
+                    if(conf.getGeoCol() != null)
+                        geoCol = conf.getGeoCol();
 
-                    if (conf.getIdCol() != null)
-                        idCol = conf.getIdCol();
+                    idCol = conf.getIdCol();
                 }
 
                 Statement stmt = c.createStatement();
@@ -218,8 +218,8 @@ public class SQLite implements DBConnector {
                     if(c.getGeoCol() != null)
                         geoCol = c.getGeoCol();
 
-                    if(c.getIdCol() != null)
-                        idCol = c.getIdCol();
+                    idCol = c.getIdCol();
+
                 }
                 if (hasGeometry(table)) {
                     rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol  + ") FROM [" + table + "]");
