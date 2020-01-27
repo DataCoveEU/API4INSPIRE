@@ -146,7 +146,12 @@ public class SQLite implements DBConnector {
         try {
             Statement stmt = c.createStatement();
             stmt.execute("CREATE VIEW " + featureCollectionName + " as " + sql);
-            return this.get(featureCollectionName,true,false,-1,0, null);
+            PreparedStatement st = c.prepareStatement("INSERT INTO geometry_columns\n" +
+                    "    (f_table_name, f_geometry_column, geometry_type, coord_dimension, srid, spatial_index_enabled)\n" +
+                    "  VALUES (?, 'geometry', 0, 2, 4326, 1);");
+            st.setString(1,featureCollectionName);
+            st.execute();
+            return this.get(featureCollectionName,false,-1,0, null);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
             return null;
@@ -160,36 +165,32 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
+    public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
-                TableConfig conf = getConfByAlias(collectionName);
-                String queryName = collectionName;
-                if(conf != null)
-                    conf.getTable();
+            TableConfig conf = getConfByAlias(collectionName);
+            String queryName = collectionName;
 
-                if (queryName == null) {
-                    queryName = collectionName;
-                }
-                //We will just asume that the geometry column is named GEOMETRY
-                String geoCol = "GEOMETRY";
-                //Same with id
-                String idCol = null;
-                if(conf != null)
-                if(conf.getGeoCol() != null) {
-                    if(conf.getGeoCol() != null)
-                        geoCol = conf.getGeoCol();
+            String geoCol = getGeometry(queryName);
+            String idCol = null;
 
+            if(conf != null) {
+                queryName = conf.getTable();
+                if (conf.getGeoCol() != null)
+                    geoCol = conf.getGeoCol();
+
+                if(conf.getIdCol() != null)
                     idCol = conf.getIdCol();
-                }
+            }
 
-                Statement stmt = c.createStatement();
-                ResultSet rs = null;
-                if(hasGeometry(queryName)) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(GEOMETRY) from [" + queryName + "]");
-                }else{
-                    rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
-                }
-                return resultSetToFeatureCollection(rs, queryName, collectionName, geoCol, idCol, withProps, withSpatial, limit,offset,bbox);
+            Statement stmt = c.createStatement();
+            ResultSet rs = null;
+
+            if(geoCol != null) {
+                rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol + ") from [" + queryName + "]");
+            }else{
+                rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
+            }
+            return resultSetToFeatureCollection(rs, queryName, collectionName, idCol, geoCol, withSpatial, limit,offset,bbox);
         } catch (SQLException e) {
                 return null;
             }
@@ -197,37 +198,35 @@ public class SQLite implements DBConnector {
 
     /**
      * Returns all FeatureCollections for the Database
-     *
      * @return FeatureCollection Array, null if error occurred.
      */
     @JsonIgnore
     @Override
-    public FeatureCollection[] getAll(boolean withProps) {
+    public FeatureCollection[] getAll() {
         ArrayList<FeatureCollection> fc = new ArrayList<>();
         for (String table : getAllTables()) {
             try {
 
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
-                String geoCol = "GEOMETRY";
-                String alias = table;
+                String geoCol = getGeometry(table);
                 String idCol = null;
+                String alias = table;
                 if (config.containsKey(table)) {
                     TableConfig c = config.get(table);
                     alias = c.getAlias();
                     if(c.getGeoCol() != null)
                         geoCol = c.getGeoCol();
 
-                    idCol = c.getIdCol();
-
+                    if(c.getIdCol() != null)
+                        idCol = c.getIdCol();
                 }
-                if (hasGeometry(table)) {
+                if (geoCol != null) {
                     rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol  + ") FROM [" + table + "]");
                 } else {
                     rs = stmt.executeQuery("SELECT * FROM [" + table + "]");
                 }
-
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, geoCol, idCol, withProps, true, 0,0, null);
+                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, idCol, geoCol, true, 0,0, null);
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
@@ -271,35 +270,32 @@ public class SQLite implements DBConnector {
      * Converts a ResultSet from a Table Query to a FeatureCollection
      * @param rs ResultSet from Table query
      * @param table Table name of query
-     * @param withProps boolean if properties shall be included
      * @param limit limit on how many features shall be included
      * @param offset offset to the start of features
      * @param bbox optional, if given only features are returned if there bbox intersects the given one
      * @return  ResultSet with content of table
      */
-    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, String geoCol, String idCol, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox) {
+    private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, String idCol, String geoCol, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
             FeatureCollection fs = new FeatureCollection(alias);
-            if(withProps) {
-                //Creating offset
-                for(int i = 0;i< offset;i++){
-                    rs.next();
-                }
+            if(idCol == null)
+                idCol = getPrimaryKey(table);
+            //Creating offset
+            for(int i = 0;i< offset;i++){
+                rs.next();
+            }
                 int counter = 0;
                 while (rs.next() && (counter < limit || limit == -1)) {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
-                    boolean gotId = false;
-                    boolean gotGeo = false;
                     for (int x = 1; x <= md.getColumnCount(); x++) {
-                        if (md.getColumnLabel(x).contains("OGC_FID") && geoCol == null || md.getColumnName(x).equals(idCol)) {
+                        if (md.getColumnLabel(x).contains("OGC_FID") && idCol == null || md.getColumnName(x).equals(idCol)) {
                             //ID
-                            gotId = true;
                             f.setId(rs.getString(x));
                         } else {
                             //Normal Feature
-                            if (!md.getColumnName(x).contains("AsEWKB(") && !md.getColumnLabel(x).contains("GEOMETRY")) {
+                            if (!md.getColumnName(x).contains("AsEWKB(") && !md.getColumnName(x).contains(geoCol)) {
                                 String col = md.getColumnName(x);
                                 //Check if there is a config for that table and if it has a column rename
                                 if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
@@ -311,7 +307,7 @@ public class SQLite implements DBConnector {
                         }
                     }
                     boolean intersect = true;
-                    if (hasGeometry(table)) {
+                    if (geoCol != null) {
                         String geometry = rs.getString("AsEWKB(" + geoCol + ")");
                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
                         if (geo != null) {
@@ -325,7 +321,6 @@ public class SQLite implements DBConnector {
                                 Rectangle b = rectFromBBox(bbox);
                                 intersect = a.intersects(b);
                             }
-                        }
                     }
                     if(intersect) {
                         f.setProperties(prop);
@@ -334,7 +329,7 @@ public class SQLite implements DBConnector {
                     counter++;
                 }
             }
-            if(hasGeometry(table)) {
+            if(geoCol != null) {
                 Statement stmt = c.createStatement();
                 ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM [" + table + "]");
                 if (resultSet.next()) {
@@ -418,13 +413,32 @@ public class SQLite implements DBConnector {
      * @param table Table name to check
      * @return true if GEOMETRY exists, else false
      */
-    public boolean hasGeometry(String table){
+    public String getGeometry(String table){
+        try {
+            PreparedStatement ps = c.prepareStatement("select f_geometry_column from geometry_columns where f_table_name = ?");
+            ps.setString(1,table);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                return rs.getString(1).toUpperCase();
+            }else{
+                return null;
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    public String getPrimaryKey(String table){
         try {
             DatabaseMetaData md = c.getMetaData();
-            ResultSet rs = md.getColumns(null, null, table, "GEOMETRY");
-            return rs.next();
+            ResultSet rs = md.getPrimaryKeys(null,null,table);
+            if(rs.next()){
+                return rs.getString(4).toUpperCase();
+            }else{
+                return null;
+            }
         } catch (SQLException e) {
-            return false;
+            return null;
         }
     }
 
