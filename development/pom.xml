@@ -159,7 +159,7 @@
 							<arguments>run build</arguments>
 						</configuration>
 					</execution>
-					<execution>
+					<!--<execution>
 						<id>prod</id>
 						<goals>
 							<goal>npm</goal>
@@ -168,7 +168,7 @@
 							<arguments>run-script build</arguments>
 						</configuration>
 						<phase>generate-resources</phase>
-					</execution>
+					</execution>-->
 				</executions>
 
 			</plugin>
