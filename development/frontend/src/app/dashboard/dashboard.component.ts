@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
+import { SqlService } from '../sql.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,10 +36,18 @@ export class DashboardComponent implements OnInit {
   renameColumnForm: FormGroup;
   columnNameSubmitted: boolean = false;
 
-  constructor(private formBuilder: FormBuilder, private conService: ConnectorService) { }
+  sqlForm: FormGroup;
+  sqlSubmitted: boolean = false;
+
+
+  constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
   async ngOnInit() {     
-    this.connectors = await this.conService.getConnector();
+
+    this.sqlForm = this.formBuilder.group({
+      collectionId: ['', Validators.required],
+      sqlQuery: ['', Validators.required]
+    });
 
     this.renameTableForm = this.formBuilder.group({
       tableName: ['', Validators.required]
@@ -47,6 +56,8 @@ export class DashboardComponent implements OnInit {
     this.renameColumnForm = this.formBuilder.group({
       columnName: ['', Validators.required]
     });
+
+    this.connectors = await this.conService.getConnector();
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
@@ -192,4 +203,21 @@ export class DashboardComponent implements OnInit {
 
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
   }
+
+  executeSQL() {
+    this.sqlSubmitted = true;
+    if(this.sqlForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'sql': this.sqlForm.value.sqlQuery,
+      'collectionName': this.sqlForm.value.collectionId
+    };
+
+    this.sqlService.executeSQL(json);
+
+  }
+
 }

@@ -9,8 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.inspire</groupId>
-	<artifactId>development</artifactId>
-	<version>0.0.1</version>
+	<artifactId>ogcapisimple</artifactId>
 	<packaging>war</packaging>
 	<name>development</name>
 	<description>OGC API Development</description>
@@ -123,6 +122,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>ogcapisimple</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -152,6 +152,7 @@
 					</execution>
 					<execution>
 						<id>npm run build</id>
+
 						<goals>
 							<goal>npm</goal>
 						</goals>
@@ -170,11 +171,13 @@
 						<phase>generate-resources</phase>
 					</execution>
 				</executions>
+
 			</plugin>
 
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
+
 					<execution>
 						<phase>generate-resources</phase>
 						<configuration>
