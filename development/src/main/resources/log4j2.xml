@@ -11,12 +11,13 @@
     </Appenders>
     <Loggers>
         <Logger name="com.inspire.development.database.connector.SQLite" level="trace">
-            <AppenderRef ref="Console"/>
+
         </Logger>
 
-        <Logger name="*.*" level="debug" includeLocation="true">
-            <AppenderRef ref="File" />
+        <Logger name="com.inspire.development.database.connector.PostgreSQL" level="trace">
+
         </Logger>
+
 
         <Root level="error">
             <AppenderRef ref="Console"/>

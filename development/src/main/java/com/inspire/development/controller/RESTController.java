@@ -30,14 +30,14 @@ public class RESTController {
     public RESTController(){
         core = new Core();
 
-        //SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
         //c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
         //c.renameTable("tna_insp_navaids", "Tobias");
         //c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
-        //PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
-        //core.getConnectors().add(c);
+        PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
+        core.getConnectors().add(c);
 
-        //core.getConnectors().add(p);
+        core.getConnectors().add(p);
 
 
         DBConnectorList list = core.parseConfig();
@@ -102,9 +102,13 @@ public class RESTController {
      * @return a special item (=feature) from a collection
      */
     @GetMapping("/collections/{collectionId}/items/{featureId}")
-    public Feature getItemFromCollection(@PathVariable("collectionId") String collectionId, @PathVariable("featureId") String featureId) {
+    public ResponseEntity<Object> getItemFromCollection(@PathVariable("collectionId") String collectionId, @PathVariable("featureId") String featureId) {
         //TODO: implement the method to return a special feature from a special collection
-        return core.getFeature(collectionId,featureId);
+        Feature f = core.getFeature(collectionId,featureId);
+        if(f != null)
+            return new ResponseEntity<>(f,HttpStatus.OK);
+        else
+            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
 

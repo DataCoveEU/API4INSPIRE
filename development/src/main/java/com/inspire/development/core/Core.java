@@ -71,7 +71,7 @@ public class Core {
 
     public FeatureCollection get(String featureCollection, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox){
         for(DBConnector db:connectors){
-            FeatureCollection f = db.get(featureCollection, withProps, withSpatial, limit, offset, bbox);
+            FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox);
             if(f != null)
                 return f;
         }
@@ -82,7 +82,7 @@ public class Core {
         String hostname = InetAddress.getLoopbackAddress().getHostName();
         ArrayList<FeatureCollection> fsl = new ArrayList<>();
         for(DBConnector db:connectors){
-            FeatureCollection[] fca = db.getAll(false);
+            FeatureCollection[] fca = db.getAll();
             for(FeatureCollection fc:fca){
                 //Add required links
                 fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
