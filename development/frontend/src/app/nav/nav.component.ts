@@ -16,7 +16,7 @@ export class NavComponent implements OnInit {
 
   isLoggedIn:boolean = false;
 
-  constructor(private router:Router, private auth: AuthService) { }
+  constructor(private router:Router, public auth: AuthService) { }
 
   ngOnInit() {
     var url = this.router.url;

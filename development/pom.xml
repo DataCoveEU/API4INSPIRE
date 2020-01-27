@@ -152,7 +152,6 @@
 					</execution>
 					<execution>
 						<id>npm run build</id>
-
 						<goals>
 							<goal>npm</goal>
 						</goals>
