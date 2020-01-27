@@ -68,9 +68,9 @@ public class SQLite implements DBConnector {
             Statement stat = c.createStatement();
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
-            log.debug("Created SQL Connector with path: " + hostname);
+            log.info("Created SQL Connector with id: " + id);
         } catch (SQLException e) {
-            log.error(e.getMessage());
+            log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
             errorBuffer.add(e.getMessage());
         }
 
@@ -97,9 +97,9 @@ public class SQLite implements DBConnector {
             Statement stat = c.createStatement();
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
-            //updateTablesArray();
-            //System.out.println(tableNames);
+            log.info("Created SQL Connector with path: " + hostname);
         } catch (SQLException e) {
+            log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
             errorBuffer.add(e.getMessage());
         }
 
@@ -119,6 +119,7 @@ public class SQLite implements DBConnector {
                 return "Connection to " + hostname + " is closed";
             }
         } catch (SQLException e) {
+            log.error("Error checking Connection for connector: " + id);
             return e.getMessage();
         }
     }
@@ -144,6 +145,7 @@ public class SQLite implements DBConnector {
     @Override
     public FeatureCollection execute(String sql, String featureCollectionName) {
         try {
+            log.debug("Executing sql: " + sql + ", with collectionName: " + featureCollectionName);
             Statement stmt = c.createStatement();
             stmt.execute("CREATE VIEW " + featureCollectionName + " as " + sql);
             PreparedStatement st = c.prepareStatement("INSERT INTO geometry_columns\n" +
@@ -154,6 +156,7 @@ public class SQLite implements DBConnector {
             return this.get(featureCollectionName,false,-1,0, null);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
+            log.warn("Error executing sql: " + sql);
             return null;
         }
     }
@@ -167,6 +170,7 @@ public class SQLite implements DBConnector {
     @Override
     public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
+            log.debug("Getting FeatureCollection: " + collectionName);
             TableConfig conf = getConfByAlias(collectionName);
             String queryName = collectionName;
 
@@ -192,6 +196,7 @@ public class SQLite implements DBConnector {
             }
             return resultSetToFeatureCollection(rs, queryName, collectionName, idCol, geoCol, withSpatial, limit,offset,bbox);
         } catch (SQLException e) {
+            log.warn("Error getting FeatureCollection: " + collectionName);
                 return null;
             }
     }
@@ -203,8 +208,10 @@ public class SQLite implements DBConnector {
     @JsonIgnore
     @Override
     public FeatureCollection[] getAll() {
+        log.info("Get all FeatureCollections");
         ArrayList<FeatureCollection> fc = new ArrayList<>();
         for (String table : getAllTables()) {
+            log.debug("Table: " + table);
             try {
 
                 Statement stmt = c.createStatement();
@@ -230,7 +237,7 @@ public class SQLite implements DBConnector {
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
-
+                log.warn("Error occurred while converting table: " + table + " to FeatureCollection.");
             }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
@@ -277,6 +284,7 @@ public class SQLite implements DBConnector {
      */
     private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, String idCol, String geoCol, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
+            log.debug("Converting table: " + table + " to FeatureCollection");
             FeatureCollection fs = new FeatureCollection(alias);
             if(idCol == null)
                 idCol = getPrimaryKey(table);
@@ -293,6 +301,7 @@ public class SQLite implements DBConnector {
                         if (md.getColumnLabel(x).contains("OGC_FID") && idCol == null || md.getColumnName(x).equals(idCol)) {
                             //ID
                             f.setId(rs.getString(x));
+                            log.debug("ID set");
                         } else {
                             //Normal Feature
                             if (!md.getColumnName(x).contains("AsEWKB(") && !md.getColumnName(x).contains(geoCol)) {
@@ -308,6 +317,7 @@ public class SQLite implements DBConnector {
                     }
                     boolean intersect = true;
                     if (geoCol != null) {
+                        log.debug("Set Geometry");
                         String geometry = rs.getString("AsEWKB(" + geoCol + ")");
                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
                         if (geo != null) {
@@ -343,12 +353,13 @@ public class SQLite implements DBConnector {
             }
             return fs;
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.warn("Error occured while converting table: " + table + " to FeatureCollection");
             return null;
         }
     }
 
     public void renameProp(String table, String feature, String featureAlias){
+        log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
         if(config.containsKey(table)){
             TableConfig conf = config.get(table);
             conf.getMap().put(feature,featureAlias);
@@ -360,6 +371,7 @@ public class SQLite implements DBConnector {
     }
 
     public void renameTable(String table, String tableAlias){
+        log.info("Renaming table: " + table + " to: " + tableAlias);
         if(config.containsKey(table)){
             config.get(table).setAlias(tableAlias);
         }else{
@@ -389,6 +401,7 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     public ArrayList<String> getAllTables(){
+        log.debug("Get all table names");
         try {
             ArrayList<String> out = new ArrayList<>();
             DatabaseMetaData md = c.getMetaData();
@@ -404,6 +417,7 @@ public class SQLite implements DBConnector {
             }
             return out;
         }catch (SQLException e){
+            log.warn("Error occurred while getting all tables. Error: " + e.getMessage());
             return null;
         }
     }
@@ -414,6 +428,7 @@ public class SQLite implements DBConnector {
      * @return true if GEOMETRY exists, else false
      */
     public String getGeometry(String table){
+        log.debug("Get geometry for table: " + table);
         try {
             PreparedStatement ps = c.prepareStatement("select f_geometry_column from geometry_columns where f_table_name = ?");
             ps.setString(1,table);
@@ -424,11 +439,13 @@ public class SQLite implements DBConnector {
                 return null;
             }
         } catch (SQLException e) {
+            log.warn("Error occurred while getting geometry for table: " + table + ". Error: " + e.getMessage() );
             return null;
         }
     }
 
     public String getPrimaryKey(String table){
+        log.debug("Get PrimaryKey for table: " + table);
         try {
             DatabaseMetaData md = c.getMetaData();
             ResultSet rs = md.getPrimaryKeys(null,null,table);
@@ -438,6 +455,7 @@ public class SQLite implements DBConnector {
                 return null;
             }
         } catch (SQLException e) {
+            log.error("Error occurred while getting primary key for table: " + table);
             return null;
         }
     }
@@ -448,6 +466,7 @@ public class SQLite implements DBConnector {
      * @return real table name
      */
     public TableConfig getConfByAlias(String alias){
+        log.debug("Getting config by alias for alias: " + alias);
         Iterator it = config.entrySet().iterator();
         while(it.hasNext()){
             Map.Entry pair = (Map.Entry)it.next();

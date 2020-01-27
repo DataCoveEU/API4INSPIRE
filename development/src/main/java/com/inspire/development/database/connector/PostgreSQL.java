@@ -7,6 +7,8 @@ import com.inspire.development.database.DBConnector;
 import mil.nga.sf.geojson.Feature;
 import mil.nga.sf.geojson.Polygon;
 import mil.nga.sf.geojson.Position;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.postgis.Geometry;
 import org.postgis.PGgeometry;
 
@@ -23,6 +25,8 @@ import java.util.stream.DoubleStream;
 @JsonTypeName("postgresql")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,visible = true)
 public class PostgreSQL implements DBConnector {
+    static Logger log = LogManager.getLogger(PostgreSQL.class.getName());
+
     private ArrayList<String> errorBuffer;
     @JsonProperty("hostname")
     private String hostname;
@@ -69,11 +73,11 @@ public class PostgreSQL implements DBConnector {
         try {
             connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
+            log.info("Postgres Connector created for path: " + hostname);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
+            log.error("Error creating connector. Error: " + e.getMessage());
         }
-        //((org.postgresql.PGConnection)c).addDataType("geometry", (Class<? extends PGobject>) Class.forName("org.postgis.PGgeometry"));
-        //((org.postgresql.PGConnection)c).addDataType("box3d", (Class<? extends PGobject>) Class.forName("org.postgis.PGbox3d"));
 
     }
 
@@ -119,8 +123,10 @@ public class PostgreSQL implements DBConnector {
         try {
             connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
+            log.info("Postgres Connector created from config for path: " + hostname);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
+            log.error("Error creating connector. Error: " + e.getMessage());
         }
     }
 
@@ -144,6 +150,7 @@ public class PostgreSQL implements DBConnector {
                 return "Connection to " + hostname + " is closed";
             }
         } catch (SQLException e) {
+            log.warn("Error checking connection for connector: " + hostname);
             return e.getMessage();
         }
     }
@@ -169,11 +176,13 @@ public class PostgreSQL implements DBConnector {
     @Override
     public FeatureCollection execute(String sql, String featureCollectionName) {
         try {
+            log.info("Executing sql: " + sql + ", into collection: " + featureCollectionName);
             Statement stmt = c.createStatement();
             stmt.execute("CREATE VIEW " + schema + "." + featureCollectionName + " as " + sql);
             return this.get(featureCollectionName,false, -1, 0,null);
         } catch (SQLException e) {
             errorBuffer.add(e.getMessage());
+            log.warn("Error executing sql statement: " + sql + ". Error: " + e.getMessage());
             return null;
         }
     }
@@ -187,10 +196,9 @@ public class PostgreSQL implements DBConnector {
     @Override
     public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
+                log.info("Requesting Collection: " + collectionName +  "with settings: limit=" + limit + ", offset="+ offset + ", bbox=" + Arrays.toString(bbox) + ", witSpatial=" + withSpatial);
                 TableConfig config = getConfByAlias(collectionName);
                 String queryName = collectionName;
-                String geoCol = "geom";
-                String idCol = null;
                 if (config != null) {
                     queryName = config.getTable();
                 }
@@ -199,7 +207,9 @@ public class PostgreSQL implements DBConnector {
                 rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
                 return resultSetToFeatureCollection(rs, queryName, collectionName, withSpatial, limit, offset,bbox);
         } catch (SQLException e) {
-                return null;
+            log.warn("Failed to get collection: " + collectionName + ", with settings: limit=" + limit + ", offset="+ offset + ", bbox=" + Arrays.toString(bbox) + ", witSpatial=" + withSpatial );
+            errorBuffer.add(e.getMessage());
+            return null;
             }
     }
 
@@ -211,7 +221,10 @@ public class PostgreSQL implements DBConnector {
     @Override
     public FeatureCollection[] getAll() {
         ArrayList<FeatureCollection> fc = new ArrayList<>();
+        log.info("Get all Collections.");
+        log.debug("Iterating through all tables:");
         for (String table : getAllTables()) {
+            log.debug("Table: " + table);
             try {
                 Statement stmt = c.createStatement();
                 ResultSet rs;
@@ -221,11 +234,12 @@ public class PostgreSQL implements DBConnector {
                     TableConfig conf = config.get(table);
                     alias = conf.getAlias();
                 }
+                log.debug("Converting table: "+ table + " to FeatureCollection. Alias: " + alias);
                 FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, true,0,0, null);
                 if (fs != null)
                     fc.add(fs);
             } catch (SQLException e) {
-
+                log.warn("Error while converting table: " + table + " to FeatureCollection");
             }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
@@ -273,6 +287,7 @@ public class PostgreSQL implements DBConnector {
      */
     private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
+            log.debug("Converting table: " + table + " to featureCollection");
             FeatureCollection fs = new FeatureCollection(alias);
             String geom = getGeometry(table);
             int rsid = 0;
@@ -336,6 +351,7 @@ public class PostgreSQL implements DBConnector {
             }
 
             if(geom != null) {
+                log.debug("Getting Bounding Box for Table: " + table);
                 Statement stmt = c.createStatement();
                 ResultSet resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(geom), 4326) as table_extent FROM " + schema + "." + table + "");
                 if (resultSet.next()) {
@@ -350,6 +366,7 @@ public class PostgreSQL implements DBConnector {
             return fs;
         } catch (SQLException e) {
             e.printStackTrace();
+            log.warn("Error converting table. Error: " + e.getMessage());
             return null;
         }
     }
@@ -361,6 +378,7 @@ public class PostgreSQL implements DBConnector {
      * @param featureAlias Feature alias name
      */
     public void renameProp(String table, String feature, String featureAlias){
+        log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
         if(config.containsKey(table)){
             TableConfig conf = config.get(table);
             conf.getMap().put(feature,featureAlias);
@@ -436,6 +454,7 @@ public class PostgreSQL implements DBConnector {
             }**/
             return out;
         }catch (SQLException e){
+            log.warn("Failde to get all tables. Error: " + e.getMessage());
             return null;
         }
     }
@@ -447,6 +466,7 @@ public class PostgreSQL implements DBConnector {
      */
     public String getGeometry(String table){
         try {
+            log.debug("Getting geometry columns for table: " + table);
             PreparedStatement ps = c.prepareStatement("select f_geometry_column from geometry_columns where f_table_schema = ? and f_table_name = ?");
             ps.setString(1,schema);
             ps.setString(2,table);
@@ -457,6 +477,7 @@ public class PostgreSQL implements DBConnector {
                 return null;
             }
         } catch (SQLException e) {
+            log.warn("Error getting Geometry for table: " + table);
             return null;
         }
     }
@@ -468,6 +489,7 @@ public class PostgreSQL implements DBConnector {
      * @return real table name
      */
     public TableConfig getConfByAlias(String alias){
+        log.debug("Getting table by alias: " + alias);
         Iterator it = config.entrySet().iterator();
         while(it.hasNext()){
             Map.Entry pair = (Map.Entry)it.next();
@@ -485,6 +507,7 @@ public class PostgreSQL implements DBConnector {
      * @return Geometry object if string is valid, else null
      */
     public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
+        log.debug("Converting EWKB to Geometry");
         try {
             if (ewkb != null) {
                 double xmin = Integer.MAX_VALUE;
@@ -563,6 +586,7 @@ public class PostgreSQL implements DBConnector {
      * @return ArrayList with all names. Null if an error occurred.
      */
     public ArrayList<String> getColumns(String table){
+        log.debug("Getting all Collumns for table: " + table);
         ArrayList<String> result = new ArrayList<>();
         try {
             DatabaseMetaData md = c.getMetaData();
@@ -582,6 +606,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     public String updateConnector(){
+        log.debug("Updating Connector");
         Connection oldCon = c;
         try{
             Properties prop = new Properties();
