@@ -37,7 +37,7 @@ public class RESTController {
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
         core.getConnectors().add(c);
 
-        core.getConnectors().add(p);
+        //core.getConnectors().add(p);
 
 
         DBConnectorList list = core.parseConfig();

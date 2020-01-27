@@ -43,7 +43,7 @@ export class DashboardComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
   async ngOnInit() {     
-
+    //Init the forms to rename the tables and columns and to execute the sql query
     this.sqlForm = this.formBuilder.group({
       collectionId: ['', Validators.required],
       sqlQuery: ['', Validators.required]
@@ -57,19 +57,21 @@ export class DashboardComponent implements OnInit {
       columnName: ['', Validators.required]
     });
 
+    //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
-    this.selectedConnector = this.connectors[select.selectedIndex]
+    this.selectedConnector = this.connectors[select.selectedIndex];
 
-    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+    //Load the table names from the selected connector
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = async (event: any)=>{
         var select = document.getElementById("selectField") as HTMLSelectElement;
-        this.selectedConnector = this.connectors[select.selectedIndex]        //this.reload();
+        this.selectedConnector = this.connectors[select.selectedIndex];
 
-        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
         this.tableSelect = false;
       }
   }
@@ -138,7 +140,6 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Handle the click event when the new table name is submitted 
-   * 
    */
   submitTable() {
     this.tableNameSubmitted = true;
@@ -146,6 +147,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    //Init the JSON for the backend
     var json = {
       'id': this.selectedConnector.id,
       'orgName': this.idTableSelected,
@@ -171,6 +173,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    //Init the JSON for the backend
     var json = {
       'id': this.selectedConnector.id,
       'table': this.idTableSelected,
@@ -187,6 +190,9 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Reload the connectors and tables
+   */
   async reload() {
     this.connectors = await this.conService.getConnector();
 
@@ -197,6 +203,9 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Reload and load the new tables
+   */
   async loadNewTables() {
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
@@ -204,6 +213,9 @@ export class DashboardComponent implements OnInit {
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
   }
 
+  /**
+   * Handle the "execute" event for the sql query
+   */
   executeSQL() {
     this.sqlSubmitted = true;
     if(this.sqlForm.invalid) {

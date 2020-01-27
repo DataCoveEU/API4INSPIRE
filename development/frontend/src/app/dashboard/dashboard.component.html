@@ -32,7 +32,7 @@
                 </tbody>
               </table>
         </div>
-        <div class="card" style="height: 30vh; overflow: auto">
+        <div class="card" style="width: 100%; height: 30vh; overflow: auto">
             <table class="table">
                 <thead>
                   <tr>
@@ -58,7 +58,7 @@
       <div class="col-sm-6" *ngIf="showRenameTable">
         <h5>Rename the table</h5>
         <form [formGroup]="renameTableForm" (ngSubmit)="submitTable()">
-          <label>
+          <label style="width: 100%">
             <input type="text" formControlName="tableName" class="form-control" placeholder="New table name"/>
             <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
               <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
@@ -71,7 +71,7 @@
       <div class="col-sm-6" *ngIf="showRenameCol">
         <h5>Rename the column</h5>
         <form [formGroup]="renameColumnForm" (ngSubmit)="submitColumn()">
-            <label>
+          <label style="width: 100%">
               <input type="text" formControlName="columnName" class="form-control" placeholder="New column name" />
               <div *ngIf="columnNameSubmitted && renameColumnForm.controls.columnName.errors" class="error">
                 <div *ngIf="renameColumnForm.controls.columnName.errors.required">A new column name is required</div>

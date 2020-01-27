@@ -19,12 +19,16 @@ export class LoginComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,public authservice: AuthService, private router: Router) { }
 
   ngOnInit() {
+    //Init the login form
     this.loginForm = this.formBuilder.group({
       uname: ['', Validators.required],
       pwd: ['', Validators.required]
     });
   }
 
+  /**
+   * Handle the submit event when the user logs in and submits
+   */
   login() {
     this.submitted = true;
     this.authservice.login(this.loginForm.value.uname,this.loginForm.value.pwd);
