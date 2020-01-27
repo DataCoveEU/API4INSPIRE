@@ -45,7 +45,7 @@
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                       <th scope="row">{{ i+1 }}</th>
                       <td>{{ colname }}</td>
-                      <td>{{ this.selectedConnector.config[this.idTableSelected]?.map[colname] }}</td>
+                      <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname] }}</td>
                       <!--<td>Lukas</td> -->
                       <!--<td>{{ columnConfigNames[i] }}</td>-->
                     </tr>

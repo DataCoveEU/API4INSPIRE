@@ -35,4 +35,16 @@ export class AuthService {
   loggedIn(): boolean {
     return localStorage.getItem('access_token') !==  null && !this.jwtHelper.isTokenExpired();
   }
+
+  changePwd(json:object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post('/api/changePwd', json, {
+        responseType: 'text'
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    });
+  }
 }

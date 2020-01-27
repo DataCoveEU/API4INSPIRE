@@ -10,10 +10,10 @@ import { ConnectorService } from '../connector.service';
 })
 export class DashboardComponent implements OnInit {
 
-  tableNames = ['Table 1', 'Table 2', 'Table 3', 'Table 4'];
+  tableNames = [];
 
-  columnNames = ['Col 1', 'Col 2', 'Col 3'];
-  columnConfigNames = ['Conf 1', '', 'Conf 2'];
+  columnNames = [];
+  columnConfigNames = [];
 
   connectors: any = [{"name": "No connectors available"}];
 

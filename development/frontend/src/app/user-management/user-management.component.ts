@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-user-management',
@@ -7,9 +9,35 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UserManagementComponent implements OnInit {
 
-  constructor() { }
+  changePwdForm: FormGroup;
+  submit: boolean = false;
+  notEqual: boolean = false;
+
+  constructor(private formBuilder: FormBuilder, private auth: AuthService) { }
 
   ngOnInit() {
+    this.changePwdForm = this.formBuilder.group({
+      oldPwd: ['', Validators.required],
+      newPwd: ['', Validators.required],
+      reNewPwd: ['', Validators.required]
+    });
+
   }
 
+  renamePwd() {
+    this.submit = true;
+    if(this.changePwdForm.invalid) {
+      return;
+    }
+
+    var old = this.changePwdForm.value.oldPwd;
+    var newPwd = this.changePwdForm.value.newPwd;
+    var reNewPwd = this.changePwdForm.value.reNewPwd;
+
+    if(newPwd != reNewPwd) {
+      this.notEqual = true;
+      return;
+    }
+    this.auth.changePwd({'pwd':newPwd});
+  }
 }

@@ -24,8 +24,14 @@ export class NavComponent implements OnInit {
       var home = document.getElementById("home");
       home.style.fontWeight = "bold";
     } else if (url == "/dashboard") {
+      if(this.auth.loggedin == false) {
+        this.router.navigate(['/']);
+      } 
       this.isDashboard = true;
     } else if (url == "/properties") {
+      if(this.auth.loggedin == false) {
+        this.router.navigate(['/']);
+      } 
       this.isProperties = true;
     } else if (url == "/login") {
       this.isLogin = true;
@@ -33,12 +39,10 @@ export class NavComponent implements OnInit {
       var imp = document.getElementById("imp");
       imp.style.fontWeight = "bold";
     }
-    
   }
 
 
   logout() {
     this.auth.logout();
   }
-
 }
