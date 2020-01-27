@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import * as $ from 'jquery';
+import { ConnectorService } from '../connector.service';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-add-connector',
@@ -9,73 +11,110 @@ import * as $ from 'jquery';
 })
 export class AddConnectorComponent implements OnInit {
 
-  isSQLite:boolean = true;
+  isSQLite:boolean = false;
   sqlite: any;
 
-  constructor() { }
+  isPostgres: boolean = false;
+
+  addPostgresConnectorForm: FormGroup;
+  postgresSubmitted: boolean = false;
+  passwordsEquals: boolean = false;
+
+  addSQLiteConnectorForm: FormGroup;
+  sqliteSubmitted: boolean = false;
+
+  constructor(private conService:ConnectorService, private formBuilder:FormBuilder) { }
 
   ngOnInit() {
+    this.addPostgresConnectorForm = this.formBuilder.group({
+      connectorName: ['', Validators.required],
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      repeatPassword: ['', Validators.required],
+      hostname: ['', Validators.required],
+      port: ['', Validators.required],
+      schema: ['', Validators.required],
+      database: ['', Validators.required]
+    });
+
+    this.addSQLiteConnectorForm = this.formBuilder.group({
+      conName: ['', Validators.required],
+      path: ['', Validators.required]
+    })
+
+    this.isSQLite = true;
     this.sqlite = document.getElementById("content");
     var sel = document.getElementById("connector");
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
       if(cal == "sqlite") {
-        this.showSQLite();
+        this.isSQLite = true;
+        this.isPostgres = false;
       } else if(cal == "postgres") {
-        this.showPostgres();
+        this.isSQLite = false;
+        this.isPostgres = true;
       }
     };
-  }
-
-  showSQLite() {
     
   }
 
-  showPostgres() {
-      this.isSQLite = false;
-      $('#content').html("" +
-      '<div class="row" style="width: 100%; margin-top: 1%">' +
-        '<div class="col-sm-6">' +
-          '<input type="text" class="form-control" style="width: 100%" placeholder="Conncetor name"/>' +
-        '</div>' +
-      '</div>' +
-      '<div class="row" style="width: 100%; margin-top: 1%">' +
-        '<div class="col-sm-6">' +
-          '<input type="text" class="form-control" style="width: 100%" placeholder="Username" />' +
-        '</div>' +
-        '<div class="col-sm-6">' +
-          '<input type="password" class="form-control" style="width: 100%" placeholder="Password" />' + 
-        '</div>' +
-      '</div>' +
-      '<div class="row" style="width: 100%; margin-top: 1%">' +
-        '<div class="col-sm-6" style="width: 100%"></div>' +
-        '<div class="col-sm-6">' +
-          '<input type="password" class="form-control" style="width: 100%" placeholder="Repeat password" />' +
-        '</div>' +
-      '</div>'+ 
-      '<div class="row" style="width: 100%">' +
-        '<div class="col-sm-6">' +
-          '<input class="form-control" type="text" style="width: 100%" placeholder="Hostname" />' +
-        '</div>' +
-      '</div>' +
-      '<div class="row" style="width: 100%; margin-top: 1%">' +
-        '<div class="col-sm-6">' +
-          '<input type="number" class="form-control" style="width: 100%" placeholder="Port" />' +
-        '</div>' +
-      '</div>' +
-      '<div class="row" style="width: 100%; margin-top: 1%">' +
-        '<div class="col-sm-6">' +
-          '<input class="form-control" type="text" style="width: 100%" placeholder="Schema" />' +
-        '</div>' +
-      '</div>' + 
-      '<div class="row" style="width: 100%; margin-top: 1%">' +
-        '<div class="col-sm-6">' +
-          '<button class="btn btn-success" style="width: 100%">Test connction</button>' +
-        '</div>' +
-        '<div class="col-sm-6">' +
-          '<button class="btn btn-success" style="width: 100%">Add connector</button>' +
-        '</div>' +
-      '</div>'
-      );
+  addSQLiteConnector() {
+    this.sqliteSubmitted = true;
+    if(this.addSQLiteConnectorForm.invalid) {
+      return;
+    }
+    var conName = this.addSQLiteConnectorForm.value.conName;
+    var path = this.addSQLiteConnectorForm.value.path
+    var files: any = document.getElementById('fileSel')
+    for(var x of files.files) {
+      console.log("file: " + x.path);
+    }
+    console.log($('#fileSel').files)
+    var json = {
+      "class": "sqlite",
+      "id": conName,
+      "database": "DatabaseB",
+      "schema": null,
+      "hostname": null,
+      "path": path,
+      "port": null
+    }
+
+    alert("It is not yet possible to add a SQLite Connector");
+  }
+
+  addPostgresConnector() {
+    this.postgresSubmitted = true;
+    if(this.addPostgresConnectorForm.invalid){
+      return;
+    }
+    var conName = this.addPostgresConnectorForm.value.connectorName;
+    var uname = this.addPostgresConnectorForm.value.username;
+    var pwd = this.addPostgresConnectorForm.value.password;
+    var repwd = this.addPostgresConnectorForm.value.repeatPassword;
+    var host = this.addPostgresConnectorForm.value.hostname;
+    var port = this.addPostgresConnectorForm.value.port;
+    var schema = this.addPostgresConnectorForm.value.schema;
+    var database = this.addPostgresConnectorForm.value.database;
+
+    if(pwd != repwd) {
+      this.passwordsEquals = true;
+      return;
+    }
+    this.passwordsEquals = false;
+
+    var json = {
+      "class": "postgres",
+      "id": conName,
+      "database": database,
+      "schema": schema,
+      "hostname": host,
+      "port": port,
+      "username": uname,
+      "password": pwd,
+      "isTest": false
+    };
+
+    this.conService.addConnector(json);
   }
 }

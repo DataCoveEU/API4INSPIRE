@@ -26,15 +26,18 @@ public class Core {
     }
 
     public static DBConnectorList parseConfig(){
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(new File("config/config.json"), DBConnectorList.class);
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        File f = new File("config/config.json");
+        if(f.exists()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                return objectMapper.readValue(f, DBConnectorList.class);
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -66,9 +69,9 @@ public class Core {
         this.connectors.add(d);
     }
 
-    public FeatureCollection get(String featureCollection, boolean withProps, boolean withSpatial){
+    public FeatureCollection get(String featureCollection, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox){
         for(DBConnector db:connectors){
-            FeatureCollection f = db.get(featureCollection, withProps, withSpatial);
+            FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox);
             if(f != null)
                 return f;
         }
@@ -79,7 +82,7 @@ public class Core {
         String hostname = InetAddress.getLoopbackAddress().getHostName();
         ArrayList<FeatureCollection> fsl = new ArrayList<>();
         for(DBConnector db:connectors){
-            FeatureCollection[] fca = db.getAll(false);
+            FeatureCollection[] fca = db.getAll();
             for(FeatureCollection fc:fca){
                 //Add required links
                 fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
@@ -91,7 +94,7 @@ public class Core {
     }
 
     public Feature getFeature(String collection, String feature){
-        FeatureCollection fs = get(collection, true, false);
+        FeatureCollection fs = get(collection, true, false, -1, 0,null);
         for(Object o: fs.getFeatures().toArray()){
             Feature f = (Feature)o;
             if(f.getId().equals(feature))

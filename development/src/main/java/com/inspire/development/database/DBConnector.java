@@ -23,9 +23,9 @@ public interface DBConnector {
 
     public FeatureCollection execute(String sql, String fcName);
 
-    public FeatureCollection get(String collectionName, boolean withProps, boolean withSpatial);
+    public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox);
 
-    public FeatureCollection[] getAll(boolean withProps);
+    public FeatureCollection[] getAll();
 
     public void save(FeatureCollection fc);
 
@@ -36,4 +36,10 @@ public interface DBConnector {
     public ArrayList<String> getAllTables();
 
     public ArrayList<String> getColumns(String table);
+
+    public void renameTable(String table, String tableAlias);
+
+    public void renameProp(String table, String feature, String featureAlias);
+
+    public String updateConnector();
 }

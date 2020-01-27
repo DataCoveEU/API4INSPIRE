@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
 
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -12,12 +11,13 @@ import { ConnectorService } from '../connector.service';
 export class DashboardComponent implements OnInit {
 
   tableNames = ['Table 1', 'Table 2', 'Table 3', 'Table 4'];
-  tableConfigNames = ['Config 1', '', 'Config 3', ''];
 
   columnNames = ['Col 1', 'Col 2', 'Col 3'];
   columnConfigNames = ['Conf 1', '', 'Conf 2'];
 
   connectors: any = [{"name": "No connectors available"}];
+
+  selectedConnector: any;
 
   showCols: boolean = false;
   showRenameTable: boolean = false;
@@ -48,10 +48,18 @@ export class DashboardComponent implements OnInit {
       columnName: ['', Validators.required]
     });
 
-    var select = document.getElementById("selectField");
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    this.selectedConnector = this.connectors[select.selectedIndex]
+
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+
     //Eevent when another conncetor in the dropdown is selected
-    select.onchange = (event: any)=>{
-        console.log(event.target.value);
+    select.onchange = async (event: any)=>{
+        var select = document.getElementById("selectField") as HTMLSelectElement;
+        this.selectedConnector = this.connectors[select.selectedIndex]        //this.reload();
+
+        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+        this.tableSelect = false;
       }
   }
 
@@ -60,7 +68,7 @@ export class DashboardComponent implements OnInit {
    * 
    * @param name the name or the id of the table row that has been clicked
    */
-  onClickTableName(name: string) {
+  async onClickTableName(name: string) {
     // If a "tablename row" is already selected, then 
     // you have to change the style
     if(this.tableSelect) {
@@ -89,6 +97,8 @@ export class DashboardComponent implements OnInit {
     this.tableSelect = true;
     this.idTableSelected = name;
     this.showCols = true;
+
+    this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
   }
 
   /**
@@ -115,18 +125,71 @@ export class DashboardComponent implements OnInit {
     this.columnSelected = true;
   }
 
+  /**
+   * Handle the click event when the new table name is submitted 
+   * 
+   */
   submitTable() {
     this.tableNameSubmitted = true;
+    if(this.renameTableForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'orgName': this.idTableSelected,
+      'alias': this.renameTableForm.value.tableName
+    };
+
+    this.conService.renameTable(json).then(
+      async ()=>{
+        this.reload();
+      }
+    ).catch(()=>{
+      alert("Not renamed")
+    });
 
   }
 
+  /**
+   * Handle the click event when the new column name is submitted
+   */
   submitColumn() {
     this.columnNameSubmitted = true;
+    if(this.renameColumnForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': this.idTableSelected,
+      'alias': this.renameColumnForm.value.columnName,
+      'orgName': this.idColumnSelected
+    };
+
+    this.conService.renameColumn(json).then(async()=>{
+      this.reload();
+      this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+    }).catch(()=>{
+      alert("Not renamed")
+    });
+
   }
 
+  async reload() {
+    this.connectors = await this.conService.getConnector();
 
-  fillConnectors(res: any) {
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    this.selectedConnector = this.connectors[select.selectedIndex]
 
-  } 
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
+  }
+
+  async loadNewTables() {
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    this.selectedConnector = this.connectors[select.selectedIndex]
+
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+  }
 }

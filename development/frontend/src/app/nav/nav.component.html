@@ -22,7 +22,7 @@
             <a [ngClass]="{'activeRoute': this.isProperties}" class="dropdown-item" routerLink="/properties">DB properties</a>
             <a class="dropdown-item" routerLink="/connector">Add connector</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">User management</a>
+            <a class="dropdown-item" routerLink='/user-management' routerLinkActive="router-link-active" >User management</a>
           </div>
         </li>
       </ul>
@@ -34,7 +34,7 @@
             <a class="nav-link active" routerLink="/login">Login</a>
           </li>  
           <li *ngIf="this.auth.loggedIn()" (click)="logout()" class="nav-item">
-            <a class="nav-link active">Logout</a>
+            <a class="nav-link active" id="logout">Logout</a>
           </li>
       </ul>
          
