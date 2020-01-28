@@ -54,6 +54,7 @@ public class SQLite implements DBConnector {
 
         Connection connection = null;
         try {
+            Class.forName("org.spatialite.JDBC");
             // create a database connection
             //Enable spatialite
             Properties prop = new Properties();
@@ -69,7 +70,7 @@ public class SQLite implements DBConnector {
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
             log.info("Created SQL Connector with id: " + id);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
             errorBuffer.add(e.getMessage());
         }
@@ -85,6 +86,7 @@ public class SQLite implements DBConnector {
 
         Connection connection = null;
         try {
+            Class.forName("org.spatialite.JDBC");
             // create a database connection
             //Enable spatialite
             Properties prop = new Properties();
@@ -98,7 +100,7 @@ public class SQLite implements DBConnector {
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
             log.info("Created SQL Connector with path: " + hostname);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
             errorBuffer.add(e.getMessage());
         }
@@ -480,7 +482,7 @@ public class SQLite implements DBConnector {
 
     public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
         try {
-            if (ewkb != null) {
+            if(ewkb != null) {
                 double xmin = Integer.MAX_VALUE;
                 double xmax = Integer.MIN_VALUE;
                 double ymin = Integer.MAX_VALUE;
@@ -524,10 +526,8 @@ public class SQLite implements DBConnector {
                     p.setBbox(new double[]{x,x,y,y});
                     return p;
                 }
-                return null;
-            }else{
-                return null;
             }
+            return null;
         }catch (SQLException e){
             e.printStackTrace();
             return null;

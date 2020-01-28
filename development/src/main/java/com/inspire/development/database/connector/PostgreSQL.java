@@ -71,10 +71,11 @@ public class PostgreSQL implements DBConnector {
         prop.setProperty("user", username);
         prop.setProperty("password", password);
         try {
+            Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
             log.info("Postgres Connector created for path: " + hostname);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.add(e.getMessage());
             log.error("Error creating connector. Error: " + e.getMessage());
         }
@@ -121,10 +122,11 @@ public class PostgreSQL implements DBConnector {
         prop.setProperty("user", username);
         prop.setProperty("password", password);
         try {
+            Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
             log.info("Postgres Connector created from config for path: " + hostname);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.add(e.getMessage());
             log.error("Error creating connector. Error: " + e.getMessage());
         }

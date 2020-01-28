@@ -11,7 +11,7 @@ export class SqlService {
 
   async executeSQL(json:object) {
     return new Promise((resolve, reject)=>{
-      this.httpClient.post('/api/executeSQL', json, {
+      this.httpClient.post('/ogcapisimple/api/executeSQL', json, {
         responseType: 'text'
       }).subscribe((res)=>{
         resolve(res)

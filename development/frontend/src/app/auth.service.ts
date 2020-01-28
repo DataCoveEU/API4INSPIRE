@@ -12,7 +12,7 @@ export class AuthService {
   constructor(private httpClient: HttpClient, private router: Router, public jwtHelper: JwtHelperService) {}
 
     login(username: string, password: string) {
-    this.httpClient.post('/authenticate',{
+    this.httpClient.post('/ogcapisimple/authenticate',{
       username,
       password
     },{responseType: 'json'})
@@ -38,7 +38,7 @@ export class AuthService {
 
   changePwd(json:object) {
     return new Promise((resolve, reject)=>{
-      this.httpClient.post('/api/changePwd', json, {
+      this.httpClient.post('/ogcapisimple/api/changePwd', json, {
         responseType: 'text'
       }).subscribe((res)=>{
         resolve(res);

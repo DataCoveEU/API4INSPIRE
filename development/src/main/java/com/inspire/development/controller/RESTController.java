@@ -48,7 +48,7 @@ public class RESTController {
 
     @GetMapping("/collections")
     public Collections Collections() {
-        return new Collections(Arrays.asList(core.getAll(false)));
+        return new Collections(Arrays.asList(core.getAll()));
     }
 
     /**
@@ -70,7 +70,7 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id) {
-        FeatureCollection fc = core.get(id, false, true, 0,0, null);
+        FeatureCollection fc = core.get(id, true, 0,0, null);
         if(fc != null){
             return  new ResponseEntity<>(fc,HttpStatus.OK);
         } else {
@@ -86,7 +86,7 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}/items")
     public ResponseEntity<Object> getCollectionItems(@PathVariable("collectionId") String id, @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit, @RequestParam(required = false) double[] bbox, @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset) {
-        FeatureCollection fc = core.get(id, true, false, limit,offset, bbox);
+        FeatureCollection fc = core.get(id, false, limit,offset, bbox);
         if(fc != null){
             return  new ResponseEntity<>(fc,HttpStatus.OK);
         } else {
