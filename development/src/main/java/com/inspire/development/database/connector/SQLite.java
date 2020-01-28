@@ -150,6 +150,7 @@ public class SQLite implements DBConnector {
             log.debug("Executing sql: " + sql + ", with collectionName: " + featureCollectionName);
             Statement stmt = c.createStatement();
             stmt.execute("CREATE VIEW " + featureCollectionName + " as " + sql);
+            //Adding view to geometry_columns
             PreparedStatement st = c.prepareStatement("INSERT INTO geometry_columns\n" +
                     "    (f_table_name, f_geometry_column, geometry_type, coord_dimension, srid, spatial_index_enabled)\n" +
                     "  VALUES (?, 'geometry', 0, 2, 4326, 1);");
@@ -321,18 +322,36 @@ public class SQLite implements DBConnector {
                     if (geoCol != null) {
                         log.debug("Set Geometry");
                         String geometry = rs.getString("AsEWKB(" + geoCol + ")");
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
+                        if(geometry != null){
+                        Geometry geometr = PGgeometry.geomFromString(geometry);
+                        if (geometr.getSrid() == 0)
+                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                        else {
+                            if (geometr.getSrid() != 4326) {
+                                geometry = "'" + geometry + "'";
+                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                                //Converting to 4326
+                                ResultSet convSet = c.createStatement().executeQuery("SELECT AsEwkb(ST_Transform(GeomFromEWKB(" + geometry + "),4326)) FROM " + table);
+                                if (convSet.next()) {
+                                    String e = convSet.getString(1);
+                                    if(e != null)
+                                        geometr = PGgeometry.geomFromString(e);
+                                }
+                            }
+                        }
+                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
                         if (geo != null) {
                             f.setGeometry(geo);
                             double[] bboxFeature = geo.getBbox();
                             f.setBbox(bboxFeature);
                             //If bbox is given
-                            if(bbox != null) {
+                            if (bbox != null) {
                                 //Check if intersects
                                 Rectangle a = rectFromBBox(bboxFeature);
                                 Rectangle b = rectFromBBox(bbox);
                                 intersect = a.intersects(b);
                             }
+                        }
                     }
                     if(intersect) {
                         f.setProperties(prop);
@@ -345,11 +364,29 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM [" + table + "]");
                 if (resultSet.next()) {
-                    mil.nga.sf.geojson.Geometry g = EWKBtoGeo(resultSet.getString(1));
-                    if(g != null) {
-                        double[] array = g.getBbox();
-                        if (array != null && withSpatial)
-                            fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
+                    String ewkb = resultSet.getString(1);
+                    if (ewkb != null) {
+                        Geometry geometr = PGgeometry.geomFromString(ewkb);
+                        if (geometr.getSrid() == 0)
+                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                        else {
+                            if (geometr.getSrid() != 4326) {
+                                ewkb = "'" + ewkb + "'";
+                                //Converting to 4326.
+                                ResultSet convSet = c.createStatement().executeQuery("SELECT AsEwkb(ST_Transform(GeomFromEWKB(" + ewkb + "),4326)) FROM " + table);
+                                if (convSet.next()) {
+                                    String e = convSet.getString(1);
+                                    if (e != null)
+                                        geometr = PGgeometry.geomFromString(e);
+                                }
+                            }
+                        }
+                        mil.nga.sf.geojson.Geometry g = EWKBtoGeo(geometr);
+                        if (g != null) {
+                            double[] array = g.getBbox();
+                            if (array != null && withSpatial)
+                                fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
+                        }
                     }
                 }
             }
@@ -480,15 +517,12 @@ public class SQLite implements DBConnector {
         return null;
     }
 
-    public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
-        try {
-            if(ewkb != null) {
+    public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
                 double xmin = Integer.MAX_VALUE;
                 double xmax = Integer.MIN_VALUE;
                 double ymin = Integer.MAX_VALUE;
                 double ymax = Integer.MIN_VALUE;
 
-                Geometry geom = PGgeometry.geomFromString(ewkb);
                 //Type is Polygon
                 if (geom.getType() == 3) {
                     List<List<Position>> l = new ArrayList<>();
@@ -526,12 +560,7 @@ public class SQLite implements DBConnector {
                     p.setBbox(new double[]{x,x,y,y});
                     return p;
                 }
-            }
             return null;
-        }catch (SQLException e){
-            e.printStackTrace();
-            return null;
-        }
     }
 
 

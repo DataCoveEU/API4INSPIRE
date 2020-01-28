@@ -332,7 +332,22 @@ public class PostgreSQL implements DBConnector {
                     boolean intersect = true;
                     if (geom != null) {
                         String geometry = rs.getString(geom);
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
+                        Geometry geometr = PGgeometry.geomFromString(geometry);
+                        if (geometr.getSrid() == 0)
+                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                        else {
+                            if (geometr.getSrid() != 4326) {
+                                geometry = "'" + geometry + "'";
+                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                                ResultSet convSet = c.createStatement().executeQuery("SELECT ST_Transform(" + geometry + ",4326) FROM " + table);
+                                if (convSet.next()) {
+                                    String e = convSet.getString(1);
+                                    if(e != null)
+                                        geometr = PGgeometry.geomFromString(e);
+                                }
+                            }
+                        }
+                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
                         if (geo != null) {
                             f.setGeometry(geo);
                             double[] bboxFeature = geo.getBbox();
@@ -355,13 +370,32 @@ public class PostgreSQL implements DBConnector {
             if(geom != null) {
                 log.debug("Getting Bounding Box for Table: " + table);
                 Statement stmt = c.createStatement();
-                ResultSet resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(geom), 4326) as table_extent FROM " + schema + "." + table + "");
+                //ST_SetSRID transforms Box to Polygon
+                ResultSet resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(" + geom + "), 4326) as table_extent FROM " + schema + "." + table + "");
                 if (resultSet.next()) {
-                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(resultSet.getString(1));
-                    if(geo != null) {
-                        double[] bounding = geo.getBbox();
-                        if(bounding != null && withSpatial)
-                            fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
+                    String ewkb = resultSet.getString(1);
+                    if(ewkb != null) {
+                        Geometry gm = PGgeometry.geomFromString(ewkb);
+                        if (gm.getSrid() == 0)
+                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                        else {
+                            if (gm.getSrid() != 4326) {
+                                ewkb = "'" + ewkb + "'";
+                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                                ResultSet convSet = c.createStatement().executeQuery("SELECT ST_Transform((ST_GeomFromEWKB(" + ewkb + ")),4326) FROM " + table);
+                                if (convSet.next()) {
+                                    String e = convSet.getString(1);
+                                    if(e != null)
+                                        gm = PGgeometry.geomFromString(e);
+                                }
+                            }
+                        }
+                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
+                        if (geo != null) {
+                            double[] bounding = geo.getBbox();
+                            if (bounding != null && withSpatial)
+                                fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
+                        }
                     }
                 }
             }
@@ -505,60 +539,52 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Converts Extended Well Known Binary to a Geometry Object
-     * @param ewkb EWKB String
+     * @param geom Geometry Object
      * @return Geometry object if string is valid, else null
      */
-    public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
-        log.debug("Converting EWKB to Geometry");
-        try {
-            if (ewkb != null) {
-                double xmin = Integer.MAX_VALUE;
-                double xmax = Integer.MIN_VALUE;
-                double ymin = Integer.MAX_VALUE;
-                double ymax = Integer.MIN_VALUE;
+    public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
+        if(geom != null) {
+            log.debug("Converting EWKB to Geometry");
+            double xmin = Integer.MAX_VALUE;
+            double xmax = Integer.MIN_VALUE;
+            double ymin = Integer.MAX_VALUE;
+            double ymax = Integer.MIN_VALUE;
 
-                Geometry geom = PGgeometry.geomFromString(ewkb);
-                //Type is Polygon
-                if (geom.getType() == 3) {
-                    List<List<Position>> l = new ArrayList<>();
-                    ArrayList<Position> li = new ArrayList<>();
+            //Type is Polygon
+            if (geom.getType() == 3) {
+                List<List<Position>> l = new ArrayList<>();
+                ArrayList<Position> li = new ArrayList<>();
 
-                    int x = 1;
-                    org.postgis.Point p = geom.getFirstPoint();
-                    do {
-                        if(p.getX() > xmax)
-                            xmax = p.getX();
+                int x = 1;
+                org.postgis.Point p = geom.getFirstPoint();
+                do {
+                    if (p.getX() > xmax)
+                        xmax = p.getX();
 
-                        if(p.getX() < xmin)
-                            xmin = p.getX();
+                    if (p.getX() < xmin)
+                        xmin = p.getX();
 
-                        if(p.getY() > ymax)
-                            ymax = p.getY();
+                    if (p.getY() > ymax)
+                        ymax = p.getY();
 
-                        if(p.getY() < ymin)
-                            ymin = p.getY();
+                    if (p.getY() < ymin)
+                        ymin = p.getY();
 
-                        li.add(new Position(p.getX(), p.getY()));
-                        p = geom.getPoint(x);
-                        x++;
-                    } while ((!p.equals(geom.getLastPoint())));
-                    l.add(li);
-                    Polygon p1 = new Polygon(l);
-                    p1.setBbox(new double[]{xmin,ymin,xmax,ymax});
-                    return p1;
-                }
-                //Type is Point
-                if (geom.getType() == 1) {
-                    return new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
-                }
-                return null;
-            }else{
-                return null;
+                    li.add(new Position(p.getX(), p.getY()));
+                    p = geom.getPoint(x);
+                    x++;
+                } while ((!p.equals(geom.getLastPoint())));
+                l.add(li);
+                Polygon p1 = new Polygon(l);
+                p1.setBbox(new double[]{xmin, ymin, xmax, ymax});
+                return p1;
             }
-        }catch (SQLException e){
-            e.printStackTrace();
-            return null;
+            //Type is Point
+            if (geom.getType() == 1) {
+                return new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
+            }
         }
+        return null;
     }
 
     public void setHostname(String hostname) {
