@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
+import { async } from '@angular/core/testing';
 
 
 @Component({
@@ -15,6 +16,9 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   submitted: boolean = false;
   success: boolean = false;
+
+  loginNotSuccessful: boolean = false;
+
 
   constructor(private formBuilder: FormBuilder,public authservice: AuthService, private router: Router) { }
 
@@ -31,7 +35,14 @@ export class LoginComponent implements OnInit {
    */
   login() {
     this.submitted = true;
-    this.authservice.login(this.loginForm.value.uname,this.loginForm.value.pwd);
+    this.authservice.login(this.loginForm.value.uname,this.loginForm.value.pwd).then(
+      async ()=>{
+        this.loginNotSuccessful = false;
+      }
+    ).catch(()=>{
+      this.loginNotSuccessful = true;
+    });
+
   }
 
 }

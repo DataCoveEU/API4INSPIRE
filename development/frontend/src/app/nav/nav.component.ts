@@ -14,7 +14,7 @@ export class NavComponent implements OnInit {
   isProperties: boolean = false;
   isLogin: boolean = false;
 
-  isLoggedIn:boolean = false;
+  isLoggedIn:boolean = this.auth.loggedIn();
 
   constructor(private router:Router, public auth: AuthService) { }
 
