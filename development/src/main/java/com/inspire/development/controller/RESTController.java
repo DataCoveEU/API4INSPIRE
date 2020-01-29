@@ -35,7 +35,7 @@ public class RESTController {
         //c.renameTable("tna_insp_navaids", "Tobias");
         //c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
-        core.getConnectors().add(c);
+        //core.getConnectors().add(c);
 
         core.getConnectors().add(p);
 
@@ -408,6 +408,22 @@ public class RESTController {
         }else{
             return new ResponseEntity<>("No password provided missing", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @RequestMapping(value = "/api/setGeo", method = RequestMethod.POST)
+    public ResponseEntity<Object> setGeo(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String table = (String)input.get("table");
+            if(table != null) {
+
+            }else{
+                return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
+        }
+        }else{
+            return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        }
+        return null;
     }
 
 }

@@ -13,7 +13,6 @@ import com.inspire.development.database.connector.SQLite;
 import mil.nga.sf.geojson.Feature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sqlite.core.DB;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +67,8 @@ public class Core {
     }
 
     public void addConnector(DBConnector d){
-        this.connectors.add(d);
+        if(!checkIfConnectorExists(d.getId()))
+            this.connectors.add(d);
     }
 
     public FeatureCollection get(String featureCollection, boolean withSpatial, int limit, int offset, double[] bbox){
@@ -113,6 +113,14 @@ public class Core {
                 return db;
         }
         return null;
+    }
+
+    private boolean checkIfConnectorExists(String id){
+        for(DBConnector db:connectors){
+            if(db.getId().equals(id))
+                return true;
+        }
+        return false;
     }
 
 }

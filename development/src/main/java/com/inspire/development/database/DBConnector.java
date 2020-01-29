@@ -41,5 +41,9 @@ public interface DBConnector {
 
     public void renameProp(String table, String feature, String featureAlias);
 
+    public void setGeo(String table, String column);
+
+    public void setId(String table, String column);
+
     public String updateConnector();
 }

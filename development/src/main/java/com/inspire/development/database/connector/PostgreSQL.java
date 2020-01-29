@@ -697,4 +697,24 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    public void setGeo(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setGeoCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setGeoCol(column);
+            config.put(table,tc);
+        }
+    }
+
+    public void setId(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setIdCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setIdCol(column);
+            config.put(table,tc);
+        }
+    }
+
 }
