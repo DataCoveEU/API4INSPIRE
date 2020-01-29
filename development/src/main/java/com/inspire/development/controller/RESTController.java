@@ -29,11 +29,21 @@ public class RESTController {
 
     public RESTController(){
         core = new Core();
+<<<<<<< HEAD
 /*        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+=======
+
+        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+>>>>>>> 5ee8e174d1874c69ff86372a41fa5e717018cb9f
         //c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
         //c.renameTable("tna_insp_navaids", "Tobias");
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
         core.getConnectors().add(c);
+<<<<<<< HEAD
+=======
+
+        core.getConnectors().add(p);
+>>>>>>> 5ee8e174d1874c69ff86372a41fa5e717018cb9f
 
         //core.getConnectors().add(p);*/
 

@@ -1,0 +1,104 @@
+Parsing config
+
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+Parsing config
+Parsing config
+Getting Collection: other_cords
+Parsing config
+Getting Collection: other_cords
+Getting Collection: other_cords
+Parsing config
+Getting Collection: other_cords
+Getting Collection: other_cords
+Parsing config
+Getting Collection: other_cords
+Getting Collection: other_cords
+Parsing config
+Parsing config
+Parsing config
+Error occurred while getting primary key for table: TobiasIsJustATest
+Error occurred while getting primary key for table: geom_cols_ref_sys
+Error occurred while getting primary key for table: test
+Error occurred while getting primary key for table: thisisatest
+Error occurred while getting primary key for table: vector_layers
+Error occurred while getting primary key for table: vector_layers_auth
+Error occurred while getting primary key for table: vector_layers_field_infos
+Error occurred while getting primary key for table: vector_layers_statistics
+Error occurred while getting primary key for table: TobiasIsJustATest
+Error occurred while getting primary key for table: geom_cols_ref_sys
+Error occurred while getting primary key for table: spatial_ref_sys_all
+Error occurred while getting primary key for table: test
+Error occurred while getting primary key for table: thisisatest
+Error occurred while getting primary key for table: vector_layers
+Error occurred while getting primary key for table: vector_layers_auth
+Error occurred while getting primary key for table: vector_layers_field_infos
+Error occurred while getting primary key for table: vector_layers_statistics
+Error occurred while getting primary key for table: TobiasIsJustATest
+Error occurred while getting primary key for table: geom_cols_ref_sys
+Error occurred while getting primary key for table: test
+Error occurred while getting primary key for table: thisisatest
+Error occurred while getting primary key for table: vector_layers
+Error occurred while getting primary key for table: vector_layers_auth
+Error occurred while getting primary key for table: vector_layers_field_infos
+Error occurred while getting primary key for table: vector_layers_statistics
+Error occurred while getting primary key for table: TobiasIsJustATest
+Error occurred while getting primary key for table: geom_cols_ref_sys
+Error occurred while getting primary key for table: spatial_ref_sys_all
+Error occurred while getting primary key for table: test
+Error occurred while getting primary key for table: thisisatest
+Error occurred while getting primary key for table: vector_layers
+Error occurred while getting primary key for table: vector_layers_auth
+Error occurred while getting primary key for table: vector_layers_field_infos
+Error occurred while getting primary key for table: vector_layers_statistics
+Getting Collection: tna_insp_airspacearea
+Getting Collection: tna_insp_airspacearea
+Parsing config
+Parsing config
+Error occurred while getting primary key for table: testito4
+Error occurred while getting primary key for table: testito6
+Error occurred while getting primary key for table: testito7
+Parsing config
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Parsing config
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Parsing config
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: tna_insp_runwayarea
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: testito6
+Error occurred while getting primary key for table: testito6
+Getting Collection: tna_insp_runwayarea
+Getting Collection: insp_runwayarea
+Getting Collection: other_cords
+Getting Collection: other_cords
+Getting Collection: other_other
