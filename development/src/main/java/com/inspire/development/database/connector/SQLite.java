@@ -280,6 +280,10 @@ public class SQLite implements DBConnector {
      * Converts a ResultSet from a Table Query to a FeatureCollection
      * @param rs ResultSet from Table query
      * @param table Table name of query
+     * @param alias Alias of the Table
+     * @param geoCol geoColumn of the table
+     * @param idCol idColumn of the table
+     * @param withSpatial boolean if spatial data shall be included
      * @param limit limit on how many features shall be included
      * @param offset offset to the start of features
      * @param bbox optional, if given only features are returned if there bbox intersects the given one
@@ -397,6 +401,12 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * Rename propertie of a table
+     * @param table table the feature is conatained in
+     * @param feature feature to be renamed
+     * @param featureAlias alias to be used
+     */
     public void renameProp(String table, String feature, String featureAlias){
         log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
         if(config.containsKey(table)){
@@ -613,6 +623,26 @@ public class SQLite implements DBConnector {
             //Reset Connector to old params if error occurred
             c = oldCon;
             return e.getMessage();
+        }
+    }
+
+    public void setGeo(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setGeoCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setGeoCol(column);
+            config.put(table,tc);
+        }
+    }
+
+    public void setId(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setIdCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setIdCol(column);
+            config.put(table,tc);
         }
     }
 

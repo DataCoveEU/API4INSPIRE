@@ -408,4 +408,20 @@ public class RESTController {
         }
     }
 
+    @RequestMapping(value = "/api/setGeo", method = RequestMethod.POST)
+    public ResponseEntity<Object> setGeo(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String table = (String)input.get("table");
+            if(table != null) {
+
+            }else{
+                return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
+        }
+        }else{
+            return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        }
+        return null;
+    }
+
 }
