@@ -238,7 +238,11 @@ export class DashboardComponent implements OnInit {
       'collectionName': this.sqlForm.value.collectionId
     };
 
-    this.sqlService.executeSQL(json);
+    this.sqlService.executeSQL(json).then(()=>{
+      alert("SQL executed successfully")
+    }).catch(()=>{
+      alert("Not executed successfully")
+    });
 
   }
 
