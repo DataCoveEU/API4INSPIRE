@@ -8,10 +8,18 @@ import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.database.DBConnector;
+import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
 import mil.nga.sf.geojson.Feature;
-import org.sqlite.core.DB;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -21,28 +29,33 @@ import java.util.Arrays;
 public class Core {
     DBConnectorList connectors;
 
+    int port = 8080;
+
+    static Logger log = LogManager.getLogger(Core.class.getName());
+
+
     public Core(){
         connectors = new DBConnectorList();
     }
 
+
+
     public static DBConnectorList parseConfig(){
+        log.info("Parsing config");
         File f = new File("config/config.json");
         if(f.exists()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 return objectMapper.readValue(f, DBConnectorList.class);
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
+
             }
         }
         return null;
     }
 
     public void writeConfig(){
+        log.info("Writing config to file");
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(SQLite.class, DBConnector.class);
         try {
@@ -66,10 +79,12 @@ public class Core {
     }
 
     public void addConnector(DBConnector d){
-        this.connectors.add(d);
+        if(!checkIfConnectorExists(d.getId()))
+            this.connectors.add(d);
     }
 
-    public FeatureCollection get(String featureCollection, boolean withProps, boolean withSpatial, int limit, int offset, double[] bbox){
+    public FeatureCollection get(String featureCollection, boolean withSpatial, int limit, int offset, double[] bbox){
+        log.info("Getting Collection: " + featureCollection);
         for(DBConnector db:connectors){
             FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox);
             if(f != null)
@@ -78,15 +93,15 @@ public class Core {
         return null;
     }
 
-    public FeatureCollection[] getAll(boolean withProps){
+    public FeatureCollection[] getAll(){
         String hostname = InetAddress.getLoopbackAddress().getHostName();
         ArrayList<FeatureCollection> fsl = new ArrayList<>();
         for(DBConnector db:connectors){
             FeatureCollection[] fca = db.getAll();
             for(FeatureCollection fc:fca){
                 //Add required links
-                fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
-                fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "alternate", "text/html", "this document as html"));
+                fc.getLinks().add(new Link("http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(), "self", "application/json", "this document"));
+                fc.getLinks().add(new Link("http://" + hostname + ":" +  port + "/ogcapisimple/collections/" + fc.getId(), "alternate", "text/html", "this document as html"));
             }
             fsl.addAll(Arrays.asList(fca));
         }
@@ -94,7 +109,8 @@ public class Core {
     }
 
     public Feature getFeature(String collection, String feature){
-        FeatureCollection fs = get(collection, true, false, -1, 0,null);
+        log.info("Getting feature: " + feature + " from collection: " + collection);
+        FeatureCollection fs = get(collection, false, -1, 0,null);
         for(Object o: fs.getFeatures().toArray()){
             Feature f = (Feature)o;
             if(f.getId().equals(feature))
@@ -109,6 +125,14 @@ public class Core {
                 return db;
         }
         return null;
+    }
+
+    private boolean checkIfConnectorExists(String id){
+        for(DBConnector db:connectors){
+            if(db.getId().equals(id))
+                return true;
+        }
+        return false;
     }
 
 }

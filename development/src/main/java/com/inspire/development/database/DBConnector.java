@@ -21,7 +21,7 @@ public interface DBConnector {
 
     public void delete(String fc);
 
-    public FeatureCollection execute(String sql, String fcName);
+    public FeatureCollection execute(String sql, String fcName, boolean check);
 
     public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox);
 
@@ -40,6 +40,10 @@ public interface DBConnector {
     public void renameTable(String table, String tableAlias);
 
     public void renameProp(String table, String feature, String featureAlias);
+
+    public void setGeo(String table, String column);
+
+    public void setId(String table, String column);
 
     public String updateConnector();
 }

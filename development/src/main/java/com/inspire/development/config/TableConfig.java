@@ -51,4 +51,12 @@ public class TableConfig {
     public void setAlias(String alias){
         this.alias = alias;
     }
+
+    public void setGeoCol(String geoCol) {
+        this.geoCol = geoCol;
+    }
+
+    public void setIdCol(String idCol) {
+        this.idCol = idCol;
+    }
 }

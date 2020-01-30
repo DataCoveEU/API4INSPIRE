@@ -23,6 +23,8 @@
               </div>
              </label>
              <br />
+             <div *ngIf="loginNotSuccessful" class="error">Password or username is not corrrect</div>
+             <br />
              <button type="submit" class="btn btn-success" id="check" style="width: 50%">Login</button>
           </form>
        </div>

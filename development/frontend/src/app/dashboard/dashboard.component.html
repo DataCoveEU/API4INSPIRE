@@ -18,8 +18,8 @@
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Tablename</th>
-                    <th scope="col">Config name</th>
+                    <th scope="col">Table name</th>
+                    <th scope="col">Connection name</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -32,20 +32,20 @@
                 </tbody>
               </table>
         </div>
-        <div class="card" style="height: 30vh; overflow: auto">
+        <div class="card" style="width: 100%; height: 30vh; overflow: auto">
             <table class="table">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Table name</th>
-                    <th scope="col">Config name</th>
+                    <th scope="col">Column name</th>
+                    <th scope="col">Property name</th>
                   </tr>
                 </thead>
                 <tbody *ngIf="showCols">
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                       <th scope="row">{{ i+1 }}</th>
                       <td>{{ colname }}</td>
-                      <td>{{ this.selectedConnector.config[this.idTableSelected]?.map[colname] }}</td>
+                      <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname] }}</td>
                       <!--<td>Lukas</td> -->
                       <!--<td>{{ columnConfigNames[i] }}</td>-->
                     </tr>
@@ -58,7 +58,7 @@
       <div class="col-sm-6" *ngIf="showRenameTable">
         <h5>Rename the table</h5>
         <form [formGroup]="renameTableForm" (ngSubmit)="submitTable()">
-          <label>
+          <label style="width: 100%">
             <input type="text" formControlName="tableName" class="form-control" placeholder="New table name"/>
             <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
               <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
@@ -71,7 +71,7 @@
       <div class="col-sm-6" *ngIf="showRenameCol">
         <h5>Rename the column</h5>
         <form [formGroup]="renameColumnForm" (ngSubmit)="submitColumn()">
-            <label>
+          <label style="width: 100%">
               <input type="text" formControlName="columnName" class="form-control" placeholder="New column name" />
               <div *ngIf="columnNameSubmitted && renameColumnForm.controls.columnName.errors" class="error">
                 <div *ngIf="renameColumnForm.controls.columnName.errors.required">A new column name is required</div>
@@ -85,12 +85,40 @@
       </div>
     </div>
 
+
     <div class="row" id="sql">
         <div class="col-sm-12">
             <h3>Write SQL</h3>
             <hr />
-            <textarea class="form-control" rows="5" placeholder="Write and execute sql here"></textarea>
-            <button class="btn btn-success" id="executeSQL">Execute</button>
-        </div>
+
+            <form [formGroup]="sqlForm" (ngSubmit)="executeSQL()">
+              <div class="row">
+                <div class="col-sm-6">
+                  <label style="width: 100%">
+                    <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" />
+                    <div *ngIf="sqlSubmitted && sqlForm.controls.collectionId.errors" class="error">
+                      <div *ngIf="sqlForm.controls.collectionId.errors.required">A collection name is required</div>
+                  </div>
+                  </label>
+                </div>
+              </div>
+              <label style="width: 100%;">
+                <textarea class="form-control" formControlName="sqlQuery" rows="5" placeholder="Write and execute sql here"></textarea>
+                <div *ngIf="sqlSubmitted && sqlForm.controls.sqlQuery.errors" class="error">
+                  <div *ngIf="sqlForm.controls.sqlQuery.errors.required">A sql query is required</div>
+              </div>
+              </label>
+              <br />
+              <button class="btn btn-success" type="submit">Execute</button>
+            </form>
+
+            <div class="row">
+              <div class="col-sm-6">
+
+              </div>
+            </div>
+            <br />
+            <br />
+          </div>
     </div>
 </div>

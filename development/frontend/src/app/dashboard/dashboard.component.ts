@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
+import { SqlService } from '../sql.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,12 +11,12 @@ import { ConnectorService } from '../connector.service';
 })
 export class DashboardComponent implements OnInit {
 
-  tableNames = ['Table 1', 'Table 2', 'Table 3', 'Table 4'];
+  tableNames = [];
 
-  columnNames = ['Col 1', 'Col 2', 'Col 3'];
-  columnConfigNames = ['Conf 1', '', 'Conf 2'];
+  columnNames = [];
+  columnConfigNames = [];
 
-  connectors: any = [{"name": "No connectors available"}];
+  connectors: any = [];
 
   selectedConnector: any;
 
@@ -35,47 +36,69 @@ export class DashboardComponent implements OnInit {
   renameColumnForm: FormGroup;
   columnNameSubmitted: boolean = false;
 
-  constructor(private formBuilder: FormBuilder, private conService: ConnectorService) { }
+  sqlForm: FormGroup;
+  sqlSubmitted: boolean = false;
 
-  async ngOnInit() {     
-    this.connectors = await this.conService.getConnector();
+
+
+  constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
+
+  async ngOnInit() {
+    //Init the forms to rename the tables and columns and to execute the sql query
+    this.sqlForm = this.formBuilder.group({
+      collectionId: ['', Validators.required],
+      sqlQuery: ['', Validators.required]
+    });
 
     this.renameTableForm = this.formBuilder.group({
       tableName: ['', Validators.required]
     });
-    
+
     this.renameColumnForm = this.formBuilder.group({
       columnName: ['', Validators.required]
     });
 
-    var select = document.getElementById("selectField") as HTMLSelectElement;
-    this.selectedConnector = this.connectors[select.selectedIndex]
+    //Load all the connectors from the config
+    this.connectors = await this.conService.getConnector();
 
-    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+    if(this.connectors.length == 0){
+      this.connectors = [{id: "No Connectors"}];
+    }
+
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    var index = select.selectedIndex;
+    
+    if(index == -1){index = 0}
+  
+      this.selectedConnector = this.connectors[index];
+      console.log(index);
+      console.log(this.connectors);
+      //Load the table names from the selected connector
+      this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = async (event: any)=>{
         var select = document.getElementById("selectField") as HTMLSelectElement;
-        this.selectedConnector = this.connectors[select.selectedIndex]        //this.reload();
+        this.selectedConnector = this.connectors[select.selectedIndex];
 
-        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
         this.tableSelect = false;
       }
   }
 
   /**
    * Handle the click event when a table row with table names is clicked
-   * 
+   *
    * @param name the name or the id of the table row that has been clicked
    */
   async onClickTableName(name: string) {
-    // If a "tablename row" is already selected, then 
+    // If a "tablename row" is already selected, then
     // you have to change the style
     if(this.tableSelect) {
       var change = document.getElementById(this.idTableSelected);
       change.style.backgroundColor = "white";
       change.style.color = "black";
-      
+
       // If a "columnname row" is also selected
       // then you have to deselect is
       if(this.columnSelected) {
@@ -103,7 +126,7 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Handle the click event when a table row with columns is clicked
-   * 
+   *
    * @param name the name or id of the table row that has been clicked
    */
   onClickColumn(name: string) {
@@ -126,8 +149,7 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Handle the click event when the new table name is submitted 
-   * 
+   * Handle the click event when the new table name is submitted
    */
   submitTable() {
     this.tableNameSubmitted = true;
@@ -135,6 +157,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    //Init the JSON for the backend
     var json = {
       'id': this.selectedConnector.id,
       'orgName': this.idTableSelected,
@@ -160,6 +183,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    //Init the JSON for the backend
     var json = {
       'id': this.selectedConnector.id,
       'table': this.idTableSelected,
@@ -176,6 +200,9 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Reload the connectors and tables
+   */
   async reload() {
     this.connectors = await this.conService.getConnector();
 
@@ -186,10 +213,37 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Reload and load the new tables
+   */
   async loadNewTables() {
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
 
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
   }
+
+  /**
+   * Handle the "execute" event for the sql query
+   */
+  executeSQL() {
+    this.sqlSubmitted = true;
+    if(this.sqlForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'sql': this.sqlForm.value.sqlQuery,
+      'collectionName': this.sqlForm.value.collectionId
+    };
+
+    this.sqlService.executeSQL(json).then(()=>{
+      alert("SQL executed successfully")
+    }).catch(()=>{
+      alert("Not executed successfully")
+    });
+
+  }
+
 }

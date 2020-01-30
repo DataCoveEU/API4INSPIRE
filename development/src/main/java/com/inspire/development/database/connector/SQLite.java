@@ -36,6 +36,8 @@ public class SQLite implements DBConnector {
     @JsonProperty("config")
     private HashMap<String,TableConfig> config;
 
+    private HashMap<String, String> sqlString; // Table name, SQL String
+
     private String zwHostname;
 
     static Logger log = LogManager.getLogger(SQLite.class.getName());
@@ -54,6 +56,7 @@ public class SQLite implements DBConnector {
 
         Connection connection = null;
         try {
+            Class.forName("org.spatialite.JDBC");
             // create a database connection
             //Enable spatialite
             Properties prop = new Properties();
@@ -69,7 +72,7 @@ public class SQLite implements DBConnector {
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
             log.info("Created SQL Connector with id: " + id);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
             errorBuffer.add(e.getMessage());
         }
@@ -85,6 +88,7 @@ public class SQLite implements DBConnector {
 
         Connection connection = null;
         try {
+            Class.forName("org.spatialite.JDBC");
             // create a database connection
             //Enable spatialite
             Properties prop = new Properties();
@@ -98,7 +102,7 @@ public class SQLite implements DBConnector {
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
             log.info("Created SQL Connector with path: " + hostname);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
             errorBuffer.add(e.getMessage());
         }
@@ -143,20 +147,16 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName) {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) {
         try {
-            log.debug("Executing sql: " + sql + ", with collectionName: " + featureCollectionName);
-            Statement stmt = c.createStatement();
-            stmt.execute("CREATE VIEW " + featureCollectionName + " as " + sql);
-            PreparedStatement st = c.prepareStatement("INSERT INTO geometry_columns\n" +
-                    "    (f_table_name, f_geometry_column, geometry_type, coord_dimension, srid, spatial_index_enabled)\n" +
-                    "  VALUES (?, 'geometry', 0, 2, 4326, 1);");
-            st.setString(1,featureCollectionName);
-            st.execute();
-            return this.get(featureCollectionName,false,-1,0, null);
-        } catch (SQLException e) {
-            errorBuffer.add(e.getMessage());
-            log.warn("Error executing sql: " + sql);
+            ResultSet st = c.createStatement().executeQuery(sql);
+            //SQL Executed
+            if(!check)
+                sqlString.put(featureCollectionName, sql);
+
+            return resultSetToFeatureCollection(st,featureCollectionName,featureCollectionName,null,null,false,-1,0,null);
+        }catch (SQLException e){
+            //SQL Errored
             return null;
         }
     }
@@ -189,10 +189,14 @@ public class SQLite implements DBConnector {
             Statement stmt = c.createStatement();
             ResultSet rs = null;
 
-            if(geoCol != null) {
-                rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol + ") from [" + queryName + "]");
-            }else{
-                rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
+            if(sqlString.containsKey(queryName)){
+                rs = stmt.executeQuery(sqlString.get(queryName));
+            }else {
+                if (geoCol != null) {
+                    rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol + ") from [" + queryName + "]");
+                } else {
+                    rs = stmt.executeQuery("SELECT * FROM [" + queryName + "]");
+                }
             }
             return resultSetToFeatureCollection(rs, queryName, collectionName, idCol, geoCol, withSpatial, limit,offset,bbox);
         } catch (SQLException e) {
@@ -240,6 +244,25 @@ public class SQLite implements DBConnector {
                 log.warn("Error occurred while converting table: " + table + " to FeatureCollection.");
             }
         }
+        for(Map.Entry<String,String> entry: sqlString.entrySet()){
+            try {
+                ResultSet rs = c.createStatement().executeQuery(entry.getValue());
+                TableConfig conf = config.get(entry.getKey());
+                String idCol = null;
+                String geoCol = null;
+                String alias = entry.getKey();
+                if(conf != null){
+                    idCol = conf.getIdCol();
+                    geoCol = conf.getGeoCol();
+                    alias = conf.getAlias();
+                }
+                FeatureCollection featureCollection = resultSetToFeatureCollection(rs,entry.getKey(),alias,idCol,geoCol,true,0,0,null);
+                if(featureCollection != null)
+                    fc.add(featureCollection);
+            }catch (SQLException e){
+                log.warn("Error executing sql: " + entry.getValue());
+            }
+        }
         return fc.toArray(new FeatureCollection[fc.size()]);
     }
 
@@ -277,6 +300,10 @@ public class SQLite implements DBConnector {
      * Converts a ResultSet from a Table Query to a FeatureCollection
      * @param rs ResultSet from Table query
      * @param table Table name of query
+     * @param alias Alias of the Table
+     * @param geoCol geoColumn of the table
+     * @param idCol idColumn of the table
+     * @param withSpatial boolean if spatial data shall be included
      * @param limit limit on how many features shall be included
      * @param offset offset to the start of features
      * @param bbox optional, if given only features are returned if there bbox intersects the given one
@@ -319,18 +346,27 @@ public class SQLite implements DBConnector {
                     if (geoCol != null) {
                         log.debug("Set Geometry");
                         String geometry = rs.getString("AsEWKB(" + geoCol + ")");
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
-                        if (geo != null) {
-                            f.setGeometry(geo);
-                            double[] bboxFeature = geo.getBbox();
-                            f.setBbox(bboxFeature);
-                            //If bbox is given
-                            if(bbox != null) {
-                                //Check if intersects
-                                Rectangle a = rectFromBBox(bboxFeature);
-                                Rectangle b = rectFromBBox(bbox);
-                                intersect = a.intersects(b);
+                        if(geometry != null){
+                        Geometry geometr = PGgeometry.geomFromString(geometry);
+                            if (geometr.getSrid() == 0)
+                                log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                            if (geometr.getSrid() != 4326) {
+                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                            }else{
+                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
+                            if (geo != null) {
+                                f.setGeometry(geo);
+                                double[] bboxFeature = geo.getBbox();
+                                f.setBbox(bboxFeature);
+                                //If bbox is given
+                                if (bbox != null) {
+                                    //Check if intersects
+                                    Rectangle a = rectFromBBox(bboxFeature);
+                                    Rectangle b = rectFromBBox(bbox);
+                                    intersect = a.intersects(b);
+                                }
                             }
+                        }
                     }
                     if(intersect) {
                         f.setProperties(prop);
@@ -343,11 +379,21 @@ public class SQLite implements DBConnector {
                 Statement stmt = c.createStatement();
                 ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM [" + table + "]");
                 if (resultSet.next()) {
-                    mil.nga.sf.geojson.Geometry g = EWKBtoGeo(resultSet.getString(1));
-                    if(g != null) {
-                        double[] array = g.getBbox();
-                        if (array != null && withSpatial)
-                            fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
+                    String ewkb = resultSet.getString(1);
+                    if (ewkb != null) {
+                        Geometry geometr = PGgeometry.geomFromString(ewkb);
+                        if (geometr.getSrid() == 0)
+                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                        if (geometr.getSrid() != 4326) {
+                            log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                        }else {
+                            mil.nga.sf.geojson.Geometry g = EWKBtoGeo(geometr);
+                            if (g != null) {
+                                double[] array = g.getBbox();
+                                if (array != null && withSpatial)
+                                    fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
+                            }
+                        }
                     }
                 }
             }
@@ -358,6 +404,12 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * Rename propertie of a table
+     * @param table table the feature is conatained in
+     * @param feature feature to be renamed
+     * @param featureAlias alias to be used
+     */
     public void renameProp(String table, String feature, String featureAlias){
         log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
         if(config.containsKey(table)){
@@ -411,10 +463,8 @@ public class SQLite implements DBConnector {
                 if(!table.contains("spatial_"))
                     out.add(table);
             }
-            rs = md.getTables(null, null, null, new String[]{"VIEW"});
-            while (rs.next()) {
-                 out.add(rs.getString("TABLE_NAME"));
-            }
+            for(Map.Entry<String,String> entry:sqlString.entrySet())
+                out.add(entry.getKey());
             return out;
         }catch (SQLException e){
             log.warn("Error occurred while getting all tables. Error: " + e.getMessage());
@@ -478,15 +528,12 @@ public class SQLite implements DBConnector {
         return null;
     }
 
-    public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
-        try {
-            if (ewkb != null) {
+    public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
                 double xmin = Integer.MAX_VALUE;
                 double xmax = Integer.MIN_VALUE;
                 double ymin = Integer.MAX_VALUE;
                 double ymax = Integer.MIN_VALUE;
 
-                Geometry geom = PGgeometry.geomFromString(ewkb);
                 //Type is Polygon
                 if (geom.getType() == 3) {
                     List<List<Position>> l = new ArrayList<>();
@@ -524,14 +571,7 @@ public class SQLite implements DBConnector {
                     p.setBbox(new double[]{x,x,y,y});
                     return p;
                 }
-                return null;
-            }else{
-                return null;
-            }
-        }catch (SQLException e){
-            e.printStackTrace();
             return null;
-        }
     }
 
 
@@ -542,11 +582,18 @@ public class SQLite implements DBConnector {
     public ArrayList<String> getColumns(String table){
         ArrayList<String> result = new ArrayList<>();
         try {
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rset = md.getColumns(null, null, table, null);
+            if(sqlString.containsKey(table)){
+                ResultSet rs = c.createStatement().executeQuery(sqlString.get(table));
+                ResultSetMetaData md = rs.getMetaData();
+                for(int x = 1;x<=md.getColumnCount();x++)
+                    result.add(md.getColumnName(x));
+            }else {
+                DatabaseMetaData md = c.getMetaData();
+                ResultSet rset = md.getColumns(null, null, table, null);
 
-            while (rset.next()) {
-                result.add(rset.getString(4));
+                while (rset.next()) {
+                    result.add(rset.getString(4));
+                }
             }
         }catch (SQLException e){
 
@@ -586,5 +633,26 @@ public class SQLite implements DBConnector {
             return e.getMessage();
         }
     }
+
+    public void setGeo(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setGeoCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setGeoCol(column);
+            config.put(table,tc);
+        }
+    }
+
+    public void setId(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setIdCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setIdCol(column);
+            config.put(table,tc);
+        }
+    }
+
 
 }

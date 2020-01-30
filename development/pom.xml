@@ -9,8 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.inspire</groupId>
-	<artifactId>development</artifactId>
-	<version>0.0.1</version>
+	<artifactId>ogcapisimple</artifactId>
 	<packaging>war</packaging>
 	<name>development</name>
 	<description>OGC API Development</description>
@@ -115,6 +114,7 @@
 			<artifactId>sf-geojson</artifactId>
 			<version>2.0.3</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
@@ -123,6 +123,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>ogcapisimple</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -159,7 +160,7 @@
 							<arguments>run build</arguments>
 						</configuration>
 					</execution>
-					<execution>
+					<!--<execution>
 						<id>prod</id>
 						<goals>
 							<goal>npm</goal>
@@ -168,13 +169,15 @@
 							<arguments>run-script build</arguments>
 						</configuration>
 						<phase>generate-resources</phase>
-					</execution>
+					</execution>-->
 				</executions>
+
 			</plugin>
 
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
+
 					<execution>
 						<phase>generate-resources</phase>
 						<configuration>

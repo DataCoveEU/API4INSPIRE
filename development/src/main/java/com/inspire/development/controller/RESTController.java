@@ -30,15 +30,13 @@ public class RESTController {
     public RESTController(){
         core = new Core();
 
-        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
-        //c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
+
+        //SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+       /* //c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
         //c.renameTable("tna_insp_navaids", "Tobias");
-        //c.renameProp("tna_insp_navaids", "metadataproperty", "meta");
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
-        core.getConnectors().add(c);
-
-        core.getConnectors().add(p);
-
+        core.getConnectors().add(p);;*/
+       // core.getConnectors().add(c);
 
         DBConnectorList list = core.parseConfig();
         if(list != null){
@@ -48,7 +46,7 @@ public class RESTController {
 
     @GetMapping("/collections")
     public Collections Collections() {
-        return new Collections(Arrays.asList(core.getAll(false)));
+        return new Collections(Arrays.asList(core.getAll()));
     }
 
     /**
@@ -70,7 +68,7 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id) {
-        FeatureCollection fc = core.get(id, false, true, 0,0, null);
+        FeatureCollection fc = core.get(id, true, 0,0, null);
         if(fc != null){
             return  new ResponseEntity<>(fc,HttpStatus.OK);
         } else {
@@ -86,7 +84,7 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}/items")
     public ResponseEntity<Object> getCollectionItems(@PathVariable("collectionId") String id, @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit, @RequestParam(required = false) double[] bbox, @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset) {
-        FeatureCollection fc = core.get(id, true, false, limit,offset, bbox);
+        FeatureCollection fc = core.get(id, false, limit,offset, bbox);
         if(fc != null){
             return  new ResponseEntity<>(fc,HttpStatus.OK);
         } else {
@@ -144,7 +142,7 @@ public class RESTController {
                 if(error == null) {
                     if (!test) {
                         core.addConnector(s);
-                        core.writeConfig();
+                        //core.writeConfig();
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 }else{
@@ -308,7 +306,7 @@ public class RESTController {
                 if(collectionName != null){
                     DBConnector db = core.getConnectorById(id);
                     if(db != null){
-                        return new ResponseEntity<>(db.execute(sql,collectionName), HttpStatus.OK);
+                        return new ResponseEntity<>(db.execute(sql,collectionName,false), HttpStatus.OK);
                     }else{
                         return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
                     }
@@ -408,6 +406,58 @@ public class RESTController {
         }else{
             return new ResponseEntity<>("No password provided missing", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @RequestMapping(value = "/api/setGeo", method = RequestMethod.POST)
+    public ResponseEntity<Object> setGeo(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String table = (String)input.get("table");
+            if(table != null) {
+                String column = (String)input.get("column");
+                if(column != null){
+                    DBConnector db = core.getConnectorById(id);
+                    if(db != null){
+                        db.setGeo(table,column);
+                    }else{
+                        return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
+                    }
+                }else{
+                    return new ResponseEntity<>("Column is missing", HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
+        }
+        }else{
+            return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/api/setId", method = RequestMethod.POST)
+    public ResponseEntity<Object> setId(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String table = (String)input.get("table");
+            if(table != null) {
+                String column = (String)input.get("column");
+                if(column != null){
+                    DBConnector db = core.getConnectorById(id);
+                    if(db != null){
+                        db.setId(table,column);
+                    }else{
+                        return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
+                    }
+                }else{
+                    return new ResponseEntity<>("Column is missing", HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
+            }
+        }else{
+            return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        }
+        return null;
     }
 
 }

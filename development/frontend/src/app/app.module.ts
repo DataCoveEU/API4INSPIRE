@@ -19,6 +19,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './jwt.interceptor';
 import { UserManagementComponent } from './user-management/user-management.component';
+import {APP_BASE_HREF} from '@angular/common';
 
 export function tokenGetter(){return localStorage.getItem('access_token')}
 
@@ -43,7 +44,7 @@ export function tokenGetter(){return localStorage.getItem('access_token')}
     HttpClientModule,
     JwtModule.forRoot({
       config:{
-        tokenGetter:  tokenGetter, 
+        tokenGetter:  tokenGetter,
         whitelistedDomains: ['*'],
         blacklistedRoutes: ['/']
       }
@@ -54,7 +55,8 @@ export function tokenGetter(){return localStorage.getItem('access_token')}
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,
       multi: true
-    }],
+    }
+    ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

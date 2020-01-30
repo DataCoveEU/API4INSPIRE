@@ -26,17 +26,18 @@ export class AddConnectorComponent implements OnInit {
   constructor(private conService:ConnectorService, private formBuilder:FormBuilder) { }
 
   ngOnInit() {
+    //Initialzie the form to add a postgres connector
     this.addPostgresConnectorForm = this.formBuilder.group({
       connectorName: ['', Validators.required],
       username: ['', Validators.required],
       password: ['', Validators.required],
-      repeatPassword: ['', Validators.required],
       hostname: ['', Validators.required],
       port: ['', Validators.required],
       schema: ['', Validators.required],
       database: ['', Validators.required]
     });
 
+    //Initalize the form to add a sqlite connector
     this.addSQLiteConnectorForm = this.formBuilder.group({
       conName: ['', Validators.required],
       path: ['', Validators.required]
@@ -45,6 +46,8 @@ export class AddConnectorComponent implements OnInit {
     this.isSQLite = true;
     this.sqlite = document.getElementById("content");
     var sel = document.getElementById("connector");
+
+    //Handle the event if another kind of selector to add is selected
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
       if(cal == "sqlite") {
@@ -58,6 +61,9 @@ export class AddConnectorComponent implements OnInit {
     
   }
 
+  /**
+   * Handle the event if a sqlite connector is submitted
+   */
   addSQLiteConnector() {
     this.sqliteSubmitted = true;
     if(this.addSQLiteConnectorForm.invalid) {
@@ -66,10 +72,8 @@ export class AddConnectorComponent implements OnInit {
     var conName = this.addSQLiteConnectorForm.value.conName;
     var path = this.addSQLiteConnectorForm.value.path
     var files: any = document.getElementById('fileSel')
-    for(var x of files.files) {
-      console.log("file: " + x.path);
-    }
-    console.log($('#fileSel').files)
+
+    //Create the JSON for the service
     var json = {
       "class": "sqlite",
       "id": conName,
@@ -80,29 +84,28 @@ export class AddConnectorComponent implements OnInit {
       "port": null
     }
 
+    //It is not yet possible to add a sqlite connector
     alert("It is not yet possible to add a SQLite Connector");
   }
 
-  addPostgresConnector() {
+  /**
+   * Handle event if a postgres connector is submitted
+   */
+  addPostgresConnector(isTest: boolean) {
     this.postgresSubmitted = true;
     if(this.addPostgresConnectorForm.invalid){
       return;
     }
+    //Get the values from the input form
     var conName = this.addPostgresConnectorForm.value.connectorName;
     var uname = this.addPostgresConnectorForm.value.username;
     var pwd = this.addPostgresConnectorForm.value.password;
-    var repwd = this.addPostgresConnectorForm.value.repeatPassword;
     var host = this.addPostgresConnectorForm.value.hostname;
     var port = this.addPostgresConnectorForm.value.port;
     var schema = this.addPostgresConnectorForm.value.schema;
     var database = this.addPostgresConnectorForm.value.database;
 
-    if(pwd != repwd) {
-      this.passwordsEquals = true;
-      return;
-    }
-    this.passwordsEquals = false;
-
+    //Create the json which will be sent to the backend
     var json = {
       "class": "postgres",
       "id": conName,
@@ -112,9 +115,14 @@ export class AddConnectorComponent implements OnInit {
       "port": port,
       "username": uname,
       "password": pwd,
-      "isTest": false
+      "isTest": isTest
     };
 
-    this.conService.addConnector(json);
+    //Call the service
+    this.conService.addConnector(json).then(()=>{
+      alert("Connector added")
+    }).catch(()=>{
+      alert("ERROR: Connector not added")
+    });
   }
 }

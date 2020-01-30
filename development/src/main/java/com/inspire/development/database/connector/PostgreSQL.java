@@ -44,6 +44,8 @@ public class PostgreSQL implements DBConnector {
     private String zwUsername;
     private String zwHostname;
 
+    private HashMap<String, String> sqlString; // Table name, SQL String
+
     private Connection c;
     @JsonProperty("id")
     private String id;
@@ -63,6 +65,7 @@ public class PostgreSQL implements DBConnector {
         config = new HashMap<>();
         this.username = username;
         this.password = password;
+        this.sqlString = new HashMap<>();
 
         Connection connection = null;
         // create a database connection
@@ -71,10 +74,11 @@ public class PostgreSQL implements DBConnector {
         prop.setProperty("user", username);
         prop.setProperty("password", password);
         try {
+            Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
             log.info("Postgres Connector created for path: " + hostname);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.add(e.getMessage());
             log.error("Error creating connector. Error: " + e.getMessage());
         }
@@ -111,6 +115,7 @@ public class PostgreSQL implements DBConnector {
         this.username = username;
         this.password = password;
         tableNames = new ArrayList<>();
+        this.sqlString = new HashMap<>();
 
 
 
@@ -121,10 +126,11 @@ public class PostgreSQL implements DBConnector {
         prop.setProperty("user", username);
         prop.setProperty("password", password);
         try {
+            Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database, prop);
             c = connection;
             log.info("Postgres Connector created from config for path: " + hostname);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.add(e.getMessage());
             log.error("Error creating connector. Error: " + e.getMessage());
         }
@@ -174,15 +180,16 @@ public class PostgreSQL implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName) {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) {
         try {
-            log.info("Executing sql: " + sql + ", into collection: " + featureCollectionName);
-            Statement stmt = c.createStatement();
-            stmt.execute("CREATE VIEW " + schema + "." + featureCollectionName + " as " + sql);
-            return this.get(featureCollectionName,false, -1, 0,null);
-        } catch (SQLException e) {
-            errorBuffer.add(e.getMessage());
-            log.warn("Error executing sql statement: " + sql + ". Error: " + e.getMessage());
+            ResultSet st = c.createStatement().executeQuery(sql);
+            //SQL Executed
+            if(!check)
+                sqlString.put(featureCollectionName, sql);
+
+            return resultSetToFeatureCollection(st,featureCollectionName,featureCollectionName,false,-1,0,null);
+        }catch (SQLException e){
+            //SQL Errored
             return null;
         }
     }
@@ -204,7 +211,11 @@ public class PostgreSQL implements DBConnector {
                 }
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
-                rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
+                if(sqlString.containsKey(queryName)){
+                    rs = stmt.executeQuery(sqlString.get(queryName));
+                }else {
+                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
+                }
                 return resultSetToFeatureCollection(rs, queryName, collectionName, withSpatial, limit, offset,bbox);
         } catch (SQLException e) {
             log.warn("Failed to get collection: " + collectionName + ", with settings: limit=" + limit + ", offset="+ offset + ", bbox=" + Arrays.toString(bbox) + ", witSpatial=" + withSpatial );
@@ -240,6 +251,21 @@ public class PostgreSQL implements DBConnector {
                     fc.add(fs);
             } catch (SQLException e) {
                 log.warn("Error while converting table: " + table + " to FeatureCollection");
+            }
+        }
+        for(Map.Entry<String,String> entry: sqlString.entrySet()){
+            try {
+                ResultSet rs = c.createStatement().executeQuery(entry.getValue());
+                TableConfig conf = config.get(entry.getKey());
+                String alias = entry.getKey();
+                if(conf != null){
+                    alias = conf.getAlias();
+                }
+                FeatureCollection featureCollection = resultSetToFeatureCollection(rs,entry.getKey(),alias,true,0,0,null);
+                if(featureCollection != null)
+                    fc.add(featureCollection);
+            }catch (SQLException e){
+                log.warn("Error executing sql: " + entry.getValue());
             }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
@@ -327,18 +353,30 @@ public class PostgreSQL implements DBConnector {
                                 }
                             }
 
+                        }
                     boolean intersect = true;
                     if (geom != null) {
-                        String geometry = rs.getString(geom);
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometry);
-                        if (geo != null) {
-                            f.setGeometry(geo);
-                            double[] bboxFeature = geo.getBbox();
-                            f.setBbox(bboxFeature);
-                            if(bbox != null) {
-                                Rectangle a = rectFromBBox(bboxFeature);
-                                Rectangle b = rectFromBBox(bbox);
-                                intersect = a.intersects(b);
+                        String geometry = new String(rs.getBytes(geom));
+                        if (geometry != null) {
+                            Geometry geometr = PGgeometry.geomFromString(geometry);
+                            if (geometr.getSrid() == 0)
+                                log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                            if (geometr.getSrid() != 4326) {
+                                    log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                                }else{
+                                double t1 = System.currentTimeMillis();
+                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
+                                System.out.println(System.currentTimeMillis()-t1);
+                                if (geo != null) {
+                                    f.setGeometry(geo);
+                                    double[] bboxFeature = geo.getBbox();
+                                    f.setBbox(bboxFeature);
+                                    if (bbox != null) {
+                                        Rectangle a = rectFromBBox(bboxFeature);
+                                        Rectangle b = rectFromBBox(bbox);
+                                        intersect = a.intersects(b);
+                                    }
+                                }
                             }
                         }
                     }
@@ -347,19 +385,29 @@ public class PostgreSQL implements DBConnector {
                         fs.addFeature(f);
                     }
                     counter++;
-                }
             }
 
             if(geom != null) {
                 log.debug("Getting Bounding Box for Table: " + table);
                 Statement stmt = c.createStatement();
-                ResultSet resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(geom), 4326) as table_extent FROM " + schema + "." + table + "");
+                //ST_SetSRID transforms Box to Polygon
+                ResultSet resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(" + geom + "), 4326) as table_extent FROM " + schema + "." + table + "");
                 if (resultSet.next()) {
-                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(resultSet.getString(1));
-                    if(geo != null) {
-                        double[] bounding = geo.getBbox();
-                        if(bounding != null && withSpatial)
-                            fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
+                    String ewkb = resultSet.getString(1);
+                    if(ewkb != null) {
+                        Geometry gm = PGgeometry.geomFromString(ewkb);
+                        if (gm.getSrid() == 0)
+                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                        if (gm.getSrid() != 4326) {
+                            log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                        }else {
+                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
+                            if (geo != null) {
+                                double[] bounding = geo.getBbox();
+                                if (bounding != null && withSpatial)
+                                    fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
+                            }
+                        }
                     }
                 }
             }
@@ -448,10 +496,8 @@ public class PostgreSQL implements DBConnector {
                 if(!table.contains("pg_"))
                     out.add(rs.getString(3));
             }
-            /**rs = md.getTables(null, schema, null, new String[]{"VIEW"});
-            while (rs.next()) {
-                out.add(rs.getString("TABLE_NAME"));
-            }**/
+            for(Map.Entry<String,String> entry:sqlString.entrySet())
+                out.add(entry.getKey());
             return out;
         }catch (SQLException e){
             log.warn("Failde to get all tables. Error: " + e.getMessage());
@@ -503,60 +549,52 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Converts Extended Well Known Binary to a Geometry Object
-     * @param ewkb EWKB String
+     * @param geom Geometry Object
      * @return Geometry object if string is valid, else null
      */
-    public mil.nga.sf.geojson.Geometry EWKBtoGeo(String ewkb) {
-        log.debug("Converting EWKB to Geometry");
-        try {
-            if (ewkb != null) {
-                double xmin = Integer.MAX_VALUE;
-                double xmax = Integer.MIN_VALUE;
-                double ymin = Integer.MAX_VALUE;
-                double ymax = Integer.MIN_VALUE;
+    public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
+        if(geom != null) {
+            log.debug("Converting EWKB to Geometry");
+            double xmin = Integer.MAX_VALUE;
+            double xmax = Integer.MIN_VALUE;
+            double ymin = Integer.MAX_VALUE;
+            double ymax = Integer.MIN_VALUE;
 
-                Geometry geom = PGgeometry.geomFromString(ewkb);
-                //Type is Polygon
-                if (geom.getType() == 3) {
-                    List<List<Position>> l = new ArrayList<>();
-                    ArrayList<Position> li = new ArrayList<>();
+            //Type is Polygon
+            if (geom.getType() == 3) {
+                List<List<Position>> l = new ArrayList<>();
+                ArrayList<Position> li = new ArrayList<>();
 
-                    int x = 1;
-                    org.postgis.Point p = geom.getFirstPoint();
-                    do {
-                        if(p.getX() > xmax)
-                            xmax = p.getX();
+                int x = 1;
+                org.postgis.Point p = geom.getFirstPoint();
+                do {
+                    if (p.getX() > xmax)
+                        xmax = p.getX();
 
-                        if(p.getX() < xmin)
-                            xmin = p.getX();
+                    if (p.getX() < xmin)
+                        xmin = p.getX();
 
-                        if(p.getY() > ymax)
-                            ymax = p.getY();
+                    if (p.getY() > ymax)
+                        ymax = p.getY();
 
-                        if(p.getY() < ymin)
-                            ymin = p.getY();
+                    if (p.getY() < ymin)
+                        ymin = p.getY();
 
-                        li.add(new Position(p.getX(), p.getY()));
-                        p = geom.getPoint(x);
-                        x++;
-                    } while ((!p.equals(geom.getLastPoint())));
-                    l.add(li);
-                    Polygon p1 = new Polygon(l);
-                    p1.setBbox(new double[]{xmin,ymin,xmax,ymax});
-                    return p1;
-                }
-                //Type is Point
-                if (geom.getType() == 1) {
-                    return new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
-                }
-                return null;
-            }else{
-                return null;
+                    li.add(new Position(p.getX(), p.getY()));
+                    p = geom.getPoint(x);
+                    x++;
+                } while ((!p.equals(geom.getLastPoint())));
+                l.add(li);
+                Polygon p1 = new Polygon(l);
+                p1.setBbox(new double[]{xmin, ymin, xmax, ymax});
+                return p1;
             }
-        }catch (SQLException e){
-            e.printStackTrace();
-            return null;
+            //Type is Point
+            if (geom.getType() == 1) {
+                return new mil.nga.sf.geojson.Point(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
+            }
         }
+        return null;
     }
 
     public void setHostname(String hostname) {
@@ -589,11 +627,18 @@ public class PostgreSQL implements DBConnector {
         log.debug("Getting all Collumns for table: " + table);
         ArrayList<String> result = new ArrayList<>();
         try {
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rset = md.getColumns(null, null, table, null);
+            if(sqlString.containsKey(table)){
+                ResultSet rs = c.createStatement().executeQuery(sqlString.get(table));
+                ResultSetMetaData md = rs.getMetaData();
+                for(int x = 1;x<=md.getColumnCount();x++)
+                    result.add(md.getColumnName(x));
+            }else {
+                DatabaseMetaData md = c.getMetaData();
+                ResultSet rset = md.getColumns(null, null, table, null);
 
-            while (rset.next()) {
-                result.add(rset.getString(4));
+                while (rset.next()) {
+                    result.add(rset.getString(4));
+                }
             }
         }catch (SQLException e){
 
@@ -666,6 +711,26 @@ public class PostgreSQL implements DBConnector {
             zwDatabase = null;
             c = oldCon;
             return e.getMessage();
+        }
+    }
+
+    public void setGeo(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setGeoCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setGeoCol(column);
+            config.put(table,tc);
+        }
+    }
+
+    public void setId(String table, String column){
+        if(config.containsKey(table)){
+            config.get(table).setIdCol(column);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setIdCol(column);
+            config.put(table,tc);
         }
     }
 

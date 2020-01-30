@@ -17,7 +17,7 @@ export class ConnectorService {
 
   async getConnector() {
     this.connectors = await new Promise((resolve, reject) =>{
-      this.httpClient.post('/api/getConnectors', {
+      this.httpClient.post('/ogcapisimple/api/getConnectors', {
       }).subscribe((res)=>{
         resolve(res);
       }, (err)=>{
@@ -29,7 +29,7 @@ export class ConnectorService {
 
   async getTables(json:object) {
     this.tables = await new Promise((resolve, reject) =>{
-      this.httpClient.post('/api/getTables', json).subscribe((res)=>{
+      this.httpClient.post('/ogcapisimple/api/getTables', json).subscribe((res)=>{
         resolve(res);;
       }, (err)=>{
         reject(err);
@@ -40,7 +40,7 @@ export class ConnectorService {
 
   async getColumn(json:object) {
     this.columns = await new Promise((resolve, reject) =>{
-      this.httpClient.post('/api/getColumns', json)
+      this.httpClient.post('/ogcapisimple/api/getColumns', json)
       .subscribe((res)=>{
         resolve(res);
       }, (err)=>{
@@ -50,20 +50,24 @@ export class ConnectorService {
     return this.columns;
   }
 
+  
   addConnector(json:object) {
-    this.httpClient.post('/api/addConnector', 
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post('/ogcapisimple/api/addConnector', 
       json,{
       responseType: 'text'
     }).subscribe((res)=>{
-      console.log("Connector added");
+      resolve(res);
     }, (err)=>{
-      console.log(err);
+      reject(err);
     });
+    })
+    
   }
 
   async renameTable(json:object) {
     return new Promise((resolve, reject)=>{
-      this.httpClient.post("/api/renameCollection", json, {
+      this.httpClient.post("/ogcapisimple/api/renameCollection", json, {
         responseType: 'text'
       }).subscribe((res)=>{
         resolve(res);
@@ -75,7 +79,7 @@ export class ConnectorService {
 
   async renameColumn(json:object) {
     return new Promise((resolve, reject)=>{
-      this.httpClient.post("/api/renameProp", json, {
+      this.httpClient.post("/ogcapisimple/api/renameProp", json, {
         responseType: 'text'
       }).subscribe((res)=>{
         resolve(res);

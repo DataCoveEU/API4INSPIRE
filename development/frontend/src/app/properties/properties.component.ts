@@ -20,9 +20,11 @@ export class PropertiesComponent implements OnInit {
   async ngOnInit() {
     this.sqlite = true;
 
+    //Load all connectors
     this.connectors = await this.con.getConnector();
 
     var sel = document.getElementById('connector');
+    //Change the form depending on what connector it is
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
       if(cal == "postgres") {
