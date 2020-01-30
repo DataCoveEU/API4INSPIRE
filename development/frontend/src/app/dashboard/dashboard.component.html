@@ -88,6 +88,7 @@
 
     <div class="row" id="sql">
         <div class="col-sm-12">
+            <div id="sqlError" *ngIf="!sqlSucess"></div>
             <h3>Write SQL</h3>
             <hr />
 
@@ -112,11 +113,6 @@
               <button class="btn btn-success" type="submit">Execute</button>
             </form>
 
-            <div class="row">
-              <div class="col-sm-6">
-
-              </div>
-            </div>
             <br />
             <br />
           </div>

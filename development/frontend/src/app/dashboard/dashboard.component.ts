@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
 import { SqlService } from '../sql.service';
+import { $ } from 'protractor';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,7 +40,7 @@ export class DashboardComponent implements OnInit {
   sqlForm: FormGroup;
   sqlSubmitted: boolean = false;
 
-
+  sqlSucess: boolean = true;
 
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
@@ -240,7 +241,9 @@ export class DashboardComponent implements OnInit {
 
     this.sqlService.executeSQL(json).then(()=>{
       alert("SQL executed successfully")
-    }).catch(()=>{
+    }).catch((err)=>{
+      this.sqlSucess = false;
+      $('#sqlError').html(err)
       alert("Not executed successfully")
     });
 

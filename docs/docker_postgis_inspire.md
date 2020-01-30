@@ -83,7 +83,7 @@ openjdk Image on
 ## __Image creation__ 
 
 * if required, download the content of the "/API4INSPIRE/docker/ogcapisimple" directory (incl. the sub dir /scripts) to your directory of choice
-git * copy the ogcapisimple.war into the same directory (ogcapisimple.war will be included in this directory on Github when ready for further testing)
+* copy the ogcapisimple.war into the same directory (ogcapisimple.war will be included in this directory on Github when ready for further testing)
 * give the following files permission to be executable:
     * dbuild.sh
     * drun.sh
