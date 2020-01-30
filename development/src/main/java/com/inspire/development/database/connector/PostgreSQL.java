@@ -65,6 +65,7 @@ public class PostgreSQL implements DBConnector {
         config = new HashMap<>();
         this.username = username;
         this.password = password;
+        this.sqlString = new HashMap<>();
 
         Connection connection = null;
         // create a database connection
@@ -114,6 +115,7 @@ public class PostgreSQL implements DBConnector {
         this.username = username;
         this.password = password;
         tableNames = new ArrayList<>();
+        this.sqlString = new HashMap<>();
 
 
 
@@ -354,7 +356,7 @@ public class PostgreSQL implements DBConnector {
                         }
                     boolean intersect = true;
                     if (geom != null) {
-                        String geometry = rs.getString(geom);
+                        String geometry = new String(rs.getBytes(geom));
                         if (geometry != null) {
                             Geometry geometr = PGgeometry.geomFromString(geometry);
                             if (geometr.getSrid() == 0)
@@ -362,8 +364,9 @@ public class PostgreSQL implements DBConnector {
                             if (geometr.getSrid() != 4326) {
                                     log.warn("SRID for collection: " + alias + " is not set to 4326!");
                                 }else{
-
+                                double t1 = System.currentTimeMillis();
                                 mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
+                                System.out.println(System.currentTimeMillis()-t1);
                                 if (geo != null) {
                                     f.setGeometry(geo);
                                     double[] bboxFeature = geo.getBbox();

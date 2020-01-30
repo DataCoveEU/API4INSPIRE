@@ -43,7 +43,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
-  async ngOnInit() {     
+  async ngOnInit() {
     //Init the forms to rename the tables and columns and to execute the sql query
     this.sqlForm = this.formBuilder.group({
       collectionId: ['', Validators.required],
@@ -53,22 +53,28 @@ export class DashboardComponent implements OnInit {
     this.renameTableForm = this.formBuilder.group({
       tableName: ['', Validators.required]
     });
-    
+
     this.renameColumnForm = this.formBuilder.group({
       columnName: ['', Validators.required]
     });
 
     //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
-    if(this.connectors.length < 1) {
-     // this.connectors = [{"id": "No connectors available"}]
+
+    if(this.connectors.length == 0){
+      this.connectors = [{id: "No Connectors"}];
     }
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
-    this.selectedConnector = this.connectors[select.selectedIndex];
-
-    //Load the table names from the selected connector
-    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+    var index = select.selectedIndex;
+    
+    if(index == -1){index = 0}
+  
+      this.selectedConnector = this.connectors[index];
+      console.log(index);
+      console.log(this.connectors);
+      //Load the table names from the selected connector
+      this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = async (event: any)=>{
@@ -82,17 +88,17 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Handle the click event when a table row with table names is clicked
-   * 
+   *
    * @param name the name or the id of the table row that has been clicked
    */
   async onClickTableName(name: string) {
-    // If a "tablename row" is already selected, then 
+    // If a "tablename row" is already selected, then
     // you have to change the style
     if(this.tableSelect) {
       var change = document.getElementById(this.idTableSelected);
       change.style.backgroundColor = "white";
       change.style.color = "black";
-      
+
       // If a "columnname row" is also selected
       // then you have to deselect is
       if(this.columnSelected) {
@@ -120,7 +126,7 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Handle the click event when a table row with columns is clicked
-   * 
+   *
    * @param name the name or id of the table row that has been clicked
    */
   onClickColumn(name: string) {
@@ -143,7 +149,7 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Handle the click event when the new table name is submitted 
+   * Handle the click event when the new table name is submitted
    */
   submitTable() {
     this.tableNameSubmitted = true;
