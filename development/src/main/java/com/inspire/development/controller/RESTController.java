@@ -142,7 +142,7 @@ public class RESTController {
                 if(error == null) {
                     if (!test) {
                         core.addConnector(s);
-                        core.writeConfig();
+                        //core.writeConfig();
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 }else{
@@ -306,7 +306,7 @@ public class RESTController {
                 if(collectionName != null){
                     DBConnector db = core.getConnectorById(id);
                     if(db != null){
-                        return new ResponseEntity<>(db.execute(sql,collectionName), HttpStatus.OK);
+                        return new ResponseEntity<>(db.execute(sql,collectionName,false), HttpStatus.OK);
                     }else{
                         return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
                     }
@@ -414,10 +414,46 @@ public class RESTController {
         if(id != null){
             String table = (String)input.get("table");
             if(table != null) {
-
+                String column = (String)input.get("column");
+                if(column != null){
+                    DBConnector db = core.getConnectorById(id);
+                    if(db != null){
+                        db.setGeo(table,column);
+                    }else{
+                        return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
+                    }
+                }else{
+                    return new ResponseEntity<>("Column is missing", HttpStatus.BAD_REQUEST);
+                }
             }else{
                 return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
         }
+        }else{
+            return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/api/setId", method = RequestMethod.POST)
+    public ResponseEntity<Object> setId(@RequestBody Map<String, ?> input){
+        String id = (String)input.get("id");
+        if(id != null){
+            String table = (String)input.get("table");
+            if(table != null) {
+                String column = (String)input.get("column");
+                if(column != null){
+                    DBConnector db = core.getConnectorById(id);
+                    if(db != null){
+                        db.setId(table,column);
+                    }else{
+                        return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
+                    }
+                }else{
+                    return new ResponseEntity<>("Column is missing", HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
+            }
         }else{
             return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
         }

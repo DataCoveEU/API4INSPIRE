@@ -44,6 +44,8 @@ public class PostgreSQL implements DBConnector {
     private String zwUsername;
     private String zwHostname;
 
+    private HashMap<String, String> sqlString; // Table name, SQL String
+
     private Connection c;
     @JsonProperty("id")
     private String id;
@@ -176,15 +178,16 @@ public class PostgreSQL implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName) {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) {
         try {
-            log.info("Executing sql: " + sql + ", into collection: " + featureCollectionName);
-            Statement stmt = c.createStatement();
-            stmt.execute("CREATE VIEW " + schema + "." + featureCollectionName + " as " + sql);
-            return this.get(featureCollectionName,false, -1, 0,null);
-        } catch (SQLException e) {
-            errorBuffer.add(e.getMessage());
-            log.warn("Error executing sql statement: " + sql + ". Error: " + e.getMessage());
+            ResultSet st = c.createStatement().executeQuery(sql);
+            //SQL Executed
+            if(!check)
+                sqlString.put(featureCollectionName, sql);
+
+            return resultSetToFeatureCollection(st,featureCollectionName,featureCollectionName,false,-1,0,null);
+        }catch (SQLException e){
+            //SQL Errored
             return null;
         }
     }
@@ -206,7 +209,11 @@ public class PostgreSQL implements DBConnector {
                 }
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
-                rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
+                if(sqlString.containsKey(queryName)){
+                    rs = stmt.executeQuery(sqlString.get(queryName));
+                }else {
+                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
+                }
                 return resultSetToFeatureCollection(rs, queryName, collectionName, withSpatial, limit, offset,bbox);
         } catch (SQLException e) {
             log.warn("Failed to get collection: " + collectionName + ", with settings: limit=" + limit + ", offset="+ offset + ", bbox=" + Arrays.toString(bbox) + ", witSpatial=" + withSpatial );
@@ -242,6 +249,21 @@ public class PostgreSQL implements DBConnector {
                     fc.add(fs);
             } catch (SQLException e) {
                 log.warn("Error while converting table: " + table + " to FeatureCollection");
+            }
+        }
+        for(Map.Entry<String,String> entry: sqlString.entrySet()){
+            try {
+                ResultSet rs = c.createStatement().executeQuery(entry.getValue());
+                TableConfig conf = config.get(entry.getKey());
+                String alias = entry.getKey();
+                if(conf != null){
+                    alias = conf.getAlias();
+                }
+                FeatureCollection featureCollection = resultSetToFeatureCollection(rs,entry.getKey(),alias,true,0,0,null);
+                if(featureCollection != null)
+                    fc.add(featureCollection);
+            }catch (SQLException e){
+                log.warn("Error executing sql: " + entry.getValue());
             }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
@@ -329,33 +351,29 @@ public class PostgreSQL implements DBConnector {
                                 }
                             }
 
+                        }
                     boolean intersect = true;
                     if (geom != null) {
                         String geometry = rs.getString(geom);
-                        Geometry geometr = PGgeometry.geomFromString(geometry);
-                        if (geometr.getSrid() == 0)
-                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                        else {
+                        if (geometry != null) {
+                            Geometry geometr = PGgeometry.geomFromString(geometry);
+                            if (geometr.getSrid() == 0)
+                                log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
                             if (geometr.getSrid() != 4326) {
-                                geometry = "'" + geometry + "'";
-                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                                ResultSet convSet = c.createStatement().executeQuery("SELECT ST_Transform(" + geometry + ",4326) FROM " + table);
-                                if (convSet.next()) {
-                                    String e = convSet.getString(1);
-                                    if(e != null)
-                                        geometr = PGgeometry.geomFromString(e);
+                                    log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                                }else{
+
+                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
+                                if (geo != null) {
+                                    f.setGeometry(geo);
+                                    double[] bboxFeature = geo.getBbox();
+                                    f.setBbox(bboxFeature);
+                                    if (bbox != null) {
+                                        Rectangle a = rectFromBBox(bboxFeature);
+                                        Rectangle b = rectFromBBox(bbox);
+                                        intersect = a.intersects(b);
+                                    }
                                 }
-                            }
-                        }
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
-                        if (geo != null) {
-                            f.setGeometry(geo);
-                            double[] bboxFeature = geo.getBbox();
-                            f.setBbox(bboxFeature);
-                            if(bbox != null) {
-                                Rectangle a = rectFromBBox(bboxFeature);
-                                Rectangle b = rectFromBBox(bbox);
-                                intersect = a.intersects(b);
                             }
                         }
                     }
@@ -364,7 +382,6 @@ public class PostgreSQL implements DBConnector {
                         fs.addFeature(f);
                     }
                     counter++;
-                }
             }
 
             if(geom != null) {
@@ -378,23 +395,15 @@ public class PostgreSQL implements DBConnector {
                         Geometry gm = PGgeometry.geomFromString(ewkb);
                         if (gm.getSrid() == 0)
                             log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                        else {
-                            if (gm.getSrid() != 4326) {
-                                ewkb = "'" + ewkb + "'";
-                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                                ResultSet convSet = c.createStatement().executeQuery("SELECT ST_Transform((ST_GeomFromEWKB(" + ewkb + ")),4326) FROM " + table);
-                                if (convSet.next()) {
-                                    String e = convSet.getString(1);
-                                    if(e != null)
-                                        gm = PGgeometry.geomFromString(e);
-                                }
+                        if (gm.getSrid() != 4326) {
+                            log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                        }else {
+                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
+                            if (geo != null) {
+                                double[] bounding = geo.getBbox();
+                                if (bounding != null && withSpatial)
+                                    fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
                             }
-                        }
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
-                        if (geo != null) {
-                            double[] bounding = geo.getBbox();
-                            if (bounding != null && withSpatial)
-                                fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
                         }
                     }
                 }
@@ -484,10 +493,8 @@ public class PostgreSQL implements DBConnector {
                 if(!table.contains("pg_"))
                     out.add(rs.getString(3));
             }
-            /**rs = md.getTables(null, schema, null, new String[]{"VIEW"});
-            while (rs.next()) {
-                out.add(rs.getString("TABLE_NAME"));
-            }**/
+            for(Map.Entry<String,String> entry:sqlString.entrySet())
+                out.add(entry.getKey());
             return out;
         }catch (SQLException e){
             log.warn("Failde to get all tables. Error: " + e.getMessage());
@@ -617,11 +624,18 @@ public class PostgreSQL implements DBConnector {
         log.debug("Getting all Collumns for table: " + table);
         ArrayList<String> result = new ArrayList<>();
         try {
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rset = md.getColumns(null, null, table, null);
+            if(sqlString.containsKey(table)){
+                ResultSet rs = c.createStatement().executeQuery(sqlString.get(table));
+                ResultSetMetaData md = rs.getMetaData();
+                for(int x = 1;x<=md.getColumnCount();x++)
+                    result.add(md.getColumnName(x));
+            }else {
+                DatabaseMetaData md = c.getMetaData();
+                ResultSet rset = md.getColumns(null, null, table, null);
 
-            while (rset.next()) {
-                result.add(rset.getString(4));
+                while (rset.next()) {
+                    result.add(rset.getString(4));
+                }
             }
         }catch (SQLException e){
 
