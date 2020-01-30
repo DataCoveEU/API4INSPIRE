@@ -60,9 +60,8 @@ export class DashboardComponent implements OnInit {
 
     //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
-    console.log(this.connectors);
     if(this.connectors.length < 1) {
-      this.connectors = [{"id": "No connectors available"}]
+     // this.connectors = [{"id": "No connectors available"}]
     }
 
     var select = document.getElementById("selectField") as HTMLSelectElement;

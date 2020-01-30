@@ -31,7 +31,6 @@ export class AddConnectorComponent implements OnInit {
       connectorName: ['', Validators.required],
       username: ['', Validators.required],
       password: ['', Validators.required],
-      repeatPassword: ['', Validators.required],
       hostname: ['', Validators.required],
       port: ['', Validators.required],
       schema: ['', Validators.required],
@@ -101,18 +100,10 @@ export class AddConnectorComponent implements OnInit {
     var conName = this.addPostgresConnectorForm.value.connectorName;
     var uname = this.addPostgresConnectorForm.value.username;
     var pwd = this.addPostgresConnectorForm.value.password;
-    var repwd = this.addPostgresConnectorForm.value.repeatPassword;
     var host = this.addPostgresConnectorForm.value.hostname;
     var port = this.addPostgresConnectorForm.value.port;
     var schema = this.addPostgresConnectorForm.value.schema;
     var database = this.addPostgresConnectorForm.value.database;
-
-    //Check if the repeated password is valid
-    if(pwd != repwd) {
-      this.passwordsEquals = true;
-      return;
-    }
-    this.passwordsEquals = false;
 
     //Create the json which will be sent to the backend
     var json = {
