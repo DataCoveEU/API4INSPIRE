@@ -60,18 +60,21 @@ export class DashboardComponent implements OnInit {
 
     //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
-    console.log(this.connectors);
-    if(this.connectors.length < 1) {
-      //this.connectors = [{"id": "No connectors available"}]
+
+    if(this.connectors.length == 0){
+      this.connectors = [{id: "No Connectors"}];
     }
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
-    this.selectedConnector = this.connectors[select.selectedIndex];
-
-    console.log(this.selectedConnector)
-
-    //Load the table names from the selected connector
-    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+    var index = select.selectedIndex;
+    
+    if(index == -1){index = 0}
+  
+      this.selectedConnector = this.connectors[index];
+      console.log(index);
+      console.log(this.connectors);
+      //Load the table names from the selected connector
+      this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
     //Eevent when another conncetor in the dropdown is selected
     select.onchange = async (event: any)=>{
