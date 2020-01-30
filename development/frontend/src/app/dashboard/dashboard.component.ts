@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
 import { SqlService } from '../sql.service';
-import { $ } from 'protractor';
 
 @Component({
   selector: 'app-dashboard',
@@ -243,7 +242,8 @@ export class DashboardComponent implements OnInit {
       alert("SQL executed successfully")
     }).catch((err)=>{
       this.sqlSucess = false;
-      $('#sqlError').html(err)
+      var errorText = document.getElementById('sqlError');
+      errorText.innerHTML = err;
       alert("Not executed successfully")
     });
 
