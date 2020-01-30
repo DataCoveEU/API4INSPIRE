@@ -44,6 +44,8 @@ public class PostgreSQL implements DBConnector {
     private String zwUsername;
     private String zwHostname;
 
+    private HashMap<String, String> sqlString; // Table name, SQL String
+
     private Connection c;
     @JsonProperty("id")
     private String id;
@@ -176,15 +178,16 @@ public class PostgreSQL implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName) {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) {
         try {
-            log.info("Executing sql: " + sql + ", into collection: " + featureCollectionName);
-            Statement stmt = c.createStatement();
-            stmt.execute("CREATE VIEW " + schema + "." + featureCollectionName + " as " + sql);
-            return this.get(featureCollectionName,false, -1, 0,null);
-        } catch (SQLException e) {
-            errorBuffer.add(e.getMessage());
-            log.warn("Error executing sql statement: " + sql + ". Error: " + e.getMessage());
+            ResultSet st = c.createStatement().executeQuery(sql);
+            //SQL Executed
+            if(!check)
+                sqlString.put(featureCollectionName, sql);
+
+            return resultSetToFeatureCollection(st,featureCollectionName,featureCollectionName,false,-1,0,null);
+        }catch (SQLException e){
+            //SQL Errored
             return null;
         }
     }
@@ -206,7 +209,11 @@ public class PostgreSQL implements DBConnector {
                 }
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
-                rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
+                if(sqlString.containsKey(queryName)){
+                    rs = stmt.executeQuery(sqlString.get(queryName));
+                }else {
+                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + queryName + "");
+                }
                 return resultSetToFeatureCollection(rs, queryName, collectionName, withSpatial, limit, offset,bbox);
         } catch (SQLException e) {
             log.warn("Failed to get collection: " + collectionName + ", with settings: limit=" + limit + ", offset="+ offset + ", bbox=" + Arrays.toString(bbox) + ", witSpatial=" + withSpatial );
@@ -242,6 +249,21 @@ public class PostgreSQL implements DBConnector {
                     fc.add(fs);
             } catch (SQLException e) {
                 log.warn("Error while converting table: " + table + " to FeatureCollection");
+            }
+        }
+        for(Map.Entry<String,String> entry: sqlString.entrySet()){
+            try {
+                ResultSet rs = c.createStatement().executeQuery(entry.getValue());
+                TableConfig conf = config.get(entry.getKey());
+                String alias = entry.getKey();
+                if(conf != null){
+                    alias = conf.getAlias();
+                }
+                FeatureCollection featureCollection = resultSetToFeatureCollection(rs,entry.getKey(),alias,true,0,0,null);
+                if(featureCollection != null)
+                    fc.add(featureCollection);
+            }catch (SQLException e){
+                log.warn("Error executing sql: " + entry.getValue());
             }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
@@ -471,10 +493,8 @@ public class PostgreSQL implements DBConnector {
                 if(!table.contains("pg_"))
                     out.add(rs.getString(3));
             }
-            /**rs = md.getTables(null, schema, null, new String[]{"VIEW"});
-            while (rs.next()) {
-                out.add(rs.getString("TABLE_NAME"));
-            }**/
+            for(Map.Entry<String,String> entry:sqlString.entrySet())
+                out.add(entry.getKey());
             return out;
         }catch (SQLException e){
             log.warn("Failde to get all tables. Error: " + e.getMessage());
@@ -604,11 +624,18 @@ public class PostgreSQL implements DBConnector {
         log.debug("Getting all Collumns for table: " + table);
         ArrayList<String> result = new ArrayList<>();
         try {
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rset = md.getColumns(null, null, table, null);
+            if(sqlString.containsKey(table)){
+                ResultSet rs = c.createStatement().executeQuery(sqlString.get(table));
+                ResultSetMetaData md = rs.getMetaData();
+                for(int x = 1;x<=md.getColumnCount();x++)
+                    result.add(md.getColumnName(x));
+            }else {
+                DatabaseMetaData md = c.getMetaData();
+                ResultSet rset = md.getColumns(null, null, table, null);
 
-            while (rset.next()) {
-                result.add(rset.getString(4));
+                while (rset.next()) {
+                    result.add(rset.getString(4));
+                }
             }
         }catch (SQLException e){
 

@@ -21,7 +21,7 @@ public interface DBConnector {
 
     public void delete(String fc);
 
-    public FeatureCollection execute(String sql, String fcName);
+    public FeatureCollection execute(String sql, String fcName, boolean check);
 
     public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox);
 

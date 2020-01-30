@@ -142,7 +142,7 @@ public class RESTController {
                 if(error == null) {
                     if (!test) {
                         core.addConnector(s);
-                        core.writeConfig();
+                        //core.writeConfig();
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 }else{
@@ -306,7 +306,7 @@ public class RESTController {
                 if(collectionName != null){
                     DBConnector db = core.getConnectorById(id);
                     if(db != null){
-                        return new ResponseEntity<>(db.execute(sql,collectionName), HttpStatus.OK);
+                        return new ResponseEntity<>(db.execute(sql,collectionName,false), HttpStatus.OK);
                     }else{
                         return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
                     }
