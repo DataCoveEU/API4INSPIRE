@@ -52,7 +52,7 @@
             </div>
 
             <div *ngIf="this.isPostgres">
-                <form [formGroup]="addPostgresConnectorForm" (ngSubmit)="addPostgresConnector()">
+                <form [formGroup]="addPostgresConnectorForm" (ngSubmit)="addPostgresConnector(false)">
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
                             <label>
@@ -113,7 +113,7 @@
                     </div>
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
-                            <button class="btn btn-success" style="width: 100%">Test connction</button>
+                            <button class="btn btn-success" style="width: 100%" (click)="addPostgresConnector(true)">Test connction</button>
                         </div>
                     </div>
                     <div class="row" style="width: 100%; margin-top: 1%">

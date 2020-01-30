@@ -91,7 +91,7 @@ export class AddConnectorComponent implements OnInit {
   /**
    * Handle event if a postgres connector is submitted
    */
-  addPostgresConnector() {
+  addPostgresConnector(isTest: boolean) {
     this.postgresSubmitted = true;
     if(this.addPostgresConnectorForm.invalid){
       return;
@@ -115,10 +115,14 @@ export class AddConnectorComponent implements OnInit {
       "port": port,
       "username": uname,
       "password": pwd,
-      "isTest": false
+      "isTest": isTest
     };
 
     //Call the service
-    this.conService.addConnector(json);
+    this.conService.addConnector(json).then(()=>{
+      alert("Connector added")
+    }).catch(()=>{
+      alert("ERROR: Connector not added")
+    });
   }
 }

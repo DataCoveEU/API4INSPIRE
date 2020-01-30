@@ -19,7 +19,8 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a [ngClass]="{'activeRoute': this.isDashboard}" class="dropdown-item" routerLink="/dashboard">Dashboard</a>
-            <a [ngClass]="{'activeRoute': this.isProperties}" class="dropdown-item" routerLink="/properties">DB properties</a>
+            <div class="dropdown-divider"></div>
+            <a [ngClass]="{'activeRoute': this.isProperties}" class="dropdown-item" routerLink="/properties">Connector properties</a>
             <a class="dropdown-item" routerLink="/connector">Connector management</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" routerLink='/user-management' routerLinkActive="router-link-active" >Change admin password</a>

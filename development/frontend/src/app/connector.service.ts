@@ -50,15 +50,19 @@ export class ConnectorService {
     return this.columns;
   }
 
+  
   addConnector(json:object) {
-    this.httpClient.post('/ogcapisimple/api/addConnector', 
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post('/ogcapisimple/api/addConnector', 
       json,{
       responseType: 'text'
     }).subscribe((res)=>{
-      console.log("Connector added");
+      resolve(res);
     }, (err)=>{
-      console.log(err);
+      reject(err);
     });
+    })
+    
   }
 
   async renameTable(json:object) {

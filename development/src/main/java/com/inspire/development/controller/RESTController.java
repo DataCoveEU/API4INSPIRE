@@ -31,12 +31,12 @@ public class RESTController {
         core = new Core();
 
 
-        SQLite c = new SQLite("inspireDB.sqlite","Inspire");
+        //SQLite c = new SQLite("inspireDB.sqlite","Inspire");
        /* //c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
         //c.renameTable("tna_insp_navaids", "Tobias");
         PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
         core.getConnectors().add(p);;*/
-        core.getConnectors().add(c);
+       // core.getConnectors().add(c);
 
         DBConnectorList list = core.parseConfig();
         if(list != null){
