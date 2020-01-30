@@ -328,32 +328,23 @@ public class SQLite implements DBConnector {
                         String geometry = rs.getString("AsEWKB(" + geoCol + ")");
                         if(geometry != null){
                         Geometry geometr = PGgeometry.geomFromString(geometry);
-                        if (geometr.getSrid() == 0)
-                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                        else {
+                            if (geometr.getSrid() == 0)
+                                log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
                             if (geometr.getSrid() != 4326) {
-                                geometry = "'" + geometry + "'";
                                 log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                                //Converting to 4326
-                                ResultSet convSet = c.createStatement().executeQuery("SELECT AsEwkb(ST_Transform(GeomFromEWKB(" + geometry + "),4326)) FROM " + table);
-                                if (convSet.next()) {
-                                    String e = convSet.getString(1);
-                                    if(e != null)
-                                        geometr = PGgeometry.geomFromString(e);
+                            }else{
+                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
+                            if (geo != null) {
+                                f.setGeometry(geo);
+                                double[] bboxFeature = geo.getBbox();
+                                f.setBbox(bboxFeature);
+                                //If bbox is given
+                                if (bbox != null) {
+                                    //Check if intersects
+                                    Rectangle a = rectFromBBox(bboxFeature);
+                                    Rectangle b = rectFromBBox(bbox);
+                                    intersect = a.intersects(b);
                                 }
-                            }
-                        }
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
-                        if (geo != null) {
-                            f.setGeometry(geo);
-                            double[] bboxFeature = geo.getBbox();
-                            f.setBbox(bboxFeature);
-                            //If bbox is given
-                            if (bbox != null) {
-                                //Check if intersects
-                                Rectangle a = rectFromBBox(bboxFeature);
-                                Rectangle b = rectFromBBox(bbox);
-                                intersect = a.intersects(b);
                             }
                         }
                     }
@@ -373,23 +364,15 @@ public class SQLite implements DBConnector {
                         Geometry geometr = PGgeometry.geomFromString(ewkb);
                         if (geometr.getSrid() == 0)
                             log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                        else {
-                            if (geometr.getSrid() != 4326) {
-                                ewkb = "'" + ewkb + "'";
-                                //Converting to 4326.
-                                ResultSet convSet = c.createStatement().executeQuery("SELECT AsEwkb(ST_Transform(GeomFromEWKB(" + ewkb + "),4326)) FROM " + table);
-                                if (convSet.next()) {
-                                    String e = convSet.getString(1);
-                                    if (e != null)
-                                        geometr = PGgeometry.geomFromString(e);
-                                }
+                        if (geometr.getSrid() != 4326) {
+                            log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                        }else {
+                            mil.nga.sf.geojson.Geometry g = EWKBtoGeo(geometr);
+                            if (g != null) {
+                                double[] array = g.getBbox();
+                                if (array != null && withSpatial)
+                                    fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
                             }
-                        }
-                        mil.nga.sf.geojson.Geometry g = EWKBtoGeo(geometr);
-                        if (g != null) {
-                            double[] array = g.getBbox();
-                            if (array != null && withSpatial)
-                                fs.setBB(DoubleStream.of(array).boxed().collect(Collectors.toList()));
                         }
                     }
                 }

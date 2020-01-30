@@ -329,33 +329,29 @@ public class PostgreSQL implements DBConnector {
                                 }
                             }
 
+                        }
                     boolean intersect = true;
                     if (geom != null) {
                         String geometry = rs.getString(geom);
-                        Geometry geometr = PGgeometry.geomFromString(geometry);
-                        if (geometr.getSrid() == 0)
-                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                        else {
+                        if (geometry != null) {
+                            Geometry geometr = PGgeometry.geomFromString(geometry);
+                            if (geometr.getSrid() == 0)
+                                log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
                             if (geometr.getSrid() != 4326) {
-                                geometry = "'" + geometry + "'";
-                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                                ResultSet convSet = c.createStatement().executeQuery("SELECT ST_Transform(" + geometry + ",4326) FROM " + table);
-                                if (convSet.next()) {
-                                    String e = convSet.getString(1);
-                                    if(e != null)
-                                        geometr = PGgeometry.geomFromString(e);
+                                    log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                                }else{
+
+                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
+                                if (geo != null) {
+                                    f.setGeometry(geo);
+                                    double[] bboxFeature = geo.getBbox();
+                                    f.setBbox(bboxFeature);
+                                    if (bbox != null) {
+                                        Rectangle a = rectFromBBox(bboxFeature);
+                                        Rectangle b = rectFromBBox(bbox);
+                                        intersect = a.intersects(b);
+                                    }
                                 }
-                            }
-                        }
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
-                        if (geo != null) {
-                            f.setGeometry(geo);
-                            double[] bboxFeature = geo.getBbox();
-                            f.setBbox(bboxFeature);
-                            if(bbox != null) {
-                                Rectangle a = rectFromBBox(bboxFeature);
-                                Rectangle b = rectFromBBox(bbox);
-                                intersect = a.intersects(b);
                             }
                         }
                     }
@@ -364,7 +360,6 @@ public class PostgreSQL implements DBConnector {
                         fs.addFeature(f);
                     }
                     counter++;
-                }
             }
 
             if(geom != null) {
@@ -378,23 +373,15 @@ public class PostgreSQL implements DBConnector {
                         Geometry gm = PGgeometry.geomFromString(ewkb);
                         if (gm.getSrid() == 0)
                             log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                        else {
-                            if (gm.getSrid() != 4326) {
-                                ewkb = "'" + ewkb + "'";
-                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                                ResultSet convSet = c.createStatement().executeQuery("SELECT ST_Transform((ST_GeomFromEWKB(" + ewkb + ")),4326) FROM " + table);
-                                if (convSet.next()) {
-                                    String e = convSet.getString(1);
-                                    if(e != null)
-                                        gm = PGgeometry.geomFromString(e);
-                                }
+                        if (gm.getSrid() != 4326) {
+                            log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                        }else {
+                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
+                            if (geo != null) {
+                                double[] bounding = geo.getBbox();
+                                if (bounding != null && withSpatial)
+                                    fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
                             }
-                        }
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
-                        if (geo != null) {
-                            double[] bounding = geo.getBbox();
-                            if (bounding != null && withSpatial)
-                                fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
                         }
                     }
                 }

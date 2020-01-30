@@ -13,7 +13,13 @@ import com.inspire.development.database.connector.SQLite;
 import mil.nga.sf.geojson.Feature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -22,11 +28,17 @@ import java.util.Arrays;
 
 public class Core {
     DBConnectorList connectors;
+
+    int port = 8080;
+
     static Logger log = LogManager.getLogger(Core.class.getName());
+
 
     public Core(){
         connectors = new DBConnectorList();
     }
+
+
 
     public static DBConnectorList parseConfig(){
         log.info("Parsing config");
@@ -88,8 +100,8 @@ public class Core {
             FeatureCollection[] fca = db.getAll();
             for(FeatureCollection fc:fca){
                 //Add required links
-                fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "self", "application/json", "this document"));
-                fc.getLinks().add(new Link("http://" + hostname + "/collections/" + fc.getId(), "alternate", "text/html", "this document as html"));
+                fc.getLinks().add(new Link("http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(), "self", "application/json", "this document"));
+                fc.getLinks().add(new Link("http://" + hostname + ":" +  port + "/ogcapisimple/collections/" + fc.getId(), "alternate", "text/html", "this document as html"));
             }
             fsl.addAll(Arrays.asList(fca));
         }
