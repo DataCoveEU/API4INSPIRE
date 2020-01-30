@@ -12,19 +12,23 @@ export class AuthService {
   constructor(private httpClient: HttpClient, private router: Router, public jwtHelper: JwtHelperService) {}
 
     login(username: string, password: string) {
-    this.httpClient.post('/ogcapisimple/authenticate',{
-      username,
-      password
-    },{responseType: 'json'})
-        .subscribe(
-          (res: any) => {
-              localStorage.setItem('access_token', res.token);
-              this.router.navigateByUrl('/dashboard');
-              this.loggedin = true;
-        }, (err) => {
-            console.log(err);
-        }
-        );
+      return new Promise((resolve, reject)=>{
+        this.httpClient.post('/ogcapisimple/authenticate',{
+          username,
+          password
+        },{responseType: 'json'})
+            .subscribe(
+              (res: any) => {
+                  localStorage.setItem('access_token', res.token);
+                  this.router.navigateByUrl('/dashboard');
+                  this.loggedin = true;
+                  resolve(res);
+            }, (err) => {
+                reject(err);
+            }
+            );
+      })
+    
   }
 
   logout() {

@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
   columnNames = [];
   columnConfigNames = [];
 
-  connectors: any = [{"name": "No connectors available"}];
+  connectors: any = [];
 
   selectedConnector: any;
 
@@ -40,6 +40,7 @@ export class DashboardComponent implements OnInit {
   sqlSubmitted: boolean = false;
 
 
+
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
   async ngOnInit() {     
@@ -59,6 +60,10 @@ export class DashboardComponent implements OnInit {
 
     //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
+    console.log(this.connectors);
+    if(this.connectors.length < 1) {
+      this.connectors = [{"id": "No connectors available"}]
+    }
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex];

@@ -14,11 +14,11 @@ export class NavComponent implements OnInit {
   isProperties: boolean = false;
   isLogin: boolean = false;
 
-  isLoggedIn:boolean = false;
 
   constructor(private router:Router, public auth: AuthService) { }
 
   ngOnInit() {
+    console.log(this.auth.loggedIn());
     var url = this.router.url;
     if(url == "/") {
       //If you are on the landing page --> the "Home" link is bold
@@ -26,14 +26,14 @@ export class NavComponent implements OnInit {
       home.style.fontWeight = "bold";
     } else if (url == "/dashboard") {
       //If the admin is on the dashboard
-      if(this.auth.loggedin == false) {
+      if(this.auth.loggedIn() == false) {
         this.router.navigate(['/']);
       } 
       //AND you are logged in --> the "Dashboard" link is bold
       this.isDashboard = true;
     } else if (url == "/properties") {
       //If you are on the properties page
-      if(this.auth.loggedin == false) {
+      if(this.auth.loggedIn() == false) {
         this.router.navigate(['/']);
       } 
       //AND you are logged in --> the "Properties" link is bold
