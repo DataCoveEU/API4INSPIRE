@@ -42,7 +42,7 @@ public class Core {
 
     public static DBConnectorList parseConfig(){
         log.info("Parsing config");
-        File f = new File("config/config.json");
+        File f = new File("config.json");
         if(f.exists()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
@@ -59,7 +59,8 @@ public class Core {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(SQLite.class, DBConnector.class);
         try {
-            objectMapper.writeValue(new File("config/config.json"), connectors);
+            File f = new File("config.json");
+            objectMapper.writeValue(f, connectors);
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
