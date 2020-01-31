@@ -19,10 +19,11 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a [ngClass]="{'activeRoute': this.isDashboard}" class="dropdown-item" routerLink="/dashboard">Dashboard</a>
-            <a [ngClass]="{'activeRoute': this.isProperties}" class="dropdown-item" routerLink="/properties">DB properties</a>
-            <a class="dropdown-item" routerLink="/connector">Add connector</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" routerLink='/user-management' routerLinkActive="router-link-active" >User management</a>
+            <a [ngClass]="{'activeRoute': this.isProperties}" class="dropdown-item" routerLink="/properties">Connector properties</a>
+            <a class="dropdown-item" routerLink="/connector">Connector management</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" routerLink='/user-management' routerLinkActive="router-link-active" >Change admin password</a>
           </div>
         </li>
       </ul>
@@ -30,7 +31,7 @@
           <li id="imp" class="nav-item">
             <a class="nav-link active" routerLink="/imprint">Imprint</a>
           </li>
-          <li *ngIf="!this.auth.loggedIn()" [ngClass]="{'activeRoute': this.isLogin}" class="nav-item">
+          <li *ngIf="this.auth.loggedIn() == false" [ngClass]="{'activeRoute': this.isLogin}" class="nav-item">
             <a class="nav-link active" routerLink="/login">Login</a>
           </li>  
           <li *ngIf="this.auth.loggedIn()" (click)="logout()" class="nav-item">

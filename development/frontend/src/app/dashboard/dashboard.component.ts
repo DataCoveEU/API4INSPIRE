@@ -39,7 +39,7 @@ export class DashboardComponent implements OnInit {
   sqlForm: FormGroup;
   sqlSubmitted: boolean = false;
 
-
+  sqlSucess: boolean = true;
 
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
@@ -226,7 +226,7 @@ export class DashboardComponent implements OnInit {
   /**
    * Handle the "execute" event for the sql query
    */
-  executeSQL() {
+  executeSQL(check: boolean) {
     this.sqlSubmitted = true;
     if(this.sqlForm.invalid) {
       return;
@@ -235,10 +235,18 @@ export class DashboardComponent implements OnInit {
     var json = {
       'id': this.selectedConnector.id,
       'sql': this.sqlForm.value.sqlQuery,
-      'collectionName': this.sqlForm.value.collectionId
+      'collectionName': this.sqlForm.value.collectionId//,
+      //'check':check
     };
 
-    this.sqlService.executeSQL(json);
+    this.sqlService.executeSQL(json).then(()=>{
+      alert("SQL executed successfully")
+    }).catch((err)=>{
+      this.sqlSucess = false;
+      var errorText = document.getElementById('sqlError');
+      errorText.innerHTML = err;
+      alert("Not executed successfully")
+    });
 
   }
 
