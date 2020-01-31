@@ -96,7 +96,7 @@
             <h3>Write SQL</h3>
             <hr />
 
-            <form [formGroup]="sqlForm" (ngSubmit)="executeSQL(false)">
+            <form [formGroup]="sqlForm">
               <div class="row">
                 <div class="col-sm-6">
                   <label style="width: 100%">
@@ -116,7 +116,7 @@
               <br />
               <div class="row">
                 <div class="col-sm-2">
-                  <button class="btn btn-success" style="width: 100%" type="submit">Execute</button>
+                  <button class="btn btn-success" style="width: 100%" (click)="executeSQL(false)">Execute</button>
                 </div>
                 <div class="col-sm-2">
                   <button class="btn btn-success" style="width: 100%" (click)="executeSQL(true)">Check</button>
