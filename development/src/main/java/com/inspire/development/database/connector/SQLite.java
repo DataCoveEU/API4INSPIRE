@@ -320,6 +320,7 @@ public class SQLite implements DBConnector {
      */
     private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, String idCol, String geoCol, boolean withSpatial, int limit, int offset, double[] bbox) {
         try {
+            boolean isView = sqlString.containsKey(table);
             log.debug("Converting table: " + table + " to FeatureCollection");
             FeatureCollection fs = new FeatureCollection(alias);
             if(idCol == null)
@@ -340,7 +341,7 @@ public class SQLite implements DBConnector {
                             log.debug("ID set");
                         } else {
                             //Normal Feature
-                            if (!md.getColumnName(x).contains("AsEWKB(") && !md.getColumnName(x).contains(geoCol)) {
+                            if (!(md.getColumnName(x).contains("AsEWKB(") || (geoCol != null && md.getColumnName(x).contains(geoCol)))) {
                                 String col = md.getColumnName(x);
                                 //Check if there is a config for that table and if it has a column rename
                                 if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
@@ -386,7 +387,12 @@ public class SQLite implements DBConnector {
             }
             if(geoCol != null) {
                 Statement stmt = c.createStatement();
-                ResultSet resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM [" + table + "]");
+                ResultSet resultSet;
+                if(isView) {
+                    resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM [" + table + "]");
+                }else{
+                    resultSet = stmt.executeQuery("SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM (" + sqlString.get(table) + ") as tabula");
+                }
                 if (resultSet.next()) {
                     String ewkb = resultSet.getString(1);
                     if (ewkb != null) {
