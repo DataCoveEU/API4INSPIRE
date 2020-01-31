@@ -226,7 +226,7 @@ export class DashboardComponent implements OnInit {
   /**
    * Handle the "execute" event for the sql query
    */
-  executeSQL() {
+  executeSQL(check: boolean) {
     this.sqlSubmitted = true;
     if(this.sqlForm.invalid) {
       return;
@@ -235,7 +235,8 @@ export class DashboardComponent implements OnInit {
     var json = {
       'id': this.selectedConnector.id,
       'sql': this.sqlForm.value.sqlQuery,
-      'collectionName': this.sqlForm.value.collectionId
+      'collectionName': this.sqlForm.value.collectionId//,
+      //'check':check
     };
 
     this.sqlService.executeSQL(json).then(()=>{
