@@ -53,6 +53,7 @@ public class SQLite implements DBConnector {
         errorBuffer = new ArrayList<>();
         hostname = path;
         config = new HashMap<>();
+        sqlString = new HashMap<>();
 
         Connection connection = null;
         try {
@@ -72,19 +73,27 @@ public class SQLite implements DBConnector {
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
             log.info("Created SQL Connector with id: " + id);
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
+            e.printStackTrace();
             errorBuffer.add(e.getMessage());
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
         }
 
     }
 
+    public HashMap<String, String> getSqlString() {
+        return sqlString;
+    }
+
     @JsonCreator
-    public SQLite(@JsonProperty("path")String path, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config) {
+    public SQLite(@JsonProperty("path")String path, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("sqlString") HashMap<String,String> sqlString) {
         this.config = config;
         this.id = id;
         errorBuffer = new ArrayList<>();
         hostname = path;
+        this.sqlString = sqlString;
 
         Connection connection = null;
         try {

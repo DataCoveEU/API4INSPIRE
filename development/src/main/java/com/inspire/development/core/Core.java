@@ -11,6 +11,9 @@ import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
 import mil.nga.sf.geojson.Feature;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +26,14 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Core {
     DBConnectorList connectors;
@@ -36,13 +45,52 @@ public class Core {
 
     public Core(){
         connectors = new DBConnectorList();
+        File folder = new File("./../ogcapisimple/sqlite");
+        if(!folder.exists())
+            folder.mkdirs();
+
+        FileAlterationObserver observer = new FileAlterationObserver("./../ogcapisimple/sqlite");
+
+        observer.addListener(new FileAlterationListenerAdaptor(){
+            @Override
+            public void onFileCreate(File file) {
+                connectors.add(new SQLite(file.getPath(), file.getName()));
+            }
+
+            @Override
+            public void onFileDelete(File file) {
+                deleteByName(file.getName());
+            }
+        });
+        FileAlterationMonitor monitor = new FileAlterationMonitor(500, observer);
+        try {
+            monitor.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        DBConnectorList list = this.parseConfig();
+        if(list != null){
+            connectors = list;
+        }
+
+        File[] listOfFiles = new File("./../ogcapisimple/sqlite").listFiles();
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                File f = listOfFiles[i];
+                if(!checkIfConnectorExists(f.getName())){
+                    connectors.add(new SQLite(f.getPath(), f.getName()));
+                }
+            }
+        }
+        writeConfig();
     }
 
 
 
     public static DBConnectorList parseConfig(){
         log.info("Parsing config");
-        File f = new File("config.json");
+        File f = new File("../ogcapisimple/config.json");
         if(f.exists()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
@@ -59,7 +107,7 @@ public class Core {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(SQLite.class, DBConnector.class);
         try {
-            File f = new File("config.json");
+            File f = new File("../ogcapisimple/config.json");
             objectMapper.writeValue(f, connectors);
         } catch (JsonGenerationException e) {
             e.printStackTrace();
@@ -134,6 +182,16 @@ public class Core {
                 return true;
         }
         return false;
+    }
+
+    private void deleteByName(String id){
+        for(int i = 0;i<connectors.size();i++){
+            DBConnector db = connectors.get(i);
+            if(db.getId().equals(id)) {
+                connectors.remove(i);
+                break;
+            }
+        }
     }
 
 }

@@ -30,13 +30,7 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>com.spitialight.jdbc</groupId>
-			<artifactId>spiitalight</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/spatialite-jdbc-4.3.0a.jar</systemPath>
-		</dependency>
+
 
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -91,7 +85,11 @@
 			<version>0.9.1</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>org.spatialite</groupId>
+			<artifactId>spatialite</artifactId>
+			<version>0.0.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -115,10 +113,12 @@
 			<version>2.0.3</version>
 		</dependency>
 
+
+
 		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.25.2</version>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
 		</dependency>
 	</dependencies>
 
@@ -171,24 +171,27 @@
 						<phase>generate-resources</phase>
 					</execution>-->
 				</executions>
-
 			</plugin>
 
 			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.5.2</version>
 				<executions>
-
 					<execution>
-						<phase>generate-resources</phase>
+						<id>install-external</id>
+						<phase>clean</phase>
 						<configuration>
-							<target>
-								<copy todir="${project.build.directory}/classes/public">
-									<fileset dir="${project.basedir}/frontend/dist/frontend"/>
-								</copy>
-							</target>
+							<file>${project.basedir}/lib/spatialite-jdbc-4.3.0a.jar</file>
+							<repositoryLayout>default</repositoryLayout>
+							<groupId>org.spatialite</groupId>
+							<artifactId>spatialite</artifactId>
+							<version>0.0.1</version>
+							<packaging>jar</packaging>
+							<generatePom>true</generatePom>
 						</configuration>
 						<goals>
-							<goal>run</goal>
+							<goal>install-file</goal>
 						</goals>
 					</execution>
 				</executions>
