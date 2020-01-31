@@ -7,7 +7,7 @@ The development documentation:
 * [Milestones](./SimpleOGCAPI_milestones.md)
 * [UML Diagram](./InspireUML.pdf)
 
-* __[Docker for PostGIS & pgweb & ogcapiimple](./docker_postgis_inspire.md)__
+* __[Docker for PostGIS & pgweb & ogcapisimple](./docker_postgis_inspire.md)__
 
 * [OGC API Examples](https://github.com/opengeospatial/ogcapi-features/blob/master/implementations.md)
 * [Admin design mockup](./Admin-Design.pdf)
