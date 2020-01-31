@@ -1,9 +1,6 @@
 name: war file auto build
 
-on:
-  pull_request:
-    branches:
-    - master
+on: [push]
 
 jobs:
   build:
