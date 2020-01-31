@@ -15,7 +15,9 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       working-directory: ./development
-      run: mvn --file ./pom.xml -DoutputDirectory=../docker/ogcapisimple clean install 
+      run: mvn --file ./pom.xml clean install 
+    - name: Copy war
+      run: cp development/target/ogcapisimple.war docker/ogcapisimple
     - name: Commit files
       run: |
         git config --local user.email "action@github.com"
@@ -26,3 +28,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: WAR-AUTO
+
