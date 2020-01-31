@@ -103,8 +103,12 @@ public class PostgreSQL implements DBConnector {
         return password;
     }
 
+    public HashMap<String, String> getSqlString() {
+        return sqlString;
+    }
+
     @JsonCreator
-    public PostgreSQL(@JsonProperty("hostname")String hostname, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("port")int port, @JsonProperty("schema")String schema, @JsonProperty("database")String database, @JsonProperty("username")String username,@JsonProperty("password")String password) {
+    public PostgreSQL(@JsonProperty("hostname")String hostname, @JsonProperty("id")String id, @JsonProperty("config")HashMap<String,TableConfig> config, @JsonProperty("port")int port, @JsonProperty("schema")String schema, @JsonProperty("database")String database, @JsonProperty("username")String username,@JsonProperty("password")String password, @JsonProperty("sqlString")HashMap<String,String> sqlString) {
         this.config = config;
         this.id = id;
         errorBuffer = new ArrayList<>();
@@ -115,8 +119,10 @@ public class PostgreSQL implements DBConnector {
         this.username = username;
         this.password = password;
         tableNames = new ArrayList<>();
-        this.sqlString = new HashMap<>();
-
+        if(sqlString != null)
+            this.sqlString = sqlString;
+        else
+            this.sqlString = new HashMap<>();
 
 
         Connection connection = null;

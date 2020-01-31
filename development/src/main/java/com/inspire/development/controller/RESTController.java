@@ -38,10 +38,6 @@ public class RESTController {
         core.getConnectors().add(p);;*/
        // core.getConnectors().add(c);
 
-        DBConnectorList list = core.parseConfig();
-        if(list != null){
-          core.setConnectors(list);
-        }
     }
 
     @GetMapping("/collections")
