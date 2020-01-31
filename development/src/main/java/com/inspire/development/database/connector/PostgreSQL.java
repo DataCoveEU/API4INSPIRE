@@ -312,6 +312,8 @@ public class PostgreSQL implements DBConnector {
      * @return  ResultSet with content of table
      */
     private FeatureCollection resultSetToFeatureCollection(ResultSet rs, String table, String alias, boolean withSpatial, int limit, int offset, double[] bbox) {
+        boolean isView = sqlString.containsKey(table);
+        String sql = sqlString.get(table);
         try {
             log.debug("Converting table: " + table + " to featureCollection");
             FeatureCollection fs = new FeatureCollection(alias);
@@ -349,7 +351,12 @@ public class PostgreSQL implements DBConnector {
                                         col = config.get(table).getMap().get(col);
                                     }
                                     Object o = rs.getObject(x);
-                                    prop.put(col, o);
+                                    if(o instanceof PGgeometry && geom == null && isView){
+                                        geom = md.getColumnName(x);
+                                        setGeo(table,geom);
+                                    }else {
+                                        prop.put(col, o);
+                                    }
                                 }
                             }
 
@@ -361,12 +368,10 @@ public class PostgreSQL implements DBConnector {
                             Geometry geometr = PGgeometry.geomFromString(geometry);
                             if (geometr.getSrid() == 0)
                                 log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                            if (geometr.getSrid() != 4326) {
+                            if (geometr.getSrid() != 4326 && geometr.getSrid() != 0) {
                                     log.warn("SRID for collection: " + alias + " is not set to 4326!");
                                 }else{
-                                double t1 = System.currentTimeMillis();
                                 mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
-                                System.out.println(System.currentTimeMillis()-t1);
                                 if (geo != null) {
                                     f.setGeometry(geo);
                                     double[] bboxFeature = geo.getBbox();
@@ -390,26 +395,31 @@ public class PostgreSQL implements DBConnector {
             if(geom != null) {
                 log.debug("Getting Bounding Box for Table: " + table);
                 Statement stmt = c.createStatement();
-                //ST_SetSRID transforms Box to Polygon
-                ResultSet resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(" + geom + "), 4326) as table_extent FROM " + schema + "." + table + "");
-                if (resultSet.next()) {
-                    String ewkb = resultSet.getString(1);
-                    if(ewkb != null) {
-                        Geometry gm = PGgeometry.geomFromString(ewkb);
-                        if (gm.getSrid() == 0)
-                            log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                        if (gm.getSrid() != 4326) {
-                            log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                        }else {
-                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
-                            if (geo != null) {
-                                double[] bounding = geo.getBbox();
-                                if (bounding != null && withSpatial)
-                                    fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
+                    //ST_SetSRID transforms Box to Polygon
+                    ResultSet resultSet;
+                    if(isView){
+                        resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(" + geom + "), 4326) as table_extent FROM (" + sql + ") as tabula" );
+                    }else {
+                        resultSet = stmt.executeQuery("SELECT ST_SetSRID(ST_Extent(" + geom + "), 4326) as table_extent FROM " + schema + "." + table + "");
+                    }
+                    if (resultSet.next()) {
+                        String ewkb = resultSet.getString(1);
+                        if (ewkb != null) {
+                            Geometry gm = PGgeometry.geomFromString(ewkb);
+                            if (gm.getSrid() == 0)
+                                log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
+                            if (gm.getSrid() != 4326) {
+                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                            } else {
+                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
+                                if (geo != null) {
+                                    double[] bounding = geo.getBbox();
+                                    if (bounding != null && withSpatial)
+                                        fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
+                                }
                             }
                         }
                     }
-                }
             }
             return fs;
         } catch (SQLException e) {
