@@ -14,4 +14,5 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn --file development/pom.xml clean install
+      working-directory: ./development
+      run: mvn --file ./pom.xml clean install
