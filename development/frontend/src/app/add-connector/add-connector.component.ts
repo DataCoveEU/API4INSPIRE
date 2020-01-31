@@ -11,17 +11,9 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 })
 export class AddConnectorComponent implements OnInit {
 
-  isSQLite:boolean = false;
-  sqlite: any;
-
-  isPostgres: boolean = false;
-
   addPostgresConnectorForm: FormGroup;
   postgresSubmitted: boolean = false;
   passwordsEquals: boolean = false;
-
-  addSQLiteConnectorForm: FormGroup;
-  sqliteSubmitted: boolean = false;
 
   constructor(private conService:ConnectorService, private formBuilder:FormBuilder) { }
 
@@ -37,57 +29,20 @@ export class AddConnectorComponent implements OnInit {
       database: ['', Validators.required]
     });
 
-    //Initalize the form to add a sqlite connector
-    this.addSQLiteConnectorForm = this.formBuilder.group({
-      conName: ['', Validators.required],
-      path: ['', Validators.required]
-    })
-
-    this.isSQLite = true;
-    this.sqlite = document.getElementById("content");
     var sel = document.getElementById("connector");
 
     //Handle the event if another kind of selector to add is selected
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
       if(cal == "sqlite") {
-        this.isSQLite = true;
-        this.isPostgres = false;
+
       } else if(cal == "postgres") {
-        this.isSQLite = false;
-        this.isPostgres = true;
+
       }
     };
     
   }
-
-  /**
-   * Handle the event if a sqlite connector is submitted
-   */
-  addSQLiteConnector() {
-    this.sqliteSubmitted = true;
-    if(this.addSQLiteConnectorForm.invalid) {
-      return;
-    }
-    var conName = this.addSQLiteConnectorForm.value.conName;
-    var path = this.addSQLiteConnectorForm.value.path
-    var files: any = document.getElementById('fileSel')
-
-    //Create the JSON for the service
-    var json = {
-      "class": "sqlite",
-      "id": conName,
-      "database": "DatabaseB",
-      "schema": null,
-      "hostname": null,
-      "path": path,
-      "port": null
-    }
-
-    //It is not yet possible to add a sqlite connector
-    alert("It is not yet possible to add a SQLite Connector");
-  }
-
+  
   /**
    * Handle event if a postgres connector is submitted
    */

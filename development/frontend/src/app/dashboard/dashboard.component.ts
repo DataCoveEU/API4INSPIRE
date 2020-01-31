@@ -71,19 +71,30 @@ export class DashboardComponent implements OnInit {
     if(index == -1){index = 0}
   
       this.selectedConnector = this.connectors[index];
-      console.log(index);
-      console.log(this.connectors);
       //Load the table names from the selected connector
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
-    //Eevent when another conncetor in the dropdown is selected
-    select.onchange = async (event: any)=>{
+      //Eevent when another conncetor in the dropdown is selected
+      select.onchange = async (event: any)=>{
         var select = document.getElementById("selectField") as HTMLSelectElement;
         this.selectedConnector = this.connectors[select.selectedIndex];
 
         this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
         this.tableSelect = false;
       }
+
+      var checkbox = document.querySelector("input[name=tableAPI]");
+
+
+      checkbox.addEventListener('change', function() {
+        if(this.checked) {
+            // Checkbox is checked..
+            console.log("Checked");
+        } else {
+            // Checkbox is not checked..
+            console.log("Not checked")
+        }
+      });
   }
 
   /**
@@ -235,8 +246,8 @@ export class DashboardComponent implements OnInit {
     var json = {
       'id': this.selectedConnector.id,
       'sql': this.sqlForm.value.sqlQuery,
-      'collectionName': this.sqlForm.value.collectionId//,
-      //'check':check
+      'collectionName': this.sqlForm.value.collectionId,
+      'check':check
     };
 
     this.sqlService.executeSQL(json).then(()=>{
