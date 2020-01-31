@@ -214,7 +214,11 @@ public class PostgreSQL implements DBConnector {
                 String queryName = collectionName;
                 if (config != null) {
                     queryName = config.getTable();
+                    if(config.isExeclude()){
+                        return null;
+                    }
                 }
+
                 Statement stmt = c.createStatement();
                 ResultSet rs = null;
                 if(sqlString.containsKey(queryName)){
@@ -241,22 +245,24 @@ public class PostgreSQL implements DBConnector {
         log.info("Get all Collections.");
         log.debug("Iterating through all tables:");
         for (String table : getAllTables()) {
-            log.debug("Table: " + table);
-            try {
-                Statement stmt = c.createStatement();
-                ResultSet rs;
-                rs = stmt.executeQuery("SELECT * FROM " + schema + "." + table + "");
-                String alias = table;
-                if (config.containsKey(table)) {
-                    TableConfig conf = config.get(table);
-                    alias = conf.getAlias();
+            if (!(config.containsKey(table) && config.get(table).isExeclude())) {
+                log.debug("Table: " + table);
+                try {
+                    Statement stmt = c.createStatement();
+                    ResultSet rs;
+                    rs = stmt.executeQuery("SELECT * FROM " + schema + "." + table + "");
+                    String alias = table;
+                    if (config.containsKey(table)) {
+                        TableConfig conf = config.get(table);
+                        alias = conf.getAlias();
+                    }
+                    log.debug("Converting table: " + table + " to FeatureCollection. Alias: " + alias);
+                    FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, true, 0, 0, null);
+                    if (fs != null)
+                        fc.add(fs);
+                } catch (SQLException e) {
+                    log.warn("Error while converting table: " + table + " to FeatureCollection");
                 }
-                log.debug("Converting table: "+ table + " to FeatureCollection. Alias: " + alias);
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, true,0,0, null);
-                if (fs != null)
-                    fc.add(fs);
-            } catch (SQLException e) {
-                log.warn("Error while converting table: " + table + " to FeatureCollection");
             }
         }
         for(Map.Entry<String,String> entry: sqlString.entrySet()){
@@ -746,6 +752,16 @@ public class PostgreSQL implements DBConnector {
         }else{
             TableConfig tc = new TableConfig(table,table);
             tc.setIdCol(column);
+            config.put(table,tc);
+        }
+    }
+
+    public void setExeclude(String table,boolean execlude){
+        if(config.containsKey(table)){
+            config.get(table).setExeclude(execlude);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setExeclude(execlude);
             config.put(table,tc);
         }
     }

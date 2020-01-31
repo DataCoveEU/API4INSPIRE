@@ -178,10 +178,13 @@ public class SQLite implements DBConnector {
     @JsonIgnore
     @Override
     public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox) {
+
         try {
             log.debug("Getting FeatureCollection: " + collectionName);
             TableConfig conf = getConfByAlias(collectionName);
             String queryName = collectionName;
+
+
 
             String geoCol = getGeometry(queryName);
             String idCol = null;
@@ -195,7 +198,11 @@ public class SQLite implements DBConnector {
                     idCol = conf.getIdCol();
             }
 
-            Statement stmt = c.createStatement();
+            if (!(config.containsKey(queryName) && config.get(queryName).isExeclude())){
+                return null;
+            }
+
+                Statement stmt = c.createStatement();
             ResultSet rs = null;
 
             if(sqlString.containsKey(queryName)){
@@ -224,33 +231,35 @@ public class SQLite implements DBConnector {
         log.info("Get all FeatureCollections");
         ArrayList<FeatureCollection> fc = new ArrayList<>();
         for (String table : getAllTables()) {
-            log.debug("Table: " + table);
-            try {
+            if (!(config.containsKey(table) && config.get(table).isExeclude())) {
+                log.debug("Table: " + table);
+                try {
 
-                Statement stmt = c.createStatement();
-                ResultSet rs = null;
-                String geoCol = getGeometry(table);
-                String idCol = null;
-                String alias = table;
-                if (config.containsKey(table)) {
-                    TableConfig c = config.get(table);
-                    alias = c.getAlias();
-                    if(c.getGeoCol() != null)
-                        geoCol = c.getGeoCol();
+                    Statement stmt = c.createStatement();
+                    ResultSet rs = null;
+                    String geoCol = getGeometry(table);
+                    String idCol = null;
+                    String alias = table;
+                    if (config.containsKey(table)) {
+                        TableConfig c = config.get(table);
+                        alias = c.getAlias();
+                        if (c.getGeoCol() != null)
+                            geoCol = c.getGeoCol();
 
-                    if(c.getIdCol() != null)
-                        idCol = c.getIdCol();
+                        if (c.getIdCol() != null)
+                            idCol = c.getIdCol();
+                    }
+                    if (geoCol != null) {
+                        rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol + ") FROM [" + table + "]");
+                    } else {
+                        rs = stmt.executeQuery("SELECT * FROM [" + table + "]");
+                    }
+                    FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, idCol, geoCol, true, 0, 0, null);
+                    if (fs != null)
+                        fc.add(fs);
+                } catch (SQLException e) {
+                    log.warn("Error occurred while converting table: " + table + " to FeatureCollection.");
                 }
-                if (geoCol != null) {
-                    rs = stmt.executeQuery("SELECT *,AsEWKB(" + geoCol  + ") FROM [" + table + "]");
-                } else {
-                    rs = stmt.executeQuery("SELECT * FROM [" + table + "]");
-                }
-                FeatureCollection fs = resultSetToFeatureCollection(rs, table, alias, idCol, geoCol, true, 0,0, null);
-                if (fs != null)
-                    fc.add(fs);
-            } catch (SQLException e) {
-                log.warn("Error occurred while converting table: " + table + " to FeatureCollection.");
             }
         }
         for(Map.Entry<String,String> entry: sqlString.entrySet()){
@@ -341,7 +350,7 @@ public class SQLite implements DBConnector {
                             log.debug("ID set");
                         } else {
                             //Normal Feature
-                            if (!(md.getColumnName(x).contains("AsEWKB(") || (geoCol != null && md.getColumnName(x).contains(geoCol)))) {
+                            if (!(md.getColumnName(x).contains("AsEWKB(") || (geoCol != null && md.getColumnName(x).equals(geoCol)) || md.getColumnName(x).equals("GEOMETRY"))) {
                                 String col = md.getColumnName(x);
                                 //Check if there is a config for that table and if it has a column rename
                                 if (config.containsKey(table) && config.get(table).getMap().containsKey(col)) {
@@ -374,6 +383,7 @@ public class SQLite implements DBConnector {
                                     Rectangle a = rectFromBBox(bboxFeature);
                                     Rectangle b = rectFromBBox(bbox);
                                     intersect = a.intersects(b);
+                                    }
                                 }
                             }
                         }
@@ -383,7 +393,6 @@ public class SQLite implements DBConnector {
                         fs.addFeature(f);
                     }
                     counter++;
-                }
             }
             if(geoCol != null) {
                 Statement stmt = c.createStatement();
@@ -669,5 +678,13 @@ public class SQLite implements DBConnector {
         }
     }
 
-
+    public void setExeclude(String table,boolean execlude){
+        if(config.containsKey(table)){
+            config.get(table).setExeclude(execlude);
+        }else{
+            TableConfig tc = new TableConfig(table,table);
+            tc.setExeclude(execlude);
+            config.put(table,tc);
+        }
+    }
 }

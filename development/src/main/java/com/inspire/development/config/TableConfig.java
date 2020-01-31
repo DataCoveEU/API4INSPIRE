@@ -10,12 +10,18 @@ public class TableConfig {
     String table;
     String geoCol;
     String idCol;
+    boolean execlude;
     HashMap<String, String> map;
 
+
+    public boolean isExeclude() {
+        return execlude;
+    }
 
     public TableConfig(String table, String alias){
         this.alias = alias;
         this.table = table;
+        this.execlude = false;
         map = new HashMap<>();
     }
 
@@ -28,12 +34,13 @@ public class TableConfig {
     }
 
     @JsonCreator
-    public TableConfig(@JsonProperty("table") String table, @JsonProperty("alias")String alias, @JsonProperty("map")HashMap<String,String> map,@JsonProperty("idCol")String idCol,@JsonProperty("geoCol")String geoCol){
+    public TableConfig(@JsonProperty("table") String table, @JsonProperty("alias")String alias, @JsonProperty("map")HashMap<String,String> map,@JsonProperty("idCol")String idCol,@JsonProperty("geoCol")String geoCol,@JsonProperty("execlude")boolean execlude){
         this.alias = alias;
         this.table = table;
         this.map = map;
         this.geoCol = geoCol;
         this.idCol = idCol;
+        this.execlude = execlude;
     }
 
     public HashMap<String, String> getMap() {
@@ -58,5 +65,9 @@ public class TableConfig {
 
     public void setIdCol(String idCol) {
         this.idCol = idCol;
+    }
+
+    public void setExeclude(boolean execlude){
+        this.execlude = execlude;
     }
 }
