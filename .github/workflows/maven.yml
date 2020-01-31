@@ -1,6 +1,6 @@
 name: war file auto build
 
-on: [push]
+on: [pull_request]
 
 jobs:
   build:
@@ -28,5 +28,4 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: WAR-AUTO
 
