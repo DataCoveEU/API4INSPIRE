@@ -64,6 +64,8 @@
               <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
           </div>
           </label>
+          <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+          <label class="form-check-label" for="defaultCheck1">Use in API</label>
           <br />
           <button type="submit" id="subTableName" class="btn btn-success">Submit</button>
         </form>
@@ -77,6 +79,8 @@
                 <div *ngIf="renameColumnForm.controls.columnName.errors.required">A new column name is required</div>
             </div>
             </label>
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+            <label class="form-check-label" for="defaultCheck1">Use in API</label>
             <br />
             <button type="submit" class="btn btn-success">Submit</button>
         </form>
