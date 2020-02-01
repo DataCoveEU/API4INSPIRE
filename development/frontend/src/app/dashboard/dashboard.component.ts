@@ -41,6 +41,9 @@ export class DashboardComponent implements OnInit {
 
   sqlSucess: boolean = true;
 
+  checkedTable:boolean = false;
+  checkedColumn: boolean = false;
+
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
   async ngOnInit() {
@@ -82,19 +85,6 @@ export class DashboardComponent implements OnInit {
         this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
         this.tableSelect = false;
       }
-
-      var checkbox = document.querySelector("input[name=tableAPI]");
-
-
-      checkbox.addEventListener('change', function() {
-        if(this.checked) {
-            // Checkbox is checked..
-            console.log("Checked");
-        } else {
-            // Checkbox is not checked..
-            console.log("Not checked")
-        }
-      });
   }
 
   /**
