@@ -46,4 +46,6 @@ public interface DBConnector {
     public void setId(String table, String column);
 
     public String updateConnector();
+
+    public void setExeclude(String table, boolean execlude);
 }
