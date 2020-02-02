@@ -11,13 +11,17 @@ import { SqlService } from '../sql.service';
 })
 export class DashboardComponent implements OnInit {
 
+  //The table names that will be displayed
   tableNames = [];
 
+  //The columnnames that will be displayed
   columnNames = [];
-  columnConfigNames = [];
+  //columnConfigNames = [];
 
+  //The connectors loaded from the config file
   connectors: any = [];
 
+  //The connector which is selected 
   selectedConnector: any;
 
   showCols: boolean = false;
@@ -76,14 +80,14 @@ export class DashboardComponent implements OnInit {
       this.selectedConnector = this.connectors[index];
       //Load the table names from the selected connector
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-      console.log(this.tableNames);
-      //Eevent when another conncetor in the dropdown is selected
+      console.log(this.selectedConnector);
+
+      //Event when another conneector in the dropdown is selected
       select.onchange = async (event: any)=>{
         var select = document.getElementById("selectField") as HTMLSelectElement;
         this.selectedConnector = this.connectors[select.selectedIndex];
 
         this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-        console.log(this.tableNames);
         this.tableSelect = false;
       }
   }
@@ -169,6 +173,7 @@ export class DashboardComponent implements OnInit {
     this.conService.renameTable(json).then(
       async ()=>{
         this.reload();
+        console.log(this.selectedConnector);
       }
     ).catch(()=>{
       alert("Not renamed")
@@ -261,10 +266,26 @@ export class DashboardComponent implements OnInit {
 
   
   useAsId()  {
-    console.log(this.idColumnSelected + " is now selected as id");
+    var checkbox = document.getElementById("useAsId") as HTMLInputElement;
+    var checked:boolean = checkbox.checked;
+    var setTo: boolean;
+    if(checked) {
+      setTo = false;
+    } else {
+      setTo = true;
+    }
+    console.log(this.idColumnSelected + " is now id: " + setTo);
   }
 
   useAsGeometry() {
-    console.log(this.idColumnSelected + " is now selected as geometry");
+    var checkbox = document.getElementById("useAsGeometry") as HTMLInputElement;
+    var checked:boolean = checkbox.checked;
+    var setTo: boolean;
+    if(checked) {
+      setTo = false;
+    } else {
+      setTo = true;
+    }
+    console.log(this.idColumnSelected + " is now geometry: " + setTo);
   }
 }
