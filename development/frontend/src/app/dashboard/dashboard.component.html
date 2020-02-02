@@ -28,7 +28,7 @@
                   <tr *ngFor="let tablename of tableNames; let i = index;" (click)="onClickTableName(tablename)" [attr.id]=tablename class="tableRow">
                     <th scope="row">{{ i+1 }}</th>
                     <td>{{ tablename }}</td>
-                    <td style="text-align: center"><input class="form-check-input" type="checkbox" [checked]="this.checkedTable"></td>
+                    <td style="text-align: center"><input class="form-check-input" type="checkbox" [checked]="this.checkedTable" (click)="excludeTable(tablename)"></td>
                     <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
                   </tr>
                 </tbody>
@@ -69,8 +69,7 @@
           </div>
           </label>
           <br />
-          <br />
-          <button type="submit" id="subTableName" class="btn btn-success">Submit</button>
+          <button type="submit" id="subTableName" class="btn btn-success">Rename table</button>
         </form>
       </div>
       <div class="col-sm-6" *ngIf="showRenameCol">
@@ -83,10 +82,14 @@
             </div>
             </label>
             <br />
-            <button type="submit" class="btn btn-success">Submit</button>
+            <div class="checkbox">
+              <label><input type="checkbox" value="" (click)="useAsGeometry()">&emsp;Use as geometry</label>
+            </div>
+            <div class="checkbox">
+              <label><input type="checkbox" value="" (click)="useAsId()">&emsp;Use as id</label>
+            </div>
+            <button type="submit" class="btn btn-success">Rename column</button>
         </form>
-       <!--<input type="text" class="form-control" placeholder="New column name" />
-        <button class="btn btn-success" id="subColName">Submit</button>-->
       </div>
     </div>
 

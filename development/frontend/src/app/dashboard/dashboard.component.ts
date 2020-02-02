@@ -76,13 +76,14 @@ export class DashboardComponent implements OnInit {
       this.selectedConnector = this.connectors[index];
       //Load the table names from the selected connector
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-
+      console.log(this.tableNames);
       //Eevent when another conncetor in the dropdown is selected
       select.onchange = async (event: any)=>{
         var select = document.getElementById("selectField") as HTMLSelectElement;
         this.selectedConnector = this.connectors[select.selectedIndex];
 
         this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+        console.log(this.tableNames);
         this.tableSelect = false;
       }
   }
@@ -251,4 +252,19 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Handle the exclude event when the checkbox is changed in the tables
+   */
+  excludeTable(tableName: string) {
+    console.log(tableName + " excluded");
+  }
+
+  
+  useAsId()  {
+    console.log(this.idColumnSelected + " is now selected as id");
+  }
+
+  useAsGeometry() {
+    console.log(this.idColumnSelected + " is now selected as geometry");
+  }
 }
