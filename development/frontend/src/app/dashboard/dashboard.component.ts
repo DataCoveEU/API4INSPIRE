@@ -11,13 +11,17 @@ import { SqlService } from '../sql.service';
 })
 export class DashboardComponent implements OnInit {
 
+  //The table names that will be displayed
   tableNames = [];
 
+  //The columnnames that will be displayed
   columnNames = [];
-  columnConfigNames = [];
+  //columnConfigNames = [];
 
+  //The connectors loaded from the config file
   connectors: any = [];
 
+  //The connector which is selected 
   selectedConnector: any;
 
   showCols: boolean = false;
@@ -40,6 +44,9 @@ export class DashboardComponent implements OnInit {
   sqlSubmitted: boolean = false;
 
   sqlSucess: boolean = true;
+
+  checkedTable:boolean = false;
+  checkedColumn: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
@@ -73,8 +80,9 @@ export class DashboardComponent implements OnInit {
       this.selectedConnector = this.connectors[index];
       //Load the table names from the selected connector
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+      console.log(this.selectedConnector);
 
-      //Eevent when another conncetor in the dropdown is selected
+      //Event when another conneector in the dropdown is selected
       select.onchange = async (event: any)=>{
         var select = document.getElementById("selectField") as HTMLSelectElement;
         this.selectedConnector = this.connectors[select.selectedIndex];
@@ -82,19 +90,6 @@ export class DashboardComponent implements OnInit {
         this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
         this.tableSelect = false;
       }
-
-      var checkbox = document.querySelector("input[name=tableAPI]");
-
-
-      checkbox.addEventListener('change', function() {
-        if(this.checked) {
-            // Checkbox is checked..
-            console.log("Checked");
-        } else {
-            // Checkbox is not checked..
-            console.log("Not checked")
-        }
-      });
   }
 
   /**
@@ -178,6 +173,7 @@ export class DashboardComponent implements OnInit {
     this.conService.renameTable(json).then(
       async ()=>{
         this.reload();
+        console.log(this.selectedConnector);
       }
     ).catch(()=>{
       alert("Not renamed")
@@ -261,4 +257,35 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Handle the exclude event when the checkbox is changed in the tables
+   */
+  excludeTable(tableName: string) {
+    console.log(tableName + " excluded");
+  }
+
+  
+  useAsId()  {
+    var checkbox = document.getElementById("useAsId") as HTMLInputElement;
+    var checked:boolean = checkbox.checked;
+    var setTo: boolean;
+    if(checked) {
+      setTo = false;
+    } else {
+      setTo = true;
+    }
+    console.log(this.idColumnSelected + " is now id: " + setTo);
+  }
+
+  useAsGeometry() {
+    var checkbox = document.getElementById("useAsGeometry") as HTMLInputElement;
+    var checked:boolean = checkbox.checked;
+    var setTo: boolean;
+    if(checked) {
+      setTo = false;
+    } else {
+      setTo = true;
+    }
+    console.log(this.idColumnSelected + " is now geometry: " + setTo);
+  }
 }

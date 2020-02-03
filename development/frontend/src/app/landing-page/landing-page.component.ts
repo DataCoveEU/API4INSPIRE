@@ -13,6 +13,8 @@ export class LandingPageComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+
+
     this.map = new ol.Map({
       target: 'map',
       layers: [
