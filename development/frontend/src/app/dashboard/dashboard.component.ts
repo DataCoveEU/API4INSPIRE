@@ -24,6 +24,9 @@ export class DashboardComponent implements OnInit {
   //The connector which is selected 
   selectedConnector: any;
 
+  //The important links from the config file
+  importantLinks: any = ["Lukas", "Tobias", "Kathi", "Klaus"];
+
   showCols: boolean = false;
   showRenameTable: boolean = false;
   showRenameCol: boolean = false;
@@ -43,6 +46,9 @@ export class DashboardComponent implements OnInit {
   sqlForm: FormGroup;
   sqlSubmitted: boolean = false;
 
+  addImportantLinkFrom: FormGroup;
+  addLinkSubmitted: boolean = false;
+
   sqlSucess: boolean = true;
 
   checkedTable:boolean = false;
@@ -55,6 +61,10 @@ export class DashboardComponent implements OnInit {
     this.sqlForm = this.formBuilder.group({
       collectionId: ['', Validators.required],
       sqlQuery: ['', Validators.required]
+    });
+
+    this.addImportantLinkFrom = this.formBuilder.group({
+      addLink: ['', Validators.required]
     });
 
     this.renameTableForm = this.formBuilder.group({
@@ -246,9 +256,11 @@ export class DashboardComponent implements OnInit {
       'check':check
     };
 
-    this.sqlService.executeSQL(json).then(()=>{
-      alert("SQL executed successfully")
-    }).catch((err)=>{
+    this.sqlService.executeSQL(json).then(
+      async ()=>{
+        alert("SQL executed successfully")
+      }
+    ).catch((err)=>{
       this.sqlSucess = false;
       var errorText = document.getElementById('sqlError');
       errorText.innerHTML = err;
@@ -332,5 +344,13 @@ export class DashboardComponent implements OnInit {
       }
     }
     
+  }
+
+  addImportantLink() {
+    this.addLinkSubmitted = true;
+    if(this.addImportantLinkFrom.invalid) {
+      return;
+    }
+    console.log("Added important link")
   }
 }

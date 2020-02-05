@@ -16,95 +16,96 @@
         <div class="card" style="height: 30vh; overflow: auto">
             <table class="table">
                 <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Table name</th>
-                    <th scope="col">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="exludeAllTables" (click)="excludeAllTables()">
-                        <label class="custom-control-label" for="exludeAllTables">Exclude</label>
-                     </div>
-                    </th>
-                    <th scope="col">Connection name</th>
-                  </tr>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Table name</th>
+                        <th scope="col">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="exludeAllTables" (click)="excludeAllTables()">
+                                <label class="custom-control-label" for="exludeAllTables">Exclude</label>
+                            </div>
+                        </th>
+                        <th scope="col">Connection name</th>
+                    </tr>
                 </thead>
                 <tbody>
 
-                  <tr *ngFor="let tablename of tableNames; let i = index;" (click)="onClickTableName(tablename)" [attr.id]=tablename class="tableRow">
-                    <th scope="row">{{ i+1 }}</th>
-                    <td>{{ tablename }}</td>
-                    <td style="text-align: center">
-                      <input type="checkbox" class="excludeTable" [checked]="this.checkedTable" (click)="excludeTable(tablename)" />
-                    </td>
-                    <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
-                  </tr>
+                    <tr *ngFor="let tablename of tableNames; let i = index;" (click)="onClickTableName(tablename)" [attr.id]=tablename class="tableRow">
+                        <th scope="row">{{ i+1 }}</th>
+                        <td>{{ tablename }}</td>
+                        <td style="text-align: center">
+                            <input type="checkbox" class="excludeTable" [checked]="this.checkedTable" (click)="excludeTable(tablename)" />
+                        </td>
+                        <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
+                    </tr>
                 </tbody>
-              </table>
+            </table>
         </div>
         <div class="card" style="width: 100%; height: 30vh; overflow: auto">
             <table class="table">
                 <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Column name</th>
-                    <th scope="col">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="excludeAllColumns" (click)="excludeAllColumns()">
-                        <label class="custom-control-label" for="excludeAllColumns">Exclude</label>
-                     </div>
-                    </th>
-                    <th scope="col">Property name</th>
-                  </tr>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Column name</th>
+                        <th scope="col">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="excludeAllColumns" (click)="excludeAllColumns()">
+                                <label class="custom-control-label" for="excludeAllColumns">Exclude</label>
+                            </div>
+                        </th>
+                        <th scope="col">Property name</th>
+                    </tr>
                 </thead>
                 <tbody *ngIf="showCols">
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
-                      <th scope="row">{{ i+1 }}</th>
-                      <td>{{ colname }}</td>
-                      <td style="text-align: center">
-                        <input class="form-check-input excludeColumn" type="checkbox" [checked]="this.checkedColumn">
-                      </td>
-                      <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname] }}</td>
+                        <th scope="row">{{ i+1 }}</th>
+                        <td>{{ colname }}</td>
+                        <td style="text-align: center">
+                            <input class="form-check-input excludeColumn" type="checkbox" [checked]="this.checkedColumn">
+                        </td>
+                        <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname] }}</td>
                     </tr>
                 </tbody>
-              </table>
+            </table>
         </div>
     </div>
 
     <div class="row" id="rename">
-      <div class="col-sm-6" *ngIf="showRenameTable">
-        <h5>Change table properties</h5>
-        <form [formGroup]="renameTableForm" (ngSubmit)="submitTable()">
-          <label style="width: 100%">
-            <input type="text" formControlName="tableName" class="form-control" placeholder="New table name"/>
-            <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
-              <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
-          </div>
-          </label>
-          <br />
-          <button type="submit" id="subTableName" class="btn btn-success">Rename table</button>
-        </form>
-      </div>
-      <div class="col-sm-6" *ngIf="showRenameCol">
-        <h5>Change column properties</h5>
-        <form [formGroup]="renameColumnForm" (ngSubmit)="submitColumn()">
-          <label style="width: 100%">
-              <input type="text" formControlName="columnName" class="form-control" placeholder="New column name" />
-              <div *ngIf="columnNameSubmitted && renameColumnForm.controls.columnName.errors" class="error">
-                <div *ngIf="renameColumnForm.controls.columnName.errors.required">A new column name is required</div>
-            </div>
-            </label>
-            <br />
-            <div class="checkbox">
-              <label><input type="checkbox" value="" (click)="useAsGeometry()" id="useAsGeometry">&emsp;Use as geometry</label>
-            </div>
-            <div class="checkbox">
-              <label><input type="checkbox" value="" (click)="useAsId()" id="useAsId">&emsp;Use as id</label>
-            </div>
-            <button type="submit" class="btn btn-success">Rename column</button>
-        </form>
-      </div>
+        <div class="col-sm-6" *ngIf="showRenameTable">
+            <h5>Change table properties</h5>
+            <form [formGroup]="renameTableForm" (ngSubmit)="submitTable()">
+                <label style="width: 100%">
+                    <input type="text" formControlName="tableName" class="form-control" placeholder="New table name" />
+                    <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
+                        <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
+                    </div>
+                </label>
+                <br />
+                <button type="submit" id="subTableName" class="btn btn-success">Rename table</button>
+            </form>
+        </div>
+        <div class="col-sm-6" *ngIf="showRenameCol">
+            <h5>Change column properties</h5>
+            <form [formGroup]="renameColumnForm" (ngSubmit)="submitColumn()">
+                <label style="width: 100%">
+                    <input type="text" formControlName="columnName" class="form-control" placeholder="New column name" />
+                    <div *ngIf="columnNameSubmitted && renameColumnForm.controls.columnName.errors" class="error">
+                        <div *ngIf="renameColumnForm.controls.columnName.errors.required">A new column name is required</div>
+                    </div>
+                </label>
+                <br />
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" value="" (click)="useAsGeometry()" id="useAsGeometry">&emsp;Use as geometry</label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" value="" (click)="useAsId()" id="useAsId">&emsp;Use as id</label>
+                </div>
+                <button type="submit" class="btn btn-success">Rename column</button>
+            </form>
+        </div>
     </div>
-
 
     <div class="row" id="sql">
         <div class="col-sm-12">
@@ -113,35 +114,69 @@
             <hr />
 
             <form [formGroup]="sqlForm">
-              <div class="row">
-                <div class="col-sm-6">
-                  <label style="width: 100%">
-                    <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" />
-                    <div *ngIf="sqlSubmitted && sqlForm.controls.collectionId.errors" class="error">
-                      <div *ngIf="sqlForm.controls.collectionId.errors.required">A collection name is required</div>
-                  </div>
-                  </label>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label style="width: 100%">
+                            <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" />
+                            <div *ngIf="sqlSubmitted && sqlForm.controls.collectionId.errors" class="error">
+                                <div *ngIf="sqlForm.controls.collectionId.errors.required">A collection name is required</div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-              </div>
-              <label style="width: 100%;">
-                <textarea class="form-control" formControlName="sqlQuery" rows="5" placeholder="Write and execute sql here"></textarea>
-                <div *ngIf="sqlSubmitted && sqlForm.controls.sqlQuery.errors" class="error">
-                  <div *ngIf="sqlForm.controls.sqlQuery.errors.required">A sql query is required</div>
-              </div>
-              </label>
-              <br />
-              <div class="row">
-                <div class="col-sm-2">
-                  <button class="btn btn-success" style="width: 100%" (click)="executeSQL(false)">Execute</button>
+                <label style="width: 100%;">
+                    <textarea class="form-control" formControlName="sqlQuery" rows="5" placeholder="Write and execute sql here"></textarea>
+                    <div *ngIf="sqlSubmitted && sqlForm.controls.sqlQuery.errors" class="error">
+                        <div *ngIf="sqlForm.controls.sqlQuery.errors.required">A sql query is required</div>
+                    </div>
+                </label>
+                <br />
+                <div class="row">
+                    <div class="col-sm-2">
+                        <button class="btn btn-success" style="width: 100%" (click)="executeSQL(false)">Execute</button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-success" style="width: 100%" (click)="executeSQL(true)">Check</button>
+                    </div>
                 </div>
-                <div class="col-sm-2">
-                  <button class="btn btn-success" style="width: 100%" (click)="executeSQL(true)">Check</button>
-                </div>
-              </div>
             </form>
 
             <br />
             <br />
-          </div>
+        </div>
     </div>
+
+    <!-- Add and remove important links from the landing page -->
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Important Links</h3>
+            <hr />
+            <div class="row">
+              <div class="col-sm-6">
+                <form [formGroup]="addImportantLinkFrom" (ngSubmit)="addImportantLink()">
+                  <label style="width: 100%">
+                    <input type="text" formControlName="addLink" class="form-control" style="width: 100%" placeholder="Add a link"/>
+                    <div *ngIf="addLinkSubmitted && addImportantLinkFrom.controls.addLink.errors" class="error">
+                      <div *ngIf="addImportantLinkFrom.controls.addLink.errors.required">A link is required</div>
+                  </div>
+                  </label>
+                  <br />
+                  <button class="btn btn-success" type="submit">Add link</button>
+                </form>
+              </div>
+            </div>
+            <br />
+            <h5>Remove links</h5>
+            <hr />
+            <div *ngFor="let link of importantLinks">
+                <div class="row" style="margin-top: 1%">
+                    <div class="col-sm-4">{{ link }}</div>
+                    <div class="col-sm-8">
+                        <div class="btn btn-danger">Remove</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
