@@ -314,7 +314,6 @@ export class DashboardComponent implements OnInit {
         tables[i].checked = false;
       }
     }
-
-    
   }
+
 }

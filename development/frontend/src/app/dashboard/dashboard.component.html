@@ -34,9 +34,10 @@
                     <th scope="row">{{ i+1 }}</th>
                     <td>{{ tablename }}</td>
                     <td style="text-align: center">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input excludeTable" [checked]="this.checkedTable" (click)="excludeTable(tablename)">
-                      </div>
+                      <input type="checkbox" class="excludeTable"/> <!--
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input excludeTable" [checked]="this.checkedTable" (click)="excludeTable(tablename)">
+                        </div>-->
                     </td>
                     <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
                   </tr>
@@ -50,10 +51,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Column name</th>
                     <th scope="col">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="excludeAllColumns" (click)="excludeAllColumns()">
-                        <label class="custom-control-label" for="excludeAllColumns">Exclude</label>
-                      </div>
+                      Exclude
                     </th>
                     <th scope="col">Property name</th>
                   </tr>
