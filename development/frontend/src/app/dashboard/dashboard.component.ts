@@ -265,6 +265,9 @@ export class DashboardComponent implements OnInit {
   }
 
   
+  /**
+   * Handle the click event when a column should be used as ID
+   */
   useAsId()  {
     var checkbox = document.getElementById("useAsId") as HTMLInputElement;
     var checked:boolean = checkbox.checked;
@@ -277,6 +280,9 @@ export class DashboardComponent implements OnInit {
     console.log(this.idColumnSelected + " is now id: " + setTo);
   }
 
+  /**
+   * Handle the click event when a column should be used as geometry
+   */
   useAsGeometry() {
     var checkbox = document.getElementById("useAsGeometry") as HTMLInputElement;
     var checked:boolean = checkbox.checked;
@@ -287,5 +293,28 @@ export class DashboardComponent implements OnInit {
       setTo = true;
     }
     console.log(this.idColumnSelected + " is now geometry: " + setTo);
+  }
+
+  /**
+   * Handle the click event when all tables should be included or excluded
+   */
+  excludeAllTables() {
+    var tables:any = document.getElementsByClassName("excludeTable");
+    var exlcudeAll:any = document.getElementById("exludeAllTables");
+    if(exlcudeAll.checked) {
+      // After clicking the checkbox is checked
+      // so all og the tables will be exluded   
+      for(var i = 0; i < tables.length; i++) {
+        tables[i].checked = "checked";
+      }
+    } else {
+      // After clicking the checkbox is not checked
+      // so all of the tables will be included
+      for(var i = 0; i < tables.length; i++) {
+        tables[i].checked = false;
+      }
+    }
+
+    
   }
 }
