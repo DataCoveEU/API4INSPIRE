@@ -316,6 +316,9 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  /**
+   * Handle the click event when all the columns should be included or excluded
+   */
   excludeAllColumns() {
     var columns:any = document.getElementsByClassName("excludeColumn");
     var but:any = document.getElementById("excludeAllColumns")
