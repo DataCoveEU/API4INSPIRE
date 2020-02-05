@@ -316,4 +316,18 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  excludeAllColumns() {
+    var columns:any = document.getElementsByClassName("excludeColumn");
+    var but:any = document.getElementById("excludeAllColumns")
+    if(but.checked) {
+      for(var i = 0; i < columns.length; i++) {
+        columns[i].checked = "checked";
+      }
+    } else {
+      for(var i = 0; i < columns.length; i++) {
+        columns[i].checked = false;
+      }
+    }
+    
+  }
 }

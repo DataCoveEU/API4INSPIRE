@@ -34,10 +34,7 @@
                     <th scope="row">{{ i+1 }}</th>
                     <td>{{ tablename }}</td>
                     <td style="text-align: center">
-                      <input type="checkbox" class="excludeTable"/> <!--
-                        <div class="custom-control custom-checkbox">
-                          <input type="checkbox" class="custom-control-input excludeTable" [checked]="this.checkedTable" (click)="excludeTable(tablename)">
-                        </div>-->
+                      <input type="checkbox" class="excludeTable" [checked]="this.checkedTable" (click)="excludeTable(tablename)" />
                     </td>
                     <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
                   </tr>
@@ -51,7 +48,10 @@
                     <th scope="col">#</th>
                     <th scope="col">Column name</th>
                     <th scope="col">
-                      Exclude
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="excludeAllColumns" (click)="excludeAllColumns()">
+                        <label class="custom-control-label" for="excludeAllColumns">Exclude</label>
+                     </div>
                     </th>
                     <th scope="col">Property name</th>
                   </tr>
@@ -60,7 +60,9 @@
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                       <th scope="row">{{ i+1 }}</th>
                       <td>{{ colname }}</td>
-                      <td style="text-align: center"><input class="form-check-input" type="checkbox" [checked]="this.checkedColumn"></td>
+                      <td style="text-align: center">
+                        <input class="form-check-input excludeColumn" type="checkbox" [checked]="this.checkedColumn">
+                      </td>
                       <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname] }}</td>
                     </tr>
                 </tbody>
