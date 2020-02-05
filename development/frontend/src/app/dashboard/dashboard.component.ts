@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
   //The connectors loaded from the config file
   connectors: any = [];
 
-  //The connector which is selected 
+  //The connector which is selected
   selectedConnector: any;
 
   //The important links from the config file
@@ -84,13 +84,12 @@ export class DashboardComponent implements OnInit {
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
     var index = select.selectedIndex;
-    
+
     if(index == -1){index = 0}
-  
+
       this.selectedConnector = this.connectors[index];
       //Load the table names from the selected connector
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-      console.log(this.selectedConnector);
 
       //Event when another conneector in the dropdown is selected
       select.onchange = async (event: any)=>{
@@ -180,15 +179,28 @@ export class DashboardComponent implements OnInit {
       'alias': this.renameTableForm.value.tableName
     };
 
+    for(var i = 0; i < this.tableNames.length; i++) {
+      if(this.selectedConnector.config[this.tableNames[i]] == undefined) {
+        console.log("undefined");
+      } else {
+        if(this.selectedConnector.config[this.tableNames[i]].alias == undefined) {
+          console.log("undefined")
+        } else {
+          if(this.selectedConnector.config[this.tableNames[i]].alias == this.renameTableForm.value.tableName) {
+            alert("This name is already assigned to a table")
+            return;
+          }
+        }
+      }
+    }
+
     this.conService.renameTable(json).then(
       async ()=>{
         this.reload();
-        console.log(this.selectedConnector);
       }
     ).catch(()=>{
       alert("Not renamed")
     });
-
   }
 
   /**
@@ -276,7 +288,7 @@ export class DashboardComponent implements OnInit {
     console.log(tableName + " excluded");
   }
 
-  
+
   /**
    * Handle the click event when a column should be used as ID
    */
@@ -315,7 +327,7 @@ export class DashboardComponent implements OnInit {
     var exlcudeAll:any = document.getElementById("exludeAllTables");
     if(exlcudeAll.checked) {
       // After clicking the checkbox is checked
-      // so all og the tables will be exluded   
+      // so all og the tables will be exluded
       for(var i = 0; i < tables.length; i++) {
         tables[i].checked = "checked";
       }
@@ -343,7 +355,7 @@ export class DashboardComponent implements OnInit {
         columns[i].checked = false;
       }
     }
-    
+
   }
 
   addImportantLink() {
@@ -354,3 +366,4 @@ export class DashboardComponent implements OnInit {
     console.log("Added important link")
   }
 }
+ 
