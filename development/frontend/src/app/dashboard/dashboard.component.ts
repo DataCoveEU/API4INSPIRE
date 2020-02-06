@@ -220,6 +220,22 @@ export class DashboardComponent implements OnInit {
       'orgName': this.idColumnSelected
     };
 
+    for(let i = 0; i < this.columnNames.length; i++) {
+      if(this.selectedConnector.config[this.idTableSelected] == undefined) {
+        console.log("undefined")
+      } else {
+        if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
+          console.log("undefined v2")
+        } else {
+          if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
+            alert("This name is already assigned to a column");
+            return;
+          }
+        }
+      }
+    }
+
+
     this.conService.renameColumn(json).then(async()=>{
       this.reload();
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});

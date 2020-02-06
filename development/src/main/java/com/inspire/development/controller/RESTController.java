@@ -3,6 +3,7 @@ package com.inspire.development.controller;
 import com.inspire.development.collections.Collections;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.config.DBConnectorList;
+import com.inspire.development.conformance.ConformanceDeclaration;
 import com.inspire.development.core.Core;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.PostgreSQL;
@@ -48,14 +49,18 @@ public class RESTController {
   }
 
   /**
-   * Gets the conformance decalaration
+   * Gets the conformance declaration
    *
-   * @return the yaml file which contains the conformance declaration
+   * @return the json file which contains the conformance declaration
    */
   @GetMapping("/conformance")
-  public String getConformance() {
-    //TODO: implement the method to return the yaml file
-    return "Conformance";
+  public ConformanceDeclaration getConformance() {
+    //When calling there is a Code 500
+    String[] links = {  "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
+                        //"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30", ==> API Definition not yet implemented
+                        //"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html", ==> Parameter to choose html no implemented yet
+                        "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson" };
+    return new ConformanceDeclaration(links);
   }
 
   /**

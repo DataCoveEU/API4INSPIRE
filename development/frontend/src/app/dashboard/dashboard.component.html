@@ -63,7 +63,7 @@
                         <td style="text-align: center">
                             <input class="form-check-input excludeColumn" type="checkbox" [checked]="this.checkedColumn">
                         </td>
-                        <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname] }}</td>
+                        <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname].alias }}</td>
                     </tr>
                 </tbody>
             </table>
