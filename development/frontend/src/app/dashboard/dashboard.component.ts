@@ -54,6 +54,8 @@ export class DashboardComponent implements OnInit {
   checkedTable:boolean = false;
   checkedColumn: boolean = false;
 
+  errorField: boolean = false;
+
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
   async ngOnInit() {
@@ -189,7 +191,10 @@ export class DashboardComponent implements OnInit {
         } else if(con.config[tab[j]].alias == undefined) {
           console.log("undefined")
         } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
-          alert("This name is already assigned to a table");
+          //alert("This name is already assigned to a table");
+          var er = document.getElementById("errorField");
+          er.innerHTML = "ERROR: This name is already assigned to a table";
+          this.errorField = true;
           return;
         }
       }
@@ -207,7 +212,7 @@ export class DashboardComponent implements OnInit {
   /**
    * Handle the click event when the new column name is submitted
    */
-  submitColumn() {
+  async submitColumn() {
     this.columnNameSubmitted = true;
     if(this.renameColumnForm.invalid) {
       return;
@@ -237,6 +242,31 @@ export class DashboardComponent implements OnInit {
     }
 
 
+/*
+    for(let i = 0; i < this.connectors.length; i++) {
+      var con = this.connectors[i];
+      var tabs = await this.conService.getTables({'id': con.id });
+      for(let j = 0; j < tabs.length; j++) {
+        var tab = tabs[j];
+        var cols = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+tab});
+        for(let h = 0; h < cols.length; h++) {
+          var col = cols[h];
+          if(con.config[tab] == undefined) {
+            console.log("undefined v1")
+          } else if(con.config[tab].map[col] == undefined) {
+            console.log("undefined v2")
+          } else if(con.config[tab].map[col].alias == undefined) {
+            console.log("undefined v3");
+          } else if(con.config[tab].map[col].alias == this.renameColumnForm.value.columnName) {
+            var er = document.getElementById("errorField");
+            er.innerHTML = "ERROR: This name is already assigned to a column";
+            return;
+          }
+        }        
+      }
+    }
+
+*/
     this.conService.renameColumn(json).then(async()=>{
       this.reload();
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
