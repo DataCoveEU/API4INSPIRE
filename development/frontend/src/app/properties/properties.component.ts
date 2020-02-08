@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import * as $ from 'jquery';
 import { ConnectorService } from '../connector.service';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-properties',
@@ -13,15 +14,26 @@ export class PropertiesComponent implements OnInit {
   sqlite: boolean = false;
   postgres: boolean = false;
 
+  connectorNameForm: FormGroup;
+  connectorNameSubmitted: boolean = false;
+
+
   connectors: any = [{"id":"No connectors are currently available"}];
 
-  constructor(private con: ConnectorService) { }
+  constructor(private con: ConnectorService, private formBuilder: FormBuilder, private conService: ConnectorService) { }
 
   async ngOnInit() {
+
+    this.connectorNameForm = this.formBuilder.group({
+      conName: ['', Validators.required]
+    })
+
     this.sqlite = true;
 
     //Load all connectors
     this.connectors = await this.con.getConnector();
+    
+    console.log(this.connectors);
 
     var sel = document.getElementById('connector');
     //Change the form depending on what connector it is
@@ -35,6 +47,14 @@ export class PropertiesComponent implements OnInit {
         this.postgres = false;
       }
     }
+  }
+
+  submitConnectorName() {
+    this.connectorNameSubmitted = true;
+    if(this.connectorNameForm.invalid) {
+      return;
+    }
+    alert("Ich brauch die Admin doc")
   }
 
 }

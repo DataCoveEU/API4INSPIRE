@@ -166,7 +166,7 @@ export class DashboardComponent implements OnInit {
   /**
    * Handle the click event when the new table name is submitted
    */
-  submitTable() {
+  async submitTable() {
     this.tableNameSubmitted = true;
     if(this.renameTableForm.invalid) {
       return;
@@ -179,17 +179,18 @@ export class DashboardComponent implements OnInit {
       'alias': this.renameTableForm.value.tableName
     };
 
-    for(var i = 0; i < this.tableNames.length; i++) {
-      if(this.selectedConnector.config[this.tableNames[i]] == undefined) {
-        console.log("undefined");
-      } else {
-        if(this.selectedConnector.config[this.tableNames[i]].alias == undefined) {
+    //The unique names have to be on all of the databases
+    for(let i = 0;  i < this.connectors.length; i++) {
+      var con = this.connectors[i];
+      var tab = await this.conService.getTables({'id': con.id });
+      for(let j = 0; j < tab.length; j++) {
+        if(con.config[tab[j]] == undefined) {
           console.log("undefined")
-        } else {
-          if(this.selectedConnector.config[this.tableNames[i]].alias == this.renameTableForm.value.tableName) {
-            alert("This name is already assigned to a table")
-            return;
-          }
+        } else if(con.config[tab[j]].alias == undefined) {
+          console.log("undefined")
+        } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
+          alert("This name is already assigned to a table");
+          return;
         }
       }
     }
