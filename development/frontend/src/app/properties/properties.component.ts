@@ -11,50 +11,40 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 })
 export class PropertiesComponent implements OnInit {
 
-  sqlite: boolean = false;
-  postgres: boolean = false;
+  changeNameForm: FormGroup; 
+  changeNameSubmitted: boolean = false;
 
-  connectorNameForm: FormGroup;
-  connectorNameSubmitted: boolean = false;
-
-
-  connectors: any = [{"id":"No connectors are currently available"}];
+  allConnectors:any;
+  connectors: any;
 
   constructor(private con: ConnectorService, private formBuilder: FormBuilder, private conService: ConnectorService) { }
 
   async ngOnInit() {
 
-    this.connectorNameForm = this.formBuilder.group({
-      conName: ['', Validators.required]
-    })
+    this.allConnectors = await this.con.getConnector();
 
-    this.sqlite = true;
+    this.changeNameForm = this.formBuilder.group({
+      newName: ['', Validators.required]
+    });
+  }
 
-    //Load all connectors
-    this.connectors = await this.con.getConnector();
+  changeName() {
+
+  }
+
+  sqlite() {
+    var header = document.getElementById("sqlite");
+    var pos = document.getElementById("postgres");
+    pos.style.backgroundColor = "white";
+    header.style.backgroundColor = "#EEEEEE";
+
     
-    console.log(this.connectors);
-
-    var sel = document.getElementById('connector');
-    //Change the form depending on what connector it is
-    sel.onchange = (event: any)=>{
-      var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
-      if(cal == "postgres") {
-        this.sqlite = false;
-        this.postgres = true;
-      } else if(cal == "sqlite") {
-        this.sqlite = true;
-        this.postgres = false;
-      }
-    }
   }
 
-  submitConnectorName() {
-    this.connectorNameSubmitted = true;
-    if(this.connectorNameForm.invalid) {
-      return;
-    }
-    alert("Ich brauch die Admin doc")
+  postgres() {
+    var header = document.getElementById("postgres");
+    var sq = document.getElementById("sqlite");
+    sq.style.backgroundColor = "white";
+    header.style.backgroundColor = "#EEEEEE";
   }
-
 }

@@ -6,94 +6,17 @@
     </div>
 </div>
 <div class="main">
-    <div class="col-sm-6 col-sm-12">
-        <div class="properties" style="width: 100%">
-            <div class="row" style="width: 100%;">
-                <div class="col-sm-6">
-                    <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option *ngFor="let connector of this.connectors">{{ connector.id }}</option>  <!-- [attr.id]=connector["@class"] -->
-                        <!--
-                        <option id="sqlite">SQLite connector</option>
-                        <option id="postgres">PostgreSQL connector</option>-->
-                    </select>
-                </div>
-                <div class="col-sm-6">
-                    <button class="btn btn-success shadow-sm" style="width: 100%;">Test connection</button>
-                </div>
-            </div>
-                <form [formGroup]="connectorNameForm" (ngSubmit)="submitConnectorName()" >
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <label style="width: 100%">
-                                <input type="text" formControlName="conName" class="form-control shadow-sm" placeholder="Connectorname" />
-                                <div *ngIf="connectorNameSubmitted && connectorNameForm.controls.conName.errors" class="error">
-                                    <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>
-                                </div>
-                            </label>
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%" type="submit">Submit</button>
-                        </div>
-                    </div>
-                </form>
-            <div id="content">
-                <div *ngIf="this.postgres">
-                    <h3 style="margin-top: 1%">Change credentials</h3>
-                    <hr />
-                    <div class="row" style="width: 100%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Username" />
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change username</button>
-                        </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="text" style="width: 100%; margin-top: 1%" class="shadow-sm form-control" placeholder="Old password" />
-                        </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input class="form-control shadow-sm" style="width: 100%; margin-top: 1%" type="text" placeholder="New password" />
-                        </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Repeat new password" />
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change password</button>
-                        </div>
-                    </div>
-                    <hr />
-                    <div class="row" style="width: 100%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Hostname" />
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change hostname</button>
-                        </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="number" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port" />
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change port</button>
-                        </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Schema" />
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change schema name</button>
-                        </div>
-                    </div>
-                    <hr />
-                </div>
-            </div>
-        </div>
+
+    <div class="row" style="text-align: center">
+        <div class="col-sm-6" id="sqlite" (click)="sqlite()"><h4>SQLite</h4></div>
+        <div class="col-sm-6" id="postgres" (click)="postgres()"><h4>PostgreSQL</h4></div>
     </div>
+    
+    <form [formGroup]="changeNameForm" (ngSubmit)="changeName">
+        <label>
+            <input class="form-control" formControlName="newName" placeholder="New name" />
+        </label>
+        <br />
+        <button type="submit" class="btn btn-success">Change name</button>
+    </form>
 </div>
