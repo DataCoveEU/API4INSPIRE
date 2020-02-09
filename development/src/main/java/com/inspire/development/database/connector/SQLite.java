@@ -40,7 +40,7 @@ import org.postgis.PGgeometry;
  * DBConnector for a SQLite database
  */
 @JsonTypeName("sqlite")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class SQLite implements DBConnector {
   static Logger log = LogManager.getLogger(SQLite.class.getName());
   private ArrayList<String> errorBuffer;
