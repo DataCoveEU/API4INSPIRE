@@ -39,7 +39,7 @@ import org.postgis.PGgeometry;
  * DBConnector for a PostgreSQL database
  */
 @JsonTypeName("postgresql")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class PostgreSQL implements DBConnector {
   static Logger log = LogManager.getLogger(PostgreSQL.class.getName());
   private ArrayList<String> errorBuffer;

@@ -6,7 +6,7 @@ import com.inspire.development.collections.FeatureCollection;
 import java.util.ArrayList;
 
 @JsonTypeName("dbconnector")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface DBConnector {
   String database = "";
   String hostname = "";
