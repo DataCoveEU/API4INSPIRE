@@ -21,8 +21,11 @@ export class DashboardComponent implements OnInit {
   //The connectors loaded from the config file
   connectors: any = [];
 
-  //The connector which is selected 
+  //The connector which is selected
   selectedConnector: any;
+
+  //The important links from the config file
+  importantLinks: any = ["Lukas", "Tobias", "Kathi", "Klaus"];
 
   showCols: boolean = false;
   showRenameTable: boolean = false;
@@ -43,10 +46,15 @@ export class DashboardComponent implements OnInit {
   sqlForm: FormGroup;
   sqlSubmitted: boolean = false;
 
+  addImportantLinkFrom: FormGroup;
+  addLinkSubmitted: boolean = false;
+
   sqlSucess: boolean = true;
 
   checkedTable:boolean = false;
   checkedColumn: boolean = false;
+
+  errorField: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
 
@@ -55,6 +63,10 @@ export class DashboardComponent implements OnInit {
     this.sqlForm = this.formBuilder.group({
       collectionId: ['', Validators.required],
       sqlQuery: ['', Validators.required]
+    });
+
+    this.addImportantLinkFrom = this.formBuilder.group({
+      addLink: ['', Validators.required]
     });
 
     this.renameTableForm = this.formBuilder.group({
@@ -74,13 +86,12 @@ export class DashboardComponent implements OnInit {
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
     var index = select.selectedIndex;
-    
+
     if(index == -1){index = 0}
-  
+
       this.selectedConnector = this.connectors[index];
       //Load the table names from the selected connector
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-      console.log(this.selectedConnector);
 
       //Event when another conneector in the dropdown is selected
       select.onchange = async (event: any)=>{
@@ -157,7 +168,7 @@ export class DashboardComponent implements OnInit {
   /**
    * Handle the click event when the new table name is submitted
    */
-  submitTable() {
+  async submitTable() {
     this.tableNameSubmitted = true;
     if(this.renameTableForm.invalid) {
       return;
@@ -170,21 +181,38 @@ export class DashboardComponent implements OnInit {
       'alias': this.renameTableForm.value.tableName
     };
 
+    //The unique names have to be on all of the databases
+    for(let i = 0;  i < this.connectors.length; i++) {
+      var con = this.connectors[i];
+      var tab = await this.conService.getTables({'id': con.id });
+      for(let j = 0; j < tab.length; j++) {
+        if(con.config[tab[j]] == undefined) {
+          console.log("undefined")
+        } else if(con.config[tab[j]].alias == undefined) {
+          console.log("undefined")
+        } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
+          //alert("This name is already assigned to a table");
+          var er = document.getElementById("errorField");
+          er.innerHTML = "ERROR: This name is already assigned to a table";
+          this.errorField = true;
+          return;
+        }
+      }
+    }
+
     this.conService.renameTable(json).then(
       async ()=>{
         this.reload();
-        console.log(this.selectedConnector);
       }
     ).catch(()=>{
       alert("Not renamed")
     });
-
   }
 
   /**
    * Handle the click event when the new column name is submitted
    */
-  submitColumn() {
+  async submitColumn() {
     this.columnNameSubmitted = true;
     if(this.renameColumnForm.invalid) {
       return;
@@ -198,6 +226,47 @@ export class DashboardComponent implements OnInit {
       'orgName': this.idColumnSelected
     };
 
+    for(let i = 0; i < this.columnNames.length; i++) {
+      if(this.selectedConnector.config[this.idTableSelected] == undefined) {
+        console.log("undefined")
+      } else {
+        if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
+          console.log("undefined v2")
+        } else {
+          if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
+            alert("This name is already assigned to a column");
+            return;
+          }
+        }
+      }
+    }
+
+
+/*
+    for(let i = 0; i < this.connectors.length; i++) {
+      var con = this.connectors[i];
+      var tabs = await this.conService.getTables({'id': con.id });
+      for(let j = 0; j < tabs.length; j++) {
+        var tab = tabs[j];
+        var cols = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+tab});
+        for(let h = 0; h < cols.length; h++) {
+          var col = cols[h];
+          if(con.config[tab] == undefined) {
+            console.log("undefined v1")
+          } else if(con.config[tab].map[col] == undefined) {
+            console.log("undefined v2")
+          } else if(con.config[tab].map[col].alias == undefined) {
+            console.log("undefined v3");
+          } else if(con.config[tab].map[col].alias == this.renameColumnForm.value.columnName) {
+            var er = document.getElementById("errorField");
+            er.innerHTML = "ERROR: This name is already assigned to a column";
+            return;
+          }
+        }        
+      }
+    }
+
+*/
     this.conService.renameColumn(json).then(async()=>{
       this.reload();
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
@@ -246,9 +315,11 @@ export class DashboardComponent implements OnInit {
       'check':check
     };
 
-    this.sqlService.executeSQL(json).then(()=>{
-      alert("SQL executed successfully")
-    }).catch((err)=>{
+    this.sqlService.executeSQL(json).then(
+      async ()=>{
+        alert("SQL executed successfully")
+      }
+    ).catch((err)=>{
       this.sqlSucess = false;
       var errorText = document.getElementById('sqlError');
       errorText.innerHTML = err;
@@ -264,7 +335,10 @@ export class DashboardComponent implements OnInit {
     console.log(tableName + " excluded");
   }
 
-  
+
+  /**
+   * Handle the click event when a column should be used as ID
+   */
   useAsId()  {
     var checkbox = document.getElementById("useAsId") as HTMLInputElement;
     var checked:boolean = checkbox.checked;
@@ -277,6 +351,9 @@ export class DashboardComponent implements OnInit {
     console.log(this.idColumnSelected + " is now id: " + setTo);
   }
 
+  /**
+   * Handle the click event when a column should be used as geometry
+   */
   useAsGeometry() {
     var checkbox = document.getElementById("useAsGeometry") as HTMLInputElement;
     var checked:boolean = checkbox.checked;
@@ -288,4 +365,52 @@ export class DashboardComponent implements OnInit {
     }
     console.log(this.idColumnSelected + " is now geometry: " + setTo);
   }
+
+  /**
+   * Handle the click event when all tables should be included or excluded
+   */
+  excludeAllTables() {
+    var tables:any = document.getElementsByClassName("excludeTable");
+    var exlcudeAll:any = document.getElementById("exludeAllTables");
+    if(exlcudeAll.checked) {
+      // After clicking the checkbox is checked
+      // so all og the tables will be exluded
+      for(var i = 0; i < tables.length; i++) {
+        tables[i].checked = "checked";
+      }
+    } else {
+      // After clicking the checkbox is not checked
+      // so all of the tables will be included
+      for(var i = 0; i < tables.length; i++) {
+        tables[i].checked = false;
+      }
+    }
+  }
+
+  /**
+   * Handle the click event when all the columns should be included or excluded
+   */
+  excludeAllColumns() {
+    var columns:any = document.getElementsByClassName("excludeColumn");
+    var but:any = document.getElementById("excludeAllColumns")
+    if(but.checked) {
+      for(var i = 0; i < columns.length; i++) {
+        columns[i].checked = "checked";
+      }
+    } else {
+      for(var i = 0; i < columns.length; i++) {
+        columns[i].checked = false;
+      }
+    }
+
+  }
+
+  addImportantLink() {
+    this.addLinkSubmitted = true;
+    if(this.addImportantLinkFrom.invalid) {
+      return;
+    }
+    console.log("Added important link")
+  }
 }
+ 

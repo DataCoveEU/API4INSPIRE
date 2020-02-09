@@ -17,11 +17,11 @@
     }
 }
 
-a#collections {
+a#collections, a#conformance {
     color: black;
 }
 
-a#collections:hover {
+a#collections:hover, a#conformance:hover {
     color: blue;
     text-decoration: underline;
 }
