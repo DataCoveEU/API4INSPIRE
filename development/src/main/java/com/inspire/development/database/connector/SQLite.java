@@ -381,10 +381,11 @@ public class SQLite implements DBConnector {
 
     public void setColumnExclude(String table, String column, boolean exclude) {
         if (config.containsKey(table)) {
-            config.get(table).setExclude(exclude);
+            TableConfig conf = config.get(table);
+            conf.getMap().put(column, new ColumnConfig(column, exclude));
         } else {
             TableConfig tc = new TableConfig(table, table);
-            tc.setExclude(exclude);
+            tc.getMap().put(column, new ColumnConfig(column, exclude));
             config.put(table, tc);
         }
     }
