@@ -36,7 +36,7 @@
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ tablename }}</td>
                         <td style="text-align: center">
-                            <input type="checkbox" class="excludeTable" [checked]="this.selectedConnector?.config[tablename]?.exclude" (click)="excludeTable(tablename)" />
+                            <input type="checkbox" id="{{ 'checkbox-' + tablename }}" class="excludeTable" [checked]="this.selectedConnector?.config[tablename]?.exclude" (click)="excludeTable(tablename)" />
                         </td>
                         <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
                     </tr>
@@ -63,7 +63,7 @@
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ colname }}</td>
                         <td style="text-align: center">
-                            <input class="form-check-input excludeColumn" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
+                            <input class="form-check-input excludeColumn" id="{{ 'checkbox-' + colname }}" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
                         </td>
                         <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.alias }}</td>
                     </tr>
@@ -97,12 +97,20 @@
                 </label>
                 <br />
                 <div class="checkbox">
-                    <label>
-                        <input type="checkbox" value="" (click)="useAsGeometry()" id="useAsGeometry">&emsp;Use as geometry</label>
+                    <label *ngIf="this.geoColumn == this.idColumnSelected" >
+                        <input type="checkbox" checked value="" (click)="useAsGeometry()" id="useAsGeometry" />&emsp;Use as geometry
+                    </label>
+                    <label *ngIf="this.geoColumn != this.idColumnSelected" >
+                        <input type="checkbox" value="" (click)="useAsGeometry()" id="useAsGeometry" />&emsp;Use as geometry
+                    </label>
                 </div>
                 <div class="checkbox">
-                    <label>
-                        <input type="checkbox" value="" (click)="useAsId()" id="useAsId">&emsp;Use as id</label>
+                    <label *ngIf="this.idColumn == this.idColumnSelected">
+                        <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
+                    </label>
+                    <label  *ngIf="this.idColumn != this.idColumnSelected">
+                        <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
+                    </label>
                 </div>
                 <button type="submit" class="btn btn-success">Rename column</button>
             </form>
