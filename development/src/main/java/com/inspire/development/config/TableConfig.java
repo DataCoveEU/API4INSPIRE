@@ -2,70 +2,73 @@ package com.inspire.development.config;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 
 public class TableConfig {
-  String alias;
-  String table;
-  String geoCol;
-  String idCol;
-  boolean exclude;
-  HashMap<String, ColumnConfig> map;
-  public TableConfig(String table, String alias) {
-    this.alias = alias;
-    this.table = table;
-    this.exclude = false;
-    map = new HashMap<>();
-  }
-  @JsonCreator
-  public TableConfig(@JsonProperty("table") String table, @JsonProperty("alias") String alias,
-      @JsonProperty("map") HashMap<String, ColumnConfig> map, @JsonProperty("idCol") String idCol,
-      @JsonProperty("geoCol") String geoCol, @JsonProperty("exclude") boolean exclude) {
-    this.alias = alias;
-    this.table = table;
-    this.map = map;
-    this.geoCol = geoCol;
-    this.idCol = idCol;
-    this.exclude = exclude;
-  }
+    String alias;
+    String table;
+    String geoCol;
+    String idCol;
+    boolean exclude;
+    HashMap<String, ColumnConfig> map;
 
-  public boolean isExclude() {
-    return exclude;
-  }
+    public TableConfig(String table, String alias) {
+        this.alias = alias;
+        this.table = table;
+        this.exclude = false;
+        map = new HashMap<>();
+    }
 
-  public void setExclude(boolean exclude) {
-    this.exclude = exclude;
-  }
+    @JsonCreator
+    public TableConfig(@JsonProperty("table") String table, @JsonProperty("alias") String alias,
+                       @JsonProperty("map") HashMap<String, ColumnConfig> map, @JsonProperty("idCol") String idCol,
+                       @JsonProperty("geoCol") String geoCol, @JsonProperty("exclude") boolean exclude) {
+        this.alias = alias;
+        this.table = table;
+        this.map = map;
+        this.geoCol = geoCol;
+        this.idCol = idCol;
+        this.exclude = exclude;
+    }
 
-  public String getGeoCol() {
-    return geoCol;
-  }
+    public boolean isExclude() {
+        return exclude;
+    }
 
-  public void setGeoCol(String geoCol) {
-    this.geoCol = geoCol;
-  }
+    public void setExclude(boolean exclude) {
+        this.exclude = exclude;
+    }
 
-  public String getIdCol() {
-    return idCol;
-  }
+    public String getGeoCol() {
+        return geoCol;
+    }
 
-  public void setIdCol(String idCol) {
-    this.idCol = idCol;
-  }
+    public void setGeoCol(String geoCol) {
+        this.geoCol = geoCol;
+    }
 
-  public HashMap<String, ColumnConfig> getMap() {
-    return map;
-  }
+    public String getIdCol() {
+        return idCol;
+    }
 
-  public String getAlias() {
-    return alias;
-  }
+    public void setIdCol(String idCol) {
+        this.idCol = idCol;
+    }
 
-  public void setAlias(String alias) {
-    this.alias = alias;
-  }
+    public HashMap<String, ColumnConfig> getMap() {
+        return map;
+    }
 
-  public String getTable() {
-    return table;
-  }
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getTable() {
+        return table;
+    }
 }
