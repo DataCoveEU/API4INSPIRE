@@ -8,5 +8,7 @@ public class ConformanceDeclaration {
         this.conformsTo = conformsTo;
     }
 
-    public String[] getConformsTo() { return this.conformsTo; }
+    public String[] getConformsTo() {
+        return this.conformsTo;
+    }
 }
