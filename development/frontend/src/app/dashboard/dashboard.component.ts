@@ -185,6 +185,7 @@ export class DashboardComponent implements OnInit {
     for(let i = 0;  i < this.connectors.length; i++) {
       var con = this.connectors[i];
       var tab = await this.conService.getTables({'id': con.id });
+      //The unique names have to be on all tables
       for(let j = 0; j < tab.length; j++) {
         if(con.config[tab[j]] == undefined) {
           console.log("undefined")
@@ -332,7 +333,23 @@ export class DashboardComponent implements OnInit {
    * Handle the exclude event when the checkbox is changed in the tables
    */
   excludeTable(tableName: string) {
-    console.log(tableName + " excluded");
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': tableName,
+      'exclude': true
+    };
+
+    this.conService.excludeTable(json);
+  }
+
+  excludeColumn(colName: string) {
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': this.idTableSelected,
+      'column': colName,
+      'exclude': true
+    };
+    this.conService.excludeColumn(json);
   }
 
 

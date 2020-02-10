@@ -36,7 +36,7 @@
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ tablename }}</td>
                         <td style="text-align: center">
-                            <input type="checkbox" class="excludeTable" [checked]="this.checkedTable" (click)="excludeTable(tablename)" />
+                            <input type="checkbox" class="excludeTable" [checked]="this.selectedConnector?.config[tablename]?.exclude" (click)="excludeTable(tablename)" />
                         </td>
                         <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
                     </tr>
@@ -63,9 +63,9 @@
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ colname }}</td>
                         <td style="text-align: center">
-                            <input class="form-check-input excludeColumn" type="checkbox" [checked]="this.checkedColumn">
+                            <input class="form-check-input excludeColumn" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
                         </td>
-                        <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname].alias }}</td>
+                        <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.alias }}</td>
                     </tr>
                 </tbody>
             </table>
