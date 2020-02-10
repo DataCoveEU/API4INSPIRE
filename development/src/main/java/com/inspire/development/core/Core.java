@@ -169,10 +169,23 @@ public class Core {
 
     public FeatureCollection get(String featureCollection, boolean withSpatial, int limit, int offset,
                                  double[] bbox) {
+        String hostname = InetAddress.getLoopbackAddress().getHostName();
         log.info("Getting Collection: " + featureCollection);
         for (DBConnector db : connectors) {
             FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox);
             if (f != null) {
+                if(withSpatial) {
+                    f.getLinks()
+                            .add(new Link(
+                                    "http://" + hostname + ":" + port + "/ogcapisimple/",
+                                    "self", "application/json", "this document"));
+                    f.getLinks()
+                            .add(new Link(
+                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + f.getId()  + "/items",
+                                    "alternate", "text/html", "this document as html"));
+                }else{
+
+                }
                 return f;
             }
         }
