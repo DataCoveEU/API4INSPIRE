@@ -482,9 +482,6 @@ public class RESTController {
         }
         return null;
     }
-<<<<<<< HEAD
-    return null;
-  }
 
   @RequestMapping(value="/api/excludeTable", method = RequestMethod.POST)
   public ResponseEntity<Object> excludeTable(@RequestBody Map<String, ?> input) {
@@ -546,7 +543,4 @@ public class RESTController {
     }
   }
 
-
-=======
->>>>>>> 2365fe855b25f8fd2017d48e8ed1514ecbf63b32
 }
