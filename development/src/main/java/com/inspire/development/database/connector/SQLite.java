@@ -178,7 +178,7 @@ public class SQLite implements DBConnector {
             //SQL Executed
             sqlString.put(featureCollectionName, sql);
             FeatureCollection fc = getFeatureCollectionByName(featureCollectionName,false,-1,0,null);
-            if(!check)
+            if(check)
                 sqlString.remove(featureCollectionName);
             return fc;
         } catch (SQLException e) {
