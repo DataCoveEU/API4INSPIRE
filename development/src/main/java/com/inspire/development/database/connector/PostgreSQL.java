@@ -561,7 +561,12 @@ public class PostgreSQL implements DBConnector {
                                 geoCol = colName;
                                 setGeo(queryName, colName);
                             } else {
-                                prop.put(col, o);
+                                if (tc != null) {
+                                    ColumnConfig columnConfig = tc.getMap().get(col);
+                                    if (columnConfig != null && !columnConfig.isExclude()) {
+                                        prop.put(columnConfig.getAlias(), o);
+                                    }
+                                }
                             }
                         }
                     }
