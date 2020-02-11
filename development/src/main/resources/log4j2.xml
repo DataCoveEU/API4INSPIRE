@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="DEBUG">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <Console name="LogToConsole" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-
-        <File name="File" fileName="./log/output.log" bufferedIO="false" advertise="true">
-
+        <File name="LogToFile" fileName="../ogcapisimple/logs/ogcapisimple.log">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="com.inspire.development.database.connector.SQLite" level="error">
+        <Logger name="com.inspire.development.database.DBConnector" level="debug" additivity="false">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
         </Logger>
 
-        <Logger name="com.inspire.development.core.Core" level="trace">
+        <Logger name="com.inspire.development.database.connector.SQLite" level="debug" additivity="false">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
         </Logger>
 
-        <Logger name="com.inspire.development.database.connector.PostgreSQL" level="error">
+        <Logger name="com.inspire.development.database.connector.PostgreSQL" level="debug" additivity="false">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
         </Logger>
 
+        <Logger name="com.inspire.development.core.Core" level="debug" additivity="false">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
 
+        <Logger name="org.springframework.boot" level="error" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
         <Root level="error">
-            <AppenderRef ref="File"/>
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
         </Root>
     </Loggers>
 </Configuration>
