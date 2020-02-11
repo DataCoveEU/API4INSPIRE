@@ -165,6 +165,13 @@
               <div class="col-sm-6">
                 <form [formGroup]="addImportantLinkFrom" (ngSubmit)="addImportantLink()">
                   <label style="width: 100%">
+                    <input type="text" formControlName="displayName" class="form-control" style="width: 100%" placeholder="Display name"/>
+                    <div *ngIf="addLinkSubmitted && addImportantLinkFrom.controls.displayName.errors" class="error">
+                      <div *ngIf="addImportantLinkFrom.controls.displayName.errors.required">A display name is required</div>
+                  </div>
+                  </label>
+
+                    <label style="width: 100%">
                     <input type="text" formControlName="addLink" class="form-control" style="width: 100%" placeholder="Add a link"/>
                     <div *ngIf="addLinkSubmitted && addImportantLinkFrom.controls.addLink.errors" class="error">
                       <div *ngIf="addImportantLinkFrom.controls.addLink.errors.required">A link is required</div>
@@ -173,7 +180,7 @@
                   <br />
                   <button class="btn btn-success" type="submit">Add link</button>
                 </form>
-              </div>
+                  </div>
             </div>
             <br />
             <h5>Remove links</h5>

@@ -438,15 +438,11 @@ public class RESTController {
             String table = (String) input.get("table");
             if (table != null) {
                 String column = (String) input.get("column");
-                if (column != null) {
-                    DBConnector db = core.getConnectorById(id);
-                    if (db != null) {
-                        db.setGeo(table, column);
-                    } else {
-                        return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
-                    }
+                DBConnector db = core.getConnectorById(id);
+                if (db != null) {
+                    db.setGeo(table, column);
                 } else {
-                    return new ResponseEntity<>("Column is missing", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
                 }
             } else {
                 return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
@@ -464,16 +460,13 @@ public class RESTController {
             String table = (String) input.get("table");
             if (table != null) {
                 String column = (String) input.get("column");
-                if (column != null) {
-                    DBConnector db = core.getConnectorById(id);
+                DBConnector db = core.getConnectorById(id);
                     if (db != null) {
                         db.setId(table, column);
                     } else {
                         return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
                     }
-                } else {
-                    return new ResponseEntity<>("Column is missing", HttpStatus.BAD_REQUEST);
-                }
+
             } else {
                 return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
             }
@@ -542,5 +535,59 @@ public class RESTController {
       return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
     }
   }
+
+  @RequestMapping(value = "/api/excludeAllTables", method = RequestMethod.POST)
+    public ResponseEntity<Object> excludeAllTables(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if(id != null) {
+            DBConnector db = core.getConnectorById(id);
+            if(db != null) {
+                Object exl = input.get("exclude");
+                if(exl != null) {
+                    boolean exclude = (Boolean) exl;
+                    for(int i = 0; i < db.getAllTables().size(); i++) {
+                        db.setTableExclude(db.getAllTables().get(i), exclude);
+                    }
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>("Exclued Value is null", HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return  new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+        }
+  }
+
+    @RequestMapping(value = "/api/excludeAllColumns", method = RequestMethod.POST)
+    public ResponseEntity<Object> excludeAllColumns(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if(id != null) {
+            DBConnector db = core.getConnectorById(id);
+            if(db != null) {
+                String table = (String) input.get("table");
+                if(table != null) {
+                    Object exc = input.get("exclude");
+                    if(exc != null) {
+                        boolean exclude = (Boolean) exc;
+                        for(int i = 0; i < db.getColumns(table).size(); i++) {
+                            db.setColumnExclude(table, db.getColumns(table).get(i), exclude);
+                        }
+                        return new ResponseEntity<>(HttpStatus.OK);
+                    } else {
+                        return new ResponseEntity<>("Exclude value is null", HttpStatus.BAD_REQUEST);
+                    }
+                } else {
+                    return new ResponseEntity<>("Table is null", HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return  new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 }
