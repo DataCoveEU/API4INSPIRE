@@ -78,6 +78,10 @@ public class Core {
         writeConnectors();
     }
 
+    public ArrayList<ImportantLink> getLinks() {
+        return links;
+    }
+
     public static DBConnectorList parseConnectors() {
         log.info("Parsing config");
         File f = new File("../ogcapisimple/config.json");
