@@ -192,7 +192,6 @@ public class RESTController {
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
             @PathVariable("featureId") String featureId) {
-        //TODO: implement the method to return a special feature from a special collection
         Feature f = core.getFeature(collectionId, featureId);
         if (f != null) {
             return new ResponseEntity<>(f, HttpStatus.OK);

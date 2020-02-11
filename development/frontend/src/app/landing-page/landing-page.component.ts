@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HomeService } from '../home.service';
 declare var ol: any;
 
 @Component({
@@ -9,11 +10,13 @@ declare var ol: any;
 export class LandingPageComponent implements OnInit {
 
   map: any;
+  importantLinks: any = []; 
+    //[{link: '#', name: 'No links available yet'}];
 
-  constructor() { }
+  constructor(private homeService: HomeService) { }
 
-  ngOnInit() {
-
+  async ngOnInit() {
+    this.importantLinks = await this.homeService.getLinks();
 
     this.map = new ol.Map({
       target: 'map',

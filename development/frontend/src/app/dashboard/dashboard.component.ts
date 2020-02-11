@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
 import { SqlService } from '../sql.service';
 import { FeatureService } from '../feature.service';
+import { HomeService } from '../home.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -60,7 +61,11 @@ export class DashboardComponent implements OnInit {
   geoColumn: string = "";
   idColumn: string = "";
 
-  constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private featureService: FeatureService, private sqlService: SqlService) { }
+  constructor(  private formBuilder: FormBuilder, 
+                private conService: ConnectorService, 
+                private featureService: FeatureService, 
+                private sqlService: SqlService,
+                private homeSerivce: HomeService) { }
 
   async ngOnInit() {
     //Init the forms to rename the tables and columns and to execute the sql query
@@ -517,7 +522,13 @@ export class DashboardComponent implements OnInit {
     if(this.addImportantLinkFrom.invalid) {
       return;
     }
-    console.log("Added important link")
+    
+    var json = {
+      'link': this.addImportantLinkFrom.value.addLink,
+      'name': this.addImportantLinkFrom.value.displayName
+    };
+
+    this.homeSerivce.addLink(json);
   }
 
   checkIfAllTableExcluded() {
