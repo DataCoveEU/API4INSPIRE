@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inspire.development.collections.FeatureCollection;
-import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
+import com.inspire.development.config.ImportantLink;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.SQLite;
 
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import mil.nga.sf.geojson.Feature;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -25,10 +26,11 @@ import org.apache.logging.log4j.Logger;
 public class Core {
     static Logger log = LogManager.getLogger(Core.class.getName());
     DBConnectorList connectors;
-    int port = 8080;
+    ArrayList<ImportantLink> links;
 
     public Core() {
         connectors = new DBConnectorList();
+        links = new ArrayList<>();
         File folder = new File("./../ogcapisimple/sqlite");
         if (!folder.exists()) {
             folder.mkdirs();
@@ -54,9 +56,14 @@ public class Core {
             e.printStackTrace();
         }
 
-        DBConnectorList list = parseConfig();
+        DBConnectorList list = parseConnectors();
         if (list != null) {
             connectors = list;
+        }
+
+        ArrayList<ImportantLink> links = parseImportantLinks();
+        if (links != null) {
+            this.links = links;
         }
 
         File[] listOfFiles = new File("./../ogcapisimple/sqlite").listFiles();
@@ -68,10 +75,10 @@ public class Core {
                 }
             }
         }
-        writeConfig();
+        writeConnectors();
     }
 
-    public static DBConnectorList parseConfig() {
+    public static DBConnectorList parseConnectors() {
         log.info("Parsing config");
         File f = new File("../ogcapisimple/config.json");
         if (f.exists()) {
@@ -83,6 +90,45 @@ public class Core {
             }
         }
         return null;
+    }
+
+    public static ArrayList<ImportantLink> parseImportantLinks() {
+        log.info("Parsing important links");
+        File f = new File("../ogcapisimple/links.json");
+        if (f.exists()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                return objectMapper.readValue(f, ArrayList.class);
+            } catch (IOException e) {
+
+            }
+        }
+        return null;
+    }
+
+    public void addLink(String link, String name){
+        this.links.add(new ImportantLink(link,name));
+        writeImportantLinks();
+    }
+
+    public boolean removeLink(String name){
+        for(ImportantLink link:links){
+            if(link.getName() == name){
+                links.remove(link);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean removeConnector(String id){
+        for(DBConnector db:connectors){
+            if(db.getId() == id){
+                connectors.remove(db);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void deleteByName(String id) {
@@ -104,13 +150,28 @@ public class Core {
         return false;
     }
 
-    public void writeConfig() {
+    public void writeConnectors() {
         log.info("Writing config to file");
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(SQLite.class, DBConnector.class);
         try {
             File f = new File("../ogcapisimple/config.json");
             objectMapper.writeValue(f, connectors);
+        } catch (JsonGenerationException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeImportantLinks() {
+        log.info("Writing links to file");
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            File f = new File("../ogcapisimple/links.json");
+            objectMapper.writeValue(f, links);
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -139,17 +200,6 @@ public class Core {
         ArrayList<FeatureCollection> fsl = new ArrayList<>();
         for (DBConnector db : connectors) {
             FeatureCollection[] fca = db.getAll();
-            for (FeatureCollection fc : fca) {
-                //Add required links
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                                "self", "application/json", "this document"));
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                                "alternate", "text/html", "this document as html"));
-            }
             fsl.addAll(Arrays.asList(fca));
         }
         return fsl.toArray(new FeatureCollection[fsl.size()]);
@@ -157,7 +207,7 @@ public class Core {
 
     public Feature getFeature(String collection, String feature) {
         log.info("Getting feature: " + feature + " from collection: " + collection);
-        FeatureCollection fs = get(collection, false, -1, 0, null);
+        FeatureCollection fs = get(collection, false, -1, 0, null, null);
         for (Object o : fs.getFeatures().toArray()) {
             Feature f = (Feature) o;
             if (f.getId().equals(feature)) {
@@ -168,24 +218,11 @@ public class Core {
     }
 
     public FeatureCollection get(String featureCollection, boolean withSpatial, int limit, int offset,
-                                 double[] bbox) {
-        String hostname = InetAddress.getLoopbackAddress().getHostName();
+                                 double[] bbox, Map<String,String> filterParams) {
         log.info("Getting Collection: " + featureCollection);
         for (DBConnector db : connectors) {
-            FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox);
+            FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox, filterParams);
             if (f != null) {
-                if(withSpatial) {
-                    f.getLinks()
-                            .add(new Link(
-                                    "http://" + hostname + ":" + port + "/ogcapisimple/",
-                                    "self", "application/json", "this document"));
-                    f.getLinks()
-                            .add(new Link(
-                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + f.getId()  + "/items",
-                                    "alternate", "text/html", "this document as html"));
-                }else{
-
-                }
                 return f;
             }
         }

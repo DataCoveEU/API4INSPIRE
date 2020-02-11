@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inspire.development.collections.FeatureCollection;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @JsonTypeName("dbconnector")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -21,7 +22,7 @@ public interface DBConnector {
     FeatureCollection execute(String sql, String fcName, boolean check) throws Exception;
 
     FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset,
-                          double[] bbox);
+                          double[] bbox, Map<String,String> filterParams);
 
     FeatureCollection[] getAll();
 
