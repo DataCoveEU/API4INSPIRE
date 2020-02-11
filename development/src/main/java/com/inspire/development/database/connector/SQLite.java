@@ -447,6 +447,17 @@ public class SQLite implements DBConnector {
     }
 
 
+    /**
+     * Converts a featureCollectionId to a FeatureCollection object
+     * @param alias featureCollectionId from the API
+     * @param withSpatial true if spatial info shall be provided in the response
+     * @param limit limit on how many items shall be included in the response
+     * @param offset offset to the data in the database
+     * @param bbox array in the form of [xmin, ymin, xmax, ymax]. Only data with an intersecting boundingbox is included in the response
+     * @param filterParams Params to be filtered by. Null if nothing should be filtered by
+     * @return FeatureCollection with data specified by the params
+     * @throws Exception Thrown if any SQLException occurred
+     */
     public FeatureCollection getFeatureCollectionByName(String alias, boolean withSpatial, int limit, int offset, double[] bbox, Map<String,String> filterParams) throws Exception {
         TableConfig tc = getConfByAlias(alias);
         String queryName = alias;
