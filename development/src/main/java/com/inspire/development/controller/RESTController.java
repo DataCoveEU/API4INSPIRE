@@ -2,6 +2,7 @@ package com.inspire.development.controller;
 
 import com.inspire.development.collections.Collections;
 import com.inspire.development.collections.FeatureCollection;
+import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.conformance.ConformanceDeclaration;
 import com.inspire.development.core.Core;
@@ -11,6 +12,7 @@ import com.inspire.development.database.connector.SQLite;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -32,22 +34,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RESTController {
     private Core core;
+    String hostname = InetAddress.getLoopbackAddress().getHostName();
+    int port = 8080;
 
     public RESTController() {
         core = new Core();
-
-        //SQLite c = new SQLite("inspireDB.sqlite","Inspire");
-       /* //c.execute("select * from tna_insp_airspacearea","TobiasIsJustATest");
-        //c.renameTable("tna_insp_navaids", "Tobias");
-        PostgreSQL p = new PostgreSQL("localhost",25432,"inspire", "tna", "Postgres","inspire", "1nsp1r3_2#2#");
-        core.getConnectors().add(p);;*/
-        // core.getConnectors().add(c);
-
     }
 
     @GetMapping("/collections")
     public Collections Collections() {
-        return new Collections(Arrays.asList(core.getAll()));
+        Collections c = new Collections(Arrays.asList(core.getAll()));
+        for (FeatureCollection fc : c.getCollections()) {
+            //Add required links
+            fc.getLinks()
+                    .add(new Link(
+                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                            "self", "application/json", "this document"));
+            fc.getLinks()
+                    .add(new Link(
+                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                            "alternate", "text/html", "this document as html"));
+            fc.getLinks()
+                    .add(new Link(
+                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
+                            "items", "application/json", "this document as html"));
+        }
+        return c;
     }
 
     /**
@@ -73,8 +85,20 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id) {
-        FeatureCollection fc = core.get(id, true, 0, 0, null);
+        FeatureCollection fc = core.get(id, true, 0, 0, null,null);
         if (fc != null) {
+            fc.getLinks()
+                    .add(new Link(
+                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                            "self", "application/json", "this document"));
+            fc.getLinks()
+                    .add(new Link(
+                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                            "alternate", "text/html", "this document as html"));
+            fc.getLinks()
+                    .add(new Link(
+                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
+                            "items", "application/json", "this document as html"));
             return new ResponseEntity<>(fc, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -91,9 +115,33 @@ public class RESTController {
     public ResponseEntity<Object> getCollectionItems(@PathVariable("collectionId") String id,
                                                      @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit,
                                                      @RequestParam(required = false) double[] bbox,
-                                                     @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset) {
-        FeatureCollection fc = core.get(id, false, limit, offset, bbox);
+                                                     @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset,
+                                                     @RequestParam(required = false) Map<String,String> filterParams) {
+        //Removing offset and limit param and bbox
+        filterParams.remove("offset");
+        filterParams.remove("limit");
+        filterParams.remove("bbox");
+        FeatureCollection fc = core.get(id, false, limit, offset, bbox,filterParams);
         if (fc != null) {
+            fc.getLinks()
+                    .add(new Link(
+                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + offset,
+                            "self", "application/json", "this document"));
+            //Test if any data is available after the current selected data
+            FeatureCollection featureCollectionNext = core.get(id,false,1,limit+offset,bbox,filterParams);
+            if(featureCollectionNext.getFeatures().size() == 1) {
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset + limit),
+                                "next", "application/json", "this document"));
+            }
+
+            if(offset > 0){
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset-limit<0?0:offset-limit),
+                                "prev", "application/json", "this document"));
+            }
             return new ResponseEntity<>(fc, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -153,7 +201,7 @@ public class RESTController {
                 if (error == null) {
                     if (!test) {
                         core.addConnector(s);
-                        core.writeConfig();
+                        core.writeConnectors();
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 } else {

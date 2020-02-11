@@ -177,7 +177,7 @@ public class SQLite implements DBConnector {
             c.createStatement().executeQuery(sql);
             //SQL Executed
             sqlString.put(featureCollectionName, sql);
-            FeatureCollection fc = getFeatureCollectionByName(featureCollectionName,false,-1,0,null);
+            FeatureCollection fc = getFeatureCollectionByName(featureCollectionName,false,-1,0,null, null);
             if(check)
                 sqlString.remove(featureCollectionName);
             return fc;
@@ -195,9 +195,9 @@ public class SQLite implements DBConnector {
     @JsonIgnore
     @Override
     public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset,
-                                 double[] bbox) {
+                                 double[] bbox, Map<String,String> filterParams) {
         try {
-            return getFeatureCollectionByName(collectionName, withSpatial, limit, offset, bbox);
+            return getFeatureCollectionByName(collectionName, withSpatial, limit, offset, bbox, filterParams);
         }catch (Throwable t){
             return null;
         }
@@ -217,7 +217,7 @@ public class SQLite implements DBConnector {
         for (String table : getAllTables()) {
                 log.debug("Table: " + table);
                 try {
-                    fc.add(getFeatureCollectionByName(config.get(table) != null ? config.get(table).getAlias() : table, true, 0, 0, null));
+                    fc.add(getFeatureCollectionByName(config.get(table) != null ? config.get(table).getAlias() : table, true, 0, 0, null, null));
                 }catch (Throwable t){
                     //DO NOTHING
                 }
@@ -447,7 +447,7 @@ public class SQLite implements DBConnector {
     }
 
 
-    public FeatureCollection getFeatureCollectionByName(String alias, boolean withSpatial, int limit, int offset, double[] bbox) throws Exception {
+    public FeatureCollection getFeatureCollectionByName(String alias, boolean withSpatial, int limit, int offset, double[] bbox, Map<String,String> filterParams) throws Exception {
         TableConfig tc = getConfByAlias(alias);
         String queryName = alias;
         String geoCol;
@@ -464,31 +464,23 @@ public class SQLite implements DBConnector {
         }
         //Checking if table is a view
         String sql = sqlString.get(queryName);
-        boolean isView = sql != null;
         if(geoCol != null){
             sql = sql != null ? sql : "SELECT *, AsEWKB(" + geoCol + ") FROM " + queryName;
         }else {
             sql = sql != null ? sql : "SELECT * FROM " + queryName;
         }
 
-        try {
+
             log.debug("Converting table: " + queryName + " to featureCollection");
-            //Executing sql
-            ResultSet rs;
-            try {
-                rs = c.createStatement().executeQuery(sql);
-            }catch (SQLException e){
-                throw e;
-            }
+            ResultSet rs = SqlWhere(sql, filterParams);
             //Creating featureCollection with given name
             FeatureCollection fs = new FeatureCollection(alias);
             //Create offset
             for (int i = 0; i < offset; i++) {
                 rs.next();
             }
-            int counter = 0;
 
-            while (rs.next() && (counter < limit || limit == -1)) {
+            while (rs.next() && (fs.getFeatures().size() < limit || limit == -1)) {
                 Feature f = new Feature();
                 HashMap<String, Object> prop = new HashMap<>();
                 ResultSetMetaData md = rs.getMetaData();
@@ -544,28 +536,19 @@ public class SQLite implements DBConnector {
                         }
                     }
                 }
+
                 if (intersect) {
                     f.setProperties(prop);
                     fs.addFeature(f);
                 }
-                counter++;
             }
 
             if (geoCol != null) {
                 log.debug("Getting Bounding Box for Table: " + queryName);
                 Statement stmt = c.createStatement();
                 //ST_SetSRID -> transforms Box to Polygon
-                String sqlString;
-                if(isView){
-                    sqlString = "SELECT AsEWKB(Extent(" + geoCol + ")) as table_extent FROM [" + queryName + "]";
-                }else{
-                    sqlString = "SELECT AsEWKB(Extent("
-                            + geoCol
-                            + ")) as table_extent FROM ("
-                            + sql
-                            + ") as tabula";
-                }
-                ResultSet resultSet = c.createStatement().executeQuery(sqlString);
+
+                ResultSet resultSet = SqlBBox(sql,filterParams,geoCol);
 
                 if (resultSet.next()) {
                     String ewkb = resultSet.getString(1);
@@ -589,12 +572,8 @@ public class SQLite implements DBConnector {
                 }
             }
             return fs;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            log.warn("Error converting table. Error: " + e.getMessage());
-            return null;
-        }
     }
+
 
     public String getPrimaryKey(String table) {
         log.debug("Get PrimaryKey for table: " + table);
@@ -607,7 +586,6 @@ public class SQLite implements DBConnector {
                 return null;
             }
         } catch (SQLException e) {
-            log.error("Error occurred while getting primary key for table: " + table);
             return null;
         }
     }
@@ -656,10 +634,59 @@ public class SQLite implements DBConnector {
             double x = geom.getFirstPoint().getX();
             double y = geom.getFirstPoint().getY();
             Point p = new mil.nga.sf.geojson.Point(new Position(x, y));
-            p.setBbox(new double[]{x, x, y, y});
+            p.setBbox(new double[]{x, y, x, y});
             return p;
         }
         return null;
+    }
+
+    public ResultSet SqlWhere(String sql, Map<String,String> filterParams) throws SQLException{
+        ResultSet rs;
+        if(filterParams != null && filterParams.size() > 0){
+            sql = "SELECT * FROM (" + sql + ") as tabula where ";
+            for(Map.Entry<String,String> entry:filterParams.entrySet()){
+                sql = sql + entry.getKey() + " = ? and";
+            }
+            sql = sql.substring(0,sql.length()-4);
+            PreparedStatement ps = c.prepareStatement(sql);
+            int counter = 1;
+            for(Map.Entry<String,String> entry:filterParams.entrySet()){
+                ps.setString(counter,entry.getValue());
+                counter++;
+            }
+            rs = ps.executeQuery();
+        }else {
+            //Executing sql
+            rs = c.createStatement().executeQuery(sql);
+        }
+        return rs;
+    }
+
+    public ResultSet SqlBBox(String sql, Map<String,String> filterParams, String geoCol) throws SQLException{
+        ResultSet rs;
+        if(filterParams != null && filterParams.size() > 0){
+            sql = "SELECT * FROM (" + sql + ") as tabula where ";
+            for(Map.Entry<String,String> entry:filterParams.entrySet()){
+                sql = sql + entry.getKey() + " = ? and";
+            }
+            sql = sql.substring(0,sql.length()-4);
+            sql = "SELECT AsEWKB(Extent("
+                    + geoCol
+                    + ")) as table_extent FROM ("
+                    + sql
+                    + ") as tabulana";
+            PreparedStatement ps = c.prepareStatement(sql);
+            int counter = 1;
+            for(Map.Entry<String,String> entry:filterParams.entrySet()){
+                ps.setString(counter,entry.getValue());
+                counter++;
+            }
+            rs = ps.executeQuery();
+        }else {
+            //Executing sql
+            rs = c.createStatement().executeQuery(sql);
+        }
+        return rs;
     }
 
     public Rectangle rectFromBBox(double[] bbox) {
