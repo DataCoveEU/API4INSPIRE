@@ -97,10 +97,10 @@
                 </label>
                 <br />
                 <div class="checkbox">
-                    <label *ngIf="this.geoColumn == this.idColumnSelected" >
+                    <label *ngIf="this.geoColumn == this.idColumnSelected">
                         <input type="checkbox" checked value="" (click)="useAsGeometry()" id="useAsGeometry" />&emsp;Use as geometry
                     </label>
-                    <label *ngIf="this.geoColumn != this.idColumnSelected" >
+                    <label *ngIf="this.geoColumn != this.idColumnSelected">
                         <input type="checkbox" value="" (click)="useAsGeometry()" id="useAsGeometry" />&emsp;Use as geometry
                     </label>
                 </div>
@@ -108,7 +108,7 @@
                     <label *ngIf="this.idColumn == this.idColumnSelected">
                         <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
                     </label>
-                    <label  *ngIf="this.idColumn != this.idColumnSelected">
+                    <label *ngIf="this.idColumn != this.idColumnSelected">
                         <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
                     </label>
                 </div>
@@ -162,25 +162,25 @@
             <h3>Important Links</h3>
             <hr />
             <div class="row">
-              <div class="col-sm-6">
-                <form [formGroup]="addImportantLinkFrom" (ngSubmit)="addImportantLink()">
-                  <label style="width: 100%">
-                    <input type="text" formControlName="displayName" class="form-control" style="width: 100%" placeholder="Display name"/>
-                    <div *ngIf="addLinkSubmitted && addImportantLinkFrom.controls.displayName.errors" class="error">
-                      <div *ngIf="addImportantLinkFrom.controls.displayName.errors.required">A display name is required</div>
-                  </div>
-                  </label>
+                <div class="col-sm-6">
+                    <form [formGroup]="addImportantLinkFrom" (ngSubmit)="addImportantLink()">
+                        <label style="width: 100%">
+                            <input type="text" formControlName="displayName" class="form-control" style="width: 100%" placeholder="Display name" />
+                            <div *ngIf="addLinkSubmitted && addImportantLinkFrom.controls.displayName.errors" class="error">
+                                <div *ngIf="addImportantLinkFrom.controls.displayName.errors.required">A display name is required</div>
+                            </div>
+                        </label>
 
-                    <label style="width: 100%">
-                    <input type="text" formControlName="addLink" class="form-control" style="width: 100%" placeholder="Add a link"/>
-                    <div *ngIf="addLinkSubmitted && addImportantLinkFrom.controls.addLink.errors" class="error">
-                      <div *ngIf="addImportantLinkFrom.controls.addLink.errors.required">A link is required</div>
-                  </div>
-                  </label>
-                  <br />
-                  <button class="btn btn-success" type="submit">Add link</button>
-                </form>
-                  </div>
+                        <label style="width: 100%">
+                            <input type="text" formControlName="addLink" class="form-control" style="width: 100%" placeholder="Add a link" />
+                            <div *ngIf="addLinkSubmitted && addImportantLinkFrom.controls.addLink.errors" class="error">
+                                <div *ngIf="addImportantLinkFrom.controls.addLink.errors.required">A link is required</div>
+                            </div>
+                        </label>
+                        <br />
+                        <button class="btn btn-success" type="submit">Add link</button>
+                    </form>
+                </div>
             </div>
             <br />
             <h5>Remove links</h5>
