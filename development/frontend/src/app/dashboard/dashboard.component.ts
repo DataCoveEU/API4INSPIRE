@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
 import { SqlService } from '../sql.service';
+import { FeatureService } from '../feature.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -56,7 +57,10 @@ export class DashboardComponent implements OnInit {
 
   errorField: boolean = false;
 
-  constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private sqlService: SqlService) { }
+  geoColumn: string = "";
+  idColumn: string = "";
+
+  constructor(private formBuilder: FormBuilder, private conService: ConnectorService, private featureService: FeatureService, private sqlService: SqlService) { }
 
   async ngOnInit() {
     //Init the forms to rename the tables and columns and to execute the sql query
@@ -139,6 +143,20 @@ export class DashboardComponent implements OnInit {
     this.showCols = true;
 
     this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
+    
+    if(this.selectedConnector.config[name] == undefined) {
+
+    } else if(this.selectedConnector.config[name].geoCol == undefined) {
+
+    } else {
+      this.geoColumn = this.selectedConnector.config[name].geoCol
+    }
+
+    if(this.selectedConnector.config[name] == undefined) {
+
+    } else if(this.selectedConnector.config[name].idCol == undefined) {
+      this.idColumn = this.selectedConnector.config[name].idCol 
+    }
   }
 
   /**
@@ -185,6 +203,7 @@ export class DashboardComponent implements OnInit {
     for(let i = 0;  i < this.connectors.length; i++) {
       var con = this.connectors[i];
       var tab = await this.conService.getTables({'id': con.id });
+      //The unique names have to be on all tables
       for(let j = 0; j < tab.length; j++) {
         if(con.config[tab[j]] == undefined) {
           console.log("undefined")
@@ -332,7 +351,39 @@ export class DashboardComponent implements OnInit {
    * Handle the exclude event when the checkbox is changed in the tables
    */
   excludeTable(tableName: string) {
-    console.log(tableName + " excluded");
+    var cb = document.getElementById("checkbox" + tableName) as HTMLInputElement;
+    var checked: boolean = cb.checked;
+    var bool: boolean = false;
+    if(checked) {
+      bool = false;
+    } else {
+      bool = true;
+    }
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': tableName,
+      'exclude': bool
+    };
+
+    this.conService.excludeTable(json);
+  }
+
+  excludeColumn(colName: string) {
+    var cb = document.getElementById("checkbox" + colName) as HTMLInputElement;
+    var checked: boolean = cb.checked;
+    var bool: boolean = false;
+    if(checked) {
+      bool = false;
+    } else {
+      bool = true;
+    }
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': this.idTableSelected,
+      'column': colName,
+      'exclude': bool
+    };
+    this.conService.excludeColumn(json);
   }
 
 
@@ -348,7 +399,12 @@ export class DashboardComponent implements OnInit {
     } else {
       setTo = true;
     }
-    console.log(this.idColumnSelected + " is now id: " + setTo);
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': this.idTableSelected,
+      'column': this.idColumnSelected
+    }
+    this.featureService.setAsId(json);
   }
 
   /**
@@ -363,13 +419,18 @@ export class DashboardComponent implements OnInit {
     } else {
       setTo = true;
     }
-    console.log(this.idColumnSelected + " is now geometry: " + setTo);
+    var json = {
+      'id': this.selectedConnector.id,
+      'table': this.idTableSelected,
+      'column': this.idColumnSelected
+    }
+    this.featureService.setAsGeometry(json);
   }
 
   /**
    * Handle the click event when all tables should be included or excluded
    */
-  excludeAllTables() {
+  async excludeAllTables() {
     var tables:any = document.getElementsByClassName("excludeTable");
     var exlcudeAll:any = document.getElementById("exludeAllTables");
     if(exlcudeAll.checked) {

@@ -11,7 +11,7 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option *ngFor="let connector of this.connectors">{{ connector.id }}</option>  <!-- [attr.id]=connector["@class"] -->
+                        <option *ngFor="let connector of this.connectors" [attr.id]=connector.class >{{ connector.id }}</option>  <!-- [attr.id]=connector["@class"] -->
                         <!--
                         <option id="sqlite">SQLite connector</option>
                         <option id="postgres">PostgreSQL connector</option>-->
@@ -40,57 +40,90 @@
                 <div *ngIf="this.postgres">
                     <h3 style="margin-top: 1%">Change credentials</h3>
                     <hr />
-                    <div class="row" style="width: 100%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Username" />
+                    <form [formGroup]="changeUsernameForm" (ngSubmit)="changeUsername()">
+                        <div class="row" style="width: 100%">
+                            <div class="col-sm-6">
+                                <input type="text" formControlName="newName" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Username" />
+                                <div *ngIf="changeUserSubmitted && changeUsernameForm.controls.newName.errors" class="error">
+                                    <div *ngIf="changeUsernameForm.controls.newName.errors.required">A username is required</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change username</button>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change username</button>
+                    </form>
+
+                    
+                    <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" placeholder="New password" />
+                                <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.newPwd.errors" class="error">
+                                    <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="text" style="width: 100%; margin-top: 1%" class="shadow-sm form-control" placeholder="Old password" />
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control shadow-sm" formControlName="reNewPwd" style="width: 100%; margin-top: 1%" placeholder="Repeat new password" />
+                                <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.reNewPwd.errors" class="error">
+                                    <div *ngIf="changePasswordForm.controls.reNewPwd.errors.required">Please repeat the password</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change password</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input class="form-control shadow-sm" style="width: 100%; margin-top: 1%" type="text" placeholder="New password" />
-                        </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Repeat new password" />
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change password</button>
-                        </div>
-                    </div>
+                    </form>
+
+                    
                     <hr />
-                    <div class="row" style="width: 100%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Hostname" />
+                    
+                    <form [formGroup]="changeHostnameForm" (ngSubmit)="changeHostname()">
+                        <div class="row" style="width: 100%">
+                            <div class="col-sm-6">
+                                <input type="text" formControlName="hostname" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Hostname" />
+                                <div *ngIf="changeHostnameSubmitted && changeHostnameForm.controls.hostname.errors" class="error">
+                                    <div *ngIf="changeHostnameForm.controls.hostname.errors.required">A hostname is required</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn-success shadow-sm" type="submit" style="width: 100%; margin-top: 1%">Change hostname</button>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change hostname</button>
+
+                    </form>
+
+                    <form [formGroup]="changePortForm" (ngSubmit)="changePort()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port" />
+                                <div *ngIf="changePortSubmitted && changePortForm.controls.newPort.errors" class="error">
+                                    <div *ngIf="changePortForm.controls.newPort.errors.required">A port is required</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change port</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="number" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port" />
+                    </form>
+                    
+                    <form [formGroup]="changeSchemaForm" (ngSubmit)="changeSchema()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <input type="text" formControlName="newSchema" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Schema" />
+                                <div *ngIf="changeSchmemaSubmitted && changeSchemaForm.controls.newSchema.errors" class="error">
+                                    <div *ngIf="changeSchemaForm.controls.newSchema.errors.required">A schema is required</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change schema name</button>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change port</button>
-                        </div>
-                    </div>
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Schema" />
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change schema name</button>
-                        </div>
-                    </div>
+                    </form> 
+                   
+                   
                     <hr />
                 </div>
             </div>

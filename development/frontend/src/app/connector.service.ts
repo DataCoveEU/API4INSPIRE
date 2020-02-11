@@ -14,6 +14,9 @@ export class ConnectorService {
 
   constructor(private httpClient: HttpClient) { }
 
+  /**
+   * Get all connectors from the DB
+   */
   async getConnector() {
     this.connectors = await new Promise((resolve, reject) =>{
       this.httpClient.post('/ogcapisimple/api/getConnectors', {
@@ -26,6 +29,11 @@ export class ConnectorService {
     return this.connectors;
   }
 
+  /**
+   * Get all tables from a DB
+   * 
+   * @param json the json object with the id of the DB
+   */
   async getTables(json:object) {
     this.tables = await new Promise((resolve, reject) =>{
       this.httpClient.post('/ogcapisimple/api/getTables', json).subscribe((res)=>{
@@ -37,6 +45,11 @@ export class ConnectorService {
     return this.tables;
   }
 
+  /**
+   * Get all columns from a Table
+   * 
+   * @param json the json object with the id of the DB and the table name
+   */
   async getColumn(json:object) {
     this.columns = await new Promise((resolve, reject) =>{
       this.httpClient.post('/ogcapisimple/api/getColumns', json)
@@ -49,6 +62,11 @@ export class ConnectorService {
     return this.columns;
   }
   
+  /**
+   * Add a new DB connection
+   * 
+   * @param json the json object with the details of the connection
+   */
   addConnector(json:object) {
     return new Promise((resolve, reject)=>{
       this.httpClient.post('/ogcapisimple/api/addConnector', 
@@ -63,6 +81,11 @@ export class ConnectorService {
     
   }
 
+  /**
+   * Rename a table
+   * 
+   * @param json the json object with the details of the table
+   */
   async renameTable(json:object) {
     return new Promise((resolve, reject)=>{
       this.httpClient.post("/ogcapisimple/api/renameCollection", json, {
@@ -75,6 +98,11 @@ export class ConnectorService {
     })
   }
 
+  /**
+   * Rename a column
+   * 
+   * @param json The json object with the details of the column
+   */
   async renameColumn(json:object) {
     return new Promise((resolve, reject)=>{
       this.httpClient.post("/ogcapisimple/api/renameProp", json, {
@@ -87,9 +115,49 @@ export class ConnectorService {
     })
   }
 
+  /**
+   * Change connector properties like the name or in postgres the port, schema, hostname, usernam,
+   * password,...
+   * 
+   * @param json the json object with the details of the connector
+   */
   async changeConnectorProps(json:object) {
     return new Promise((resolve, reject)=>{
       this.httpClient.post('/ogcapisimple/api/setConnectorProps', json, {
+        responseType: 'text'
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    })
+  }
+
+  /**
+   * Exclude a table
+   * 
+   * @param json the json object with the details of the table to exclude
+   */
+  async excludeTable(json:object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post('/ogcapisimple/api/excludeTable', json, {
+        responseType: 'text'
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    })
+  }
+
+  /**
+   * Exclude a column
+   * 
+   * @param json the json object with the details of the column to exclude
+   */
+  async excludeColumn(json:object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post('/ogcapisimple/api/excludeColumn', json, {
         responseType: 'text'
       }).subscribe((res)=>{
         resolve(res);

@@ -23,8 +23,8 @@ export class LandingPageComponent implements OnInit {
         })
       ],
       view: new ol.View({
-        center: ol.proj.fromLonLat([16.363449, 48.210033]),
-        zoom: 10
+        center: ol.proj.fromLonLat([13.509380, 47.327426]),
+        zoom: 7
       })
     });
   }
