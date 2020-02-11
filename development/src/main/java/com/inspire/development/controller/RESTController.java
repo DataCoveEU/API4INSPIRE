@@ -1,5 +1,7 @@
 package com.inspire.development.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.inspire.development.collections.Collections;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.collections.Link;
@@ -11,8 +13,12 @@ import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -20,16 +26,15 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import mil.nga.sf.geojson.Feature;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 public class RESTController {
@@ -37,8 +42,36 @@ public class RESTController {
     String hostname = InetAddress.getLoopbackAddress().getHostName();
     int port = 8080;
 
+    @Value("classpath:openapi.json")
+    Resource resourceFile;
+
+    @Value("classpath:index.html")
+    Resource indexFile;
+
+
     public RESTController() {
         core = new Core();
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/openapi.json")
+    public @ResponseBody
+    Object getApiDef() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(resourceFile.getInputStream(), Object.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @RequestMapping("/api")
+    public String index () {
+        try {
+            return new String(Files.readAllBytes(Paths.get(indexFile.getURI())));
+        }catch (Exception e){
+            return null;
+        }
     }
 
     @GetMapping("/collections")
