@@ -30,31 +30,30 @@ export class LandingPageComponent implements OnInit {
   async ngOnInit() {
     this.importantLinks = await this.homeService.getLinks();
 
-    this.http.get("collections/insp_airspacearea/items").subscribe(res =>{
+    this.http.get("collections/insp_airspacearea/items").subscribe(json =>{
 
-      console.log(res)
-
-
+      var vectorSource = new VectorSource({
+        features: (new GeoJSON({ featureProjection: 'EPSG:4326' })).readFeatures(json)
+      });
+      
       var vectorLayer = new VectorLayer({
-        source: new VectorSource({
-            format: new GeoJSON(),
-            url: 'collections/insp_airspacearea/items'
+        source: vectorSource
+      });
+      
+      var map = new Map({
+        layers: [
+          new TileLayer({
+            source: new OSM()
+          }),
+          vectorLayer
+        ],
+        target: 'map',
+        view: new View({
+          projection: 'EPSG:4326',
+          center: [16, 48],
+          zoom: 10
         })
-    });
-
-    this.map = new Map({
-      target: 'map',
-      layers: [
-        new TileLayer({
-          source: OSM()
-        }),
-        vectorLayer
-      ],
-      view: new View({
-        center: ol.proj.fromLonLat([13.509380, 47.327426]),
-        zoom: 7
-      })
-    });
+      });
 
     });
 
