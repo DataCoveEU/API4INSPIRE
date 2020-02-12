@@ -61,6 +61,8 @@ export class DashboardComponent implements OnInit {
   geoColumn: string = "";
   idColumn: string = "";
 
+  allTablesExcluded: boolean = false;
+
   constructor(  private formBuilder: FormBuilder, 
                 private conService: ConnectorService, 
                 private featureService: FeatureService, 
@@ -115,9 +117,10 @@ export class DashboardComponent implements OnInit {
 
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
       this.tableSelect = false;
-      this.checkIfAllTableExcluded();
+     // this.checkIfAllTableExcluded();
     }
-    await this.checkIfAllTableExcluded();
+
+    this.allTablesExcluded = this.areAllTableExcluded();
   }
 
 
@@ -382,8 +385,7 @@ export class DashboardComponent implements OnInit {
     };
 
     await this.conService.excludeTable(json);
-    var checks = document.getElementById("exludeAllTables") as HTMLInputElement;
-    checks.checked = this.checkIfAllTableExcluded();
+    this.allTablesExcluded = this.areAllTableExcluded();
   }
 
   excludeColumn(colName: string) {
@@ -538,7 +540,7 @@ export class DashboardComponent implements OnInit {
     this.homeSerivce.addLink(json);
   }
 
-  checkIfAllTableExcluded(): boolean {
+  areAllTableExcluded(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
       if(this.selectedConnector.config[this.tableNames[i]] == undefined) {
         return false;

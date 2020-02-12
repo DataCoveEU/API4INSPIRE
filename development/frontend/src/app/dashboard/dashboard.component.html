@@ -21,12 +21,19 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Table name</th>
-                        <th scope="col">
+                        <th scope="col" *ngIf="this.allTablesExcluded">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="exludeAllTables" checked (click)="excludeAllTables()"> <!-- exludeAllTables -->
+                                <label class="custom-control-label" for="exludeAllTables">Exclude</label>
+                            </div>
+                        </th>
+                        <th scope="col" *ngIf="this.allTablesExcluded == false">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="exludeAllTables" (click)="excludeAllTables()"> <!-- exludeAllTables -->
                                 <label class="custom-control-label" for="exludeAllTables">Exclude</label>
                             </div>
                         </th>
+                        
                         <th scope="col">Connection name</th>
                     </tr>
                 </thead>
