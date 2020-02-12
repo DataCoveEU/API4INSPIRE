@@ -694,6 +694,11 @@ public class SQLite implements DBConnector {
             }
             rs = ps.executeQuery();
         }else {
+            sql = "SELECT AsEWKB(Extent("
+                    + geoCol
+                    + ")) as table_extent FROM ("
+                    + sql
+                    + ") as tabulana";
             //Executing sql
             rs = c.createStatement().executeQuery(sql);
         }

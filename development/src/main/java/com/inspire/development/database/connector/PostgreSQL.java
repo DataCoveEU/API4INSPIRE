@@ -526,7 +526,7 @@ public class PostgreSQL implements DBConnector {
         //Checking if table is a view
         String sql = sqlString.get(queryName);
         boolean isView = sql != null;
-        sql = sql != null ? sql : "SELECT * FROM " + queryName;
+        sql = sql != null ? sql : "SELECT * FROM " + schema + "." + queryName;
 
             log.debug("Converting table: " + queryName + " to featureCollection");
             //Executing sql
@@ -565,6 +565,8 @@ public class PostgreSQL implements DBConnector {
                                     if (columnConfig != null && !columnConfig.isExclude()) {
                                         prop.put(columnConfig.getAlias(), o);
                                     }
+                                }else{
+                                    prop.put(colName, o);
                                 }
                             }
                         }
@@ -678,6 +680,11 @@ public class PostgreSQL implements DBConnector {
             }
             rs = ps.executeQuery();
         }else {
+            sql = "SELECT ST_SetSRID(ST_Extent("
+                    + geoCol
+                    + "), 4326) as table_extent FROM ("
+                    + sql
+                    + ") as tabulana";
             //Executing sql
             rs = c.createStatement().executeQuery(sql);
         }

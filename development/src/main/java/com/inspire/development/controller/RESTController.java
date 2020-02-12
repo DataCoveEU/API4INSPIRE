@@ -65,32 +65,49 @@ public class RESTController {
         return null;
     }
 
-    @RequestMapping("/api")
-    public String index () {
-        try {
-            return new String(Files.readAllBytes(Paths.get(indexFile.getURI())));
-        }catch (Exception e){
-            return null;
+    @RequestMapping(path = "/api", produces={"text/html", "application/json"})
+    public @ResponseBody Object index (@RequestParam(required = false, defaultValue = "text/html") String f) {
+        if(f.equals("text/html")) {
+            try {
+                return new String(Files.readAllBytes(Paths.get(indexFile.getURI())));
+            } catch (Exception e) {
+                return null;
+            }
+        }else {
+            if(f.equals("application/json")) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    return mapper.readValue(resourceFile.getInputStream(), Object.class).toString();
+                } catch (IOException e) {
+                    return null;
+                }
+            }else {
+                return null;
+            }
         }
     }
 
     @GetMapping("/collections")
-    public Collections Collections() {
+    public Collections Collections(@RequestHeader("Accept") String content) {
         Collections c = new Collections(Arrays.asList(core.getAll()));
         for (FeatureCollection fc : c.getCollections()) {
-            //Add required links
-            fc.getLinks()
-                    .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                            "self", "application/json", "this document"));
-            fc.getLinks()
-                    .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                            "alternate", "text/html", "this document as html"));
-            fc.getLinks()
-                    .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
-                            "items", "application/json", "this document as html"));
+            if(fc == null){
+                c.getCollections().remove(null);
+            }else {
+                //Add required links
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                                "self", "application/json", "this document"));
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                                "alternate", "text/html", "this document as html"));
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
+                                "items", "application/json", "this document as html"));
+            }
         }
         return c;
     }
@@ -102,9 +119,8 @@ public class RESTController {
      */
     @GetMapping("/conformance")
     public ConformanceDeclaration getConformance() {
-        //When calling there is a Code 500
         String[] links = {"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
-                //"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30", ==> API Definition not yet implemented
+                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
                 //"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html", ==> Parameter to choose html no implemented yet
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"};
         return new ConformanceDeclaration(links);
