@@ -19,13 +19,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -44,7 +38,7 @@ import org.postgis.PGgeometry;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class PostgreSQL implements DBConnector {
     static Logger log = LogManager.getLogger(PostgreSQL.class.getName());
-    private ArrayList<String> errorBuffer;
+    private HashMap<String,String> errorBuffer;
     @JsonProperty("hostname")
     private String hostname;
     private String database;
@@ -69,7 +63,7 @@ public class PostgreSQL implements DBConnector {
     public PostgreSQL(String hostname, int port, String database, String schema, String id,
                       String username, String password) {
         this.id = id;
-        errorBuffer = new ArrayList<>();
+        errorBuffer = new HashMap<>();
         this.hostname = hostname;
         this.port = port;
         this.database = database;
@@ -94,7 +88,7 @@ public class PostgreSQL implements DBConnector {
             c = connection;
             log.info("Postgres Connector created for path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
-            errorBuffer.add(e.getMessage());
+            errorBuffer.put(getUUID(),e.getMessage());
             log.error("Error creating connector. Error: " + e.getMessage());
         }
     }
@@ -107,7 +101,7 @@ public class PostgreSQL implements DBConnector {
                       @JsonProperty("sqlString") HashMap<String, String> sqlString) {
         this.config = config;
         this.id = id;
-        errorBuffer = new ArrayList<>();
+        errorBuffer = new HashMap<>();
         this.hostname = hostname;
         this.port = port;
         this.database = database;
@@ -135,7 +129,7 @@ public class PostgreSQL implements DBConnector {
             c = connection;
             log.info("Postgres Connector created from config for path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
-            errorBuffer.add(e.getMessage());
+            errorBuffer.put(getUUID(),e.getMessage());
             log.error("Error creating connector. Error: " + e.getMessage());
         }
     }
@@ -160,6 +154,11 @@ public class PostgreSQL implements DBConnector {
 
     public HashMap<String, String> getSqlString() {
         return sqlString;
+    }
+
+    private static String getUUID(){
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
     }
 
     /**
@@ -527,7 +526,7 @@ public class PostgreSQL implements DBConnector {
         //Checking if table is a view
         String sql = sqlString.get(queryName);
         boolean isView = sql != null;
-        sql = sql != null ? sql : "SELECT * FROM " + queryName;
+        sql = sql != null ? sql : "SELECT * FROM " + schema + "." + queryName;
 
             log.debug("Converting table: " + queryName + " to featureCollection");
             //Executing sql
@@ -566,6 +565,8 @@ public class PostgreSQL implements DBConnector {
                                     if (columnConfig != null && !columnConfig.isExclude()) {
                                         prop.put(columnConfig.getAlias(), o);
                                     }
+                                }else{
+                                    prop.put(colName, o);
                                 }
                             }
                         }
@@ -679,6 +680,11 @@ public class PostgreSQL implements DBConnector {
             }
             rs = ps.executeQuery();
         }else {
+            sql = "SELECT ST_SetSRID(ST_Extent("
+                    + geoCol
+                    + "), 4326) as table_extent FROM ("
+                    + sql
+                    + ") as tabulana";
             //Executing sql
             rs = c.createStatement().executeQuery(sql);
         }
@@ -777,8 +783,12 @@ public class PostgreSQL implements DBConnector {
      * @return Array with all error Messages
      */
     @JsonIgnore
-    public String[] getErrorBuffer() {
-        return errorBuffer.toArray(new String[errorBuffer.size()]);
+    public HashMap<String,String> getErrorBuffer() {
+        return errorBuffer;
+    }
+
+    public boolean removeError(String uuid){
+        return errorBuffer.remove(uuid) != null;
     }
 
     /**

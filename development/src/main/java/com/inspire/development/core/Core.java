@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inspire.development.collections.FeatureCollection;
+import com.inspire.development.collections.ImportantLinkList;
 import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.config.ImportantLink;
 import com.inspire.development.database.DBConnector;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import mil.nga.sf.geojson.Feature;
@@ -26,11 +28,11 @@ import org.apache.logging.log4j.Logger;
 public class Core {
     static Logger log = LogManager.getLogger(Core.class.getName());
     DBConnectorList connectors;
-    ArrayList<ImportantLink> links;
+    ImportantLinkList links;
 
     public Core() {
         connectors = new DBConnectorList();
-        links = new ArrayList<>();
+        links = new ImportantLinkList();
         File folder = new File("./../ogcapisimple/sqlite");
         if (!folder.exists()) {
             folder.mkdirs();
@@ -61,7 +63,7 @@ public class Core {
             connectors = list;
         }
 
-        ArrayList<ImportantLink> links = parseImportantLinks();
+        ImportantLinkList links = parseImportantLinks();
         if (links != null) {
             this.links = links;
         }
@@ -78,8 +80,25 @@ public class Core {
         writeConnectors();
     }
 
-    public ArrayList<ImportantLink> getLinks() {
+    public ImportantLinkList getLinks() {
         return links;
+    }
+
+    public HashMap<String, String> getErrors(){
+        HashMap<String,String> errors = new HashMap<>();
+        for(DBConnector db:connectors){
+            errors.putAll(db.getErrorBuffer());
+        }
+        return errors;
+    }
+
+    public boolean removeError(String UUID){
+        for(DBConnector db:connectors){
+            if(db.removeError(UUID)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static DBConnectorList parseConnectors() {
@@ -96,13 +115,13 @@ public class Core {
         return null;
     }
 
-    public static ArrayList<ImportantLink> parseImportantLinks() {
+    public static ImportantLinkList parseImportantLinks() {
         log.info("Parsing important links");
         File f = new File("../ogcapisimple/links.json");
         if (f.exists()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                return objectMapper.readValue(f, ArrayList.class);
+                return objectMapper.readValue(f, ImportantLinkList.class);
             } catch (IOException e) {
 
             }
@@ -117,7 +136,7 @@ public class Core {
 
     public boolean removeLink(String name){
         for(ImportantLink link:links){
-            if(link.getName() == name){
+            if(link.getName().equals(name)){
                 links.remove(link);
                 return true;
             }
