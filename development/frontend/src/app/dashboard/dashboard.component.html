@@ -187,9 +187,9 @@
             <hr />
             <div *ngFor="let link of importantLinks">
                 <div class="row" style="margin-top: 1%">
-                    <div class="col-sm-4">{{ link }}</div>
+                    <div class="col-sm-4"><a href="{{ link.link }}">{{ link.name }}</a></div>
                     <div class="col-sm-8">
-                        <div class="btn btn-danger">Remove</div>
+                        <div class="btn btn-danger" (click)="removeImortantLink(link.name)">Remove</div>
                     </div>
                 </div>
             </div>

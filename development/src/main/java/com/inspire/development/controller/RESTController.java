@@ -685,7 +685,7 @@ public class RESTController {
         }
     }
 
-    @RequestMapping(value = "/api/getImportantLinks", method = RequestMethod.POST)
+    @RequestMapping(value = "/getImportantLinks", method = RequestMethod.POST)
     public ResponseEntity<Object> getImportantLinks() {
         return new ResponseEntity<>(core.getLinks(), HttpStatus.OK);
     }

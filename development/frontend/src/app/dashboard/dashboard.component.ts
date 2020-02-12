@@ -87,6 +87,8 @@ export class DashboardComponent implements OnInit {
       columnName: ['', Validators.required]
     });
 
+    this.importantLinks = await this.homeSerivce.getLinks();
+
     //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
 
@@ -568,6 +570,14 @@ export class DashboardComponent implements OnInit {
     } else {
       checkbox.checked = false;
     }
+  }
+
+
+  removeImortantLink(name:string) {
+    var json = {
+      "name": name
+    };
+    this.homeSerivce.removeLink(json);
   }
 
 }
