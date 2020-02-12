@@ -91,21 +91,6 @@ public class RESTController {
     public Collections Collections(@RequestHeader("Accept") String content) {
         Collections c = new Collections(Arrays.asList(core.getAll()));
         for (FeatureCollection fc : c.getCollections()) {
-<<<<<<< HEAD
-            //Add required links
-                fc.getLinks()
-                    .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                            "self", "application/json", "this document"));
-            fc.getLinks()
-                    .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                            "alternate", "text/html", "this document as html"));
-            fc.getLinks()
-                    .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
-                            "items", "application/json", "this document as html"));
-=======
             if(fc == null){
                 c.getCollections().remove(null);
             }else {
@@ -123,7 +108,6 @@ public class RESTController {
                                 "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
                                 "items", "application/json", "this document as html"));
             }
->>>>>>> 69ee3d34b6e0cb82b9bf5a818336ce54f5403a92
         }
         return c;
     }
