@@ -20,12 +20,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -45,7 +40,7 @@ import org.postgis.PGgeometry;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class SQLite implements DBConnector {
     static Logger log = LogManager.getLogger(SQLite.class.getName());
-    private ArrayList<String> errorBuffer;
+    private HashMap<String,String> errorBuffer;
     @JsonProperty("path")
     private String hostname;
     private Connection c;
@@ -65,7 +60,7 @@ public class SQLite implements DBConnector {
      */
     public SQLite(String path, String id) {
         this.id = id;
-        errorBuffer = new ArrayList<>();
+        errorBuffer = new HashMap<>();
         hostname = path;
         config = new HashMap<>();
         sqlString = new HashMap<>();
@@ -91,7 +86,7 @@ public class SQLite implements DBConnector {
         } catch (SQLException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
             e.printStackTrace();
-            errorBuffer.add(e.getMessage());
+            errorBuffer.put(getUUID(),e.getMessage());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -103,7 +98,7 @@ public class SQLite implements DBConnector {
                   @JsonProperty("sqlString") HashMap<String, String> sqlString) {
         this.config = config;
         this.id = id;
-        errorBuffer = new ArrayList<>();
+        errorBuffer = new HashMap<>();
         hostname = path;
         this.sqlString = sqlString;
 
@@ -125,12 +120,17 @@ public class SQLite implements DBConnector {
             log.info("Created SQL Connector with path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
-            errorBuffer.add(e.getMessage());
+            errorBuffer.put(getUUID(),e.getMessage());
         }
     }
 
     public HashMap<String, String> getSqlString() {
         return sqlString;
+    }
+
+    private static String getUUID(){
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
     }
 
     /**
@@ -711,8 +711,13 @@ public class SQLite implements DBConnector {
      * @return Array with all error Messages
      */
     @JsonIgnore
-    public String[] getErrorBuffer() {
-        return errorBuffer.toArray(new String[errorBuffer.size()]);
+    public HashMap<String, String> getErrorBuffer() {
+        return errorBuffer;
+    }
+
+    @Override
+    public boolean removeError(String UUID) {
+        return errorBuffer.remove(UUID) != null;
     }
 
     @JsonProperty

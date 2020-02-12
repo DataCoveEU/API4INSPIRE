@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inspire.development.collections.FeatureCollection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 @JsonTypeName("dbconnector")
@@ -18,6 +19,10 @@ public interface DBConnector {
     String checkConnection();
 
     void delete(String fc);
+
+    HashMap<String,String> getErrorBuffer();
+
+    boolean removeError(String UUID);
 
     FeatureCollection execute(String sql, String fcName, boolean check) throws Exception;
 

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import mil.nga.sf.geojson.Feature;
@@ -80,6 +81,23 @@ public class Core {
 
     public ArrayList<ImportantLink> getLinks() {
         return links;
+    }
+
+    public HashMap<String, String> getErrors(){
+        HashMap<String,String> errors = new HashMap<>();
+        for(DBConnector db:connectors){
+            errors.putAll(db.getErrorBuffer());
+        }
+        return errors;
+    }
+
+    public boolean removeError(String UUID){
+        for(DBConnector db:connectors){
+            if(db.removeError(UUID)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static DBConnectorList parseConnectors() {
