@@ -192,7 +192,6 @@ public class RESTController {
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
             @PathVariable("featureId") String featureId) {
-        //TODO: implement the method to return a special feature from a special collection
         Feature f = core.getFeature(collectionId, featureId);
         if (f != null) {
             return new ResponseEntity<>(f, HttpStatus.OK);
@@ -669,6 +668,40 @@ public class RESTController {
             return  new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @RequestMapping(value="/api/addImportantLink", method=RequestMethod.POST)
+    public ResponseEntity<Object> addImportantLink(@RequestBody Map<String, ?> input) {
+        String link = (String) input.get("link");
+        if(link != null) {
+            String name = (String) input.get("name");
+            if(name != null) {
+                core.addLink(link, name);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Name is null", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("Link is null", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/getImportantLinks", method = RequestMethod.POST)
+    public ResponseEntity<Object> getImportantLinks() {
+        return new ResponseEntity<>(core.getLinks(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/api/removeImportantLink", method = RequestMethod.POST)
+    public ResponseEntity<Object> removeLink(@RequestBody Map<String, ?> input) {
+        String name = (String) input.get("name");
+        if(name != null) {
+            core.removeLink(name);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Name is null", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 
 
 }

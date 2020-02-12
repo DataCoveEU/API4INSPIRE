@@ -21,7 +21,7 @@
                 It is available as 
                 <a href="#">application/yaml</a>, 
                 <a href="#">application/json</a> and 
-                <a href="#">text/html</a>
+                <a routerLink="/api">text/html</a>
             </p>
             </div>
     </div>
@@ -64,6 +64,9 @@
         <div class="col-8 col-md">
             <h5>Important Links</h5>
             <ul class="list-unstyled text-small">
+                <li *ngFor="let link of importantLinks">
+                    <a href="{{ link.link }}">{{ link.name }}</a>
+                </li>
             <li><a class="text-muted" href="#"></a></li>
             </ul>
         </div>
