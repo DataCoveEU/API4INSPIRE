@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterContentInit, AfterViewChecked, AfterViewInit, OnChanges, DoCheck } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
@@ -67,6 +67,8 @@ export class DashboardComponent implements OnInit {
                 private sqlService: SqlService,
                 private homeSerivce: HomeService) { }
 
+  
+
   async ngOnInit() {
     //Init the forms to rename the tables and columns and to execute the sql query
     this.sqlForm = this.formBuilder.group({
@@ -99,24 +101,26 @@ export class DashboardComponent implements OnInit {
     var select = document.getElementById("selectField") as HTMLSelectElement;
     var index = select.selectedIndex;
 
-    if(index == -1){index = 0}
+    index == -1 ? index = 0 : index = index
 
-      this.selectedConnector = this.connectors[index];
-      //Load the table names from the selected connector
+    this.selectedConnector = this.connectors[index];
+    //Load the table names from the selected connector
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+
+    
+    //Event when another conneector in the dropdown is selected
+    select.onchange = async (event: any)=>{
+      var select = document.getElementById("selectField") as HTMLSelectElement;
+      this.selectedConnector = this.connectors[select.selectedIndex];
+
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-
-      //Event when another conneector in the dropdown is selected
-      select.onchange = async (event: any)=>{
-        var select = document.getElementById("selectField") as HTMLSelectElement;
-        this.selectedConnector = this.connectors[select.selectedIndex];
-
-        this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-        this.tableSelect = false;
-        this.checkIfAllTableExcluded();
-      }
-
+      this.tableSelect = false;
       this.checkIfAllTableExcluded();
+    }
+    await this.checkIfAllTableExcluded();
   }
+
+
 
   /**
    * Handle the click event when a table row with table names is clicked
@@ -378,7 +382,8 @@ export class DashboardComponent implements OnInit {
     };
 
     await this.conService.excludeTable(json);
-    this.checkIfAllTableExcluded();
+    var checks = document.getElementById("exludeAllTables") as HTMLInputElement;
+    checks.checked = this.checkIfAllTableExcluded();
   }
 
   excludeColumn(colName: string) {
@@ -533,24 +538,17 @@ export class DashboardComponent implements OnInit {
     this.homeSerivce.addLink(json);
   }
 
-  checkIfAllTableExcluded() {
-    var allExclude = true;
-
+  checkIfAllTableExcluded(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
-     var check = document.getElementById("checkbox-" + this.tableNames[i]) as HTMLInputElement; 
-     if(check.checked) {
-
-     } else {
-       allExclude = false;
-     }
-    }
-
-    var check = document.getElementById("exludeAllTables") as HTMLInputElement;
-    if(allExclude) {
-      check.checked = true;
-    } else {
-      check.checked = false;
-    }
+      if(this.selectedConnector.config[this.tableNames[i]] == undefined) {
+        return false;
+      } else if(this.selectedConnector.config[this.tableNames[i]].exclude == undefined) {
+        return false;
+      } else if(this.selectedConnector.config[this.tableNames[i]].exclude == false) {
+        return false;
+      }
+    }   
+    return true;
   }
 
   checkIfAllColumnExcluded() {

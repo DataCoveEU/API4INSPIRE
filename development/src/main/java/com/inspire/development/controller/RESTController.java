@@ -79,7 +79,7 @@ public class RESTController {
         Collections c = new Collections(Arrays.asList(core.getAll()));
         for (FeatureCollection fc : c.getCollections()) {
             //Add required links
-            fc.getLinks()
+                fc.getLinks()
                     .add(new Link(
                             "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
                             "self", "application/json", "this document"));
