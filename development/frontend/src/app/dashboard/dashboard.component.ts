@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterContentInit, AfterViewChecked, AfterViewInit, OnChanges, DoCheck } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConnectorService } from '../connector.service';
@@ -686,7 +686,7 @@ export class DashboardComponent implements OnInit {
       'name': this.addImportantLinkFrom.value.displayName
     };
 
-    this.homeSerivce.addLink(json).then(()=>{
+    this.homeSerivce.addLink(json).then( async ()=>{
       var er = document.getElementById("infoLinkField");
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
@@ -697,6 +697,7 @@ export class DashboardComponent implements OnInit {
                         </p>
                         </div>
                 </div>`;
+          this.importantLinks = await this.homeSerivce.getLinks();
     }).catch((err)=>{
       var er = document.getElementById("infoLinkField");
       er.style.marginTop = "2%";
