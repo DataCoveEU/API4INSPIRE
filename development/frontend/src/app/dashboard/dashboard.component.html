@@ -51,7 +51,7 @@
                         <th scope="col">Column name</th>
                         <th scope="col">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="excludeAllColumns" (click)="excludeAllColumns()">
+                                <input type="checkbox" class="custom-control-input" [checked]="this.allColumnsExcluded" id="excludeAllColumns" (click)="excludeAllColumns()">
                                 <label class="custom-control-label" for="excludeAllColumns">Exclude</label>
                             </div>
                         </th>

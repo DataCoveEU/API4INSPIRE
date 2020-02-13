@@ -62,6 +62,7 @@ export class DashboardComponent implements OnInit {
   idColumn: string = "";
 
   allTablesExcluded: boolean;
+  allColumnsExcluded: boolean = false;
 
   constructor(  private formBuilder: FormBuilder, 
                 private conService: ConnectorService, 
@@ -188,7 +189,10 @@ export class DashboardComponent implements OnInit {
     } else if(this.selectedConnector.config[name].idCol == undefined) {
       this.idColumn = this.selectedConnector.config[name].idCol 
     }
-    this.checkIfAllColumnExcluded();
+    this.allColumnsExcluded = this.checkIfAllColumnExcluded();
+    console.log(this.allColumnsExcluded);
+    console.log(this.checkIfAllColumnExcluded());
+    console.log("--")
   }
 
   /**
@@ -238,9 +242,9 @@ export class DashboardComponent implements OnInit {
       //The unique names have to be on all tables
       for(let j = 0; j < tab.length; j++) {
         if(con.config[tab[j]] == undefined) {
-          console.log("undefined")
+
         } else if(con.config[tab[j]].alias == undefined) {
-          console.log("undefined")
+
         } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
           //alert("This name is already assigned to a table");
           var er = document.getElementById("errorField");
@@ -279,10 +283,10 @@ export class DashboardComponent implements OnInit {
 
     for(let i = 0; i < this.columnNames.length; i++) {
       if(this.selectedConnector.config[this.idTableSelected] == undefined) {
-        console.log("undefined")
+        
       } else {
         if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
-          console.log("undefined v2")
+
         } else {
           if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
             alert("This name is already assigned to a column");
@@ -399,7 +403,6 @@ export class DashboardComponent implements OnInit {
 
     await this.conService.excludeTable(json);
     this.allTablesExcluded = this.areAllTableExcludedCheckbox();
-    console.log(this.allTablesExcluded);
   }
 
   excludeColumn(colName: string) {
@@ -418,7 +421,7 @@ export class DashboardComponent implements OnInit {
       'exclude': bool
     };
     this.conService.excludeColumn(json);
-    this.checkIfAllColumnExcluded();
+    this.allColumnsExcluded = this.checkIfAllColumnExcludedCheckbox();
   }
 
 
@@ -525,11 +528,13 @@ export class DashboardComponent implements OnInit {
       for(var i = 0; i < columns.length; i++) {
         columns[i].checked = "checked";
       }
+      this.allColumnsExcluded = true;
     } else {
       exclude = false;
       for(var i = 0; i < columns.length; i++) {
         columns[i].checked = false;
       }
+      this.allColumnsExcluded = false;
     }
 
     var json = {
@@ -558,7 +563,6 @@ export class DashboardComponent implements OnInit {
   areAllTableExcludedCheckbox(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
       var check = document.getElementById("checkbox-" + this.tableNames[i]) as HTMLInputElement;
-      console.log(check.checked)
       if(check.checked == false) {
         return false;
       }
@@ -566,23 +570,35 @@ export class DashboardComponent implements OnInit {
     return true;
   }
 
-  checkIfAllColumnExcluded() {
-   /*var allExclude = true;
-    for(let i = 0; i < this.columnNames.length; i++) {
-      var check = document.getElementById("checkbox-" + this.columnNames[i]) as HTMLInputElement;
-      if(check.checked) {
-
-      } else {
-        allExclude = false;
+  checkIfAllColumnExcluded():boolean {
+    for(let i = 0; i< this.columnNames.length; i++) {
+      if(this.selectedConnector.config[this.idTableSelected] == undefined) {
+        console.log("undef v1")
+        return false;
+      } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
+        console.log("undef v2")
+        return false;
+      } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].exclude == undefined)  {
+        console.log("udef v3")
+        return false;
+      } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].exclude == false) {
+        console.log("just false lol")
+        return false;
       }
     }
-    
-    var checkbox = document.getElementById("excludeAllColumns") as HTMLInputElement;
-    if(allExclude) {
-      checkbox.checked = true;
-    } else {
-      checkbox.checked = false;
-    }*/
+    console.log("true")
+    return true;
+  }
+
+  checkIfAllColumnExcludedCheckbox():boolean {
+    for(let i = 0; i < this.columnNames.length; i++) {
+      var check = document.getElementById("checkbox-" + this.columnNames[i]) as HTMLInputElement;
+      if(check.checked == false) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
 
