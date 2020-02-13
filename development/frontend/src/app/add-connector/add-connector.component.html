@@ -11,47 +11,11 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option id="sqlite">SQLite connection</option>
                         <option id="postgres">PostgreSQL connection</option>
                     </select>
                 </div>
             </div>
-            <div *ngIf="this.isSQLite" [ngClass]="{'isSQLite': this.isSQLite}" id="content">
-                <form [formGroup]="addSQLiteConnectorForm" (ngSubmit)="addSQLiteConnector()">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <label>
-                                <input style="width: 100%;" type="text" formControlName="conName" class="form-control" placeholder="Connector name" />
-                                <div *ngIf="sqliteSubmitted && addSQLiteConnectorForm.controls.conName.errors" class="error">
-                                    <div *ngIf="addSQLiteConnectorForm.controls.conName.errors.required">A connection name is required</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <label>
-                                <input id="fileSel" type="file" formControlName="path" class="form-control" placeholder="Path" />
-                                <div *ngIf="sqliteSubmitted && addSQLiteConnectorForm.controls.path.errors" class="error">
-                                    <div *ngIf="addSQLiteConnectorForm.controls.path.errors.required">A path is required</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <button class="btn btn-success" style="width: 100%">Test connection</button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <button class="btn btn-success" style="width: 100%" type="submit">Add connection</button>
-                        </div>
-                    </div>
-                </form>  
-            </div>
-
-            <div *ngIf="this.isPostgres">
+            <div>
                 <form [formGroup]="addPostgresConnectorForm" (ngSubmit)="addPostgresConnector(false)">
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">

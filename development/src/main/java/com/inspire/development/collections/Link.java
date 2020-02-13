@@ -6,8 +6,7 @@ public class Link {
     String type;
     String title;
 
-
-    public Link(String href, String rel, String type, String title){
+    public Link(String href, String rel, String type, String title) {
         this.href = href;
         this.rel = rel;
         this.type = type;

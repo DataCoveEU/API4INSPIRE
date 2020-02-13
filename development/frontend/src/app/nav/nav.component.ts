@@ -18,7 +18,6 @@ export class NavComponent implements OnInit {
   constructor(private router:Router, public auth: AuthService) { }
 
   ngOnInit() {
-    console.log(this.auth.loggedIn());
     var url = this.router.url;
     if(url == "/") {
       //If you are on the landing page --> the "Home" link is bold

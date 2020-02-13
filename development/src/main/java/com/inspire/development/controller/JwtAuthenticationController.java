@@ -2,13 +2,6 @@ package com.inspire.development.controller;
 
 import com.inspire.development.admin.jwt.JwtRequest;
 import com.inspire.development.admin.jwt.JwtResponse;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.BeanIds;
-
-
-import java.util.ConcurrentModificationException;
-import java.util.Objects;
-
 import com.inspire.development.admin.jwt.JwtTokenUtil;
 import com.inspire.development.admin.jwt.JwtUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
-
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
@@ -37,18 +28,20 @@ public class JwtAuthenticationController {
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
-
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
+            throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = userDetailsService
                 .loadUserByUsername(authenticationRequest.getUsername());
         final String token = jwtTokenUtil.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
+
     private void authenticate(String username, String password) throws Exception {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
