@@ -232,6 +232,20 @@ export class DashboardComponent implements OnInit {
       'alias': this.renameTableForm.value.tableName
     };
 
+    if(this.tableNames.includes(this.renameTableForm.value.tableName)) {
+      var er = document.getElementById("infoField");
+          er.style.marginTop = "2%";
+          er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                        <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                            <p>
+                                This name is already assigned to another table
+                            </p>
+                            </div>
+                    </div>`;
+          return;
+    }
+
     //The unique names have to be on all of the databases
     for(let i = 0;  i < this.connectors.length; i++) {
       var con = this.connectors[i];
@@ -249,7 +263,7 @@ export class DashboardComponent implements OnInit {
                         <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
                         <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
                             <p>
-                                This name is already assigned to another table
+                                This name is already assigned to another table. Table: ${tab[j]}
                             </p>
                             </div>
                     </div>`;
