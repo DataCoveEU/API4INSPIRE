@@ -474,6 +474,11 @@ public class SQLite implements DBConnector {
         }else {
             geoCol = getGeometry(queryName);
         }
+
+        if (config.containsKey(queryName) && config.get(queryName).isExclude()) {
+            return null;
+        }
+
         //Checking if table is a view
         String sql = sqlString.get(queryName);
         if(geoCol != null){
@@ -529,14 +534,24 @@ public class SQLite implements DBConnector {
                                 //Normal Feature
                                 if (!colName.equals(geoCol)) {
                                     String col = md.getColumnName(x);
+
+                                    Object o = rs.getObject(x);
                                     //Check if there is a config for that table and if it has a column rename
                                     if (tc != null) {
                                         ColumnConfig columnConfig = tc.getMap().get(col);
-                                        if (columnConfig != null && !columnConfig.isExclude()) {
-                                            prop.put(columnConfig.getAlias(), rs.getObject(x));
+                                        if(columnConfig == null){
+                                            prop.put(colName, o);
+                                        }else {
+                                            if (!columnConfig.isExclude()) {
+                                                if (columnConfig.getAlias() == null) {
+                                                    prop.put(colName, o);
+                                                } else {
+                                                    prop.put(columnConfig.getAlias(), o);
+                                                }
+                                            }
                                         }
                                     } else {
-                                        prop.put(col, rs.getObject(x));
+                                        prop.put(colName, o);
                                     }
                                 }
                             }
@@ -646,12 +661,12 @@ public class SQLite implements DBConnector {
 
     public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table) throws SQLException{
         ResultSet rs;
-        if((filterParams != null && filterParams.size() > 0) || bbox != null){
-            if(geoCol != null) {
-                sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox FROM (" + sql + ") as tabula where ";
-            }else {
-                sql = "SELECT * FROM (" + sql + ") as tabula where ";
-            }
+        if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
+            sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox FROM (" + sql + ") as tabula";
+
+            if(filterParams.size() > 0)
+                sql += " where ";
+
             for(Map.Entry<String,String> entry:filterParams.entrySet()){
                 String col = getConfigByAlias(table,entry.getKey());
                 col = col == null ? entry.getKey() : col;
@@ -661,7 +676,8 @@ public class SQLite implements DBConnector {
             if(bbox != null && geoCol != null) {
                 sql += "Intersects(Envelope(" + geoCol + "),GeomFromEWKB(?))";
             }else {
-                sql = sql.substring(0, sql.length() - 4);
+                if(filterParams.size() > 0)
+                    sql = sql.substring(0, sql.length() - 4);
             }
 
             PreparedStatement ps = c.prepareStatement(sql);
@@ -672,9 +688,9 @@ public class SQLite implements DBConnector {
                 counter++;
             }
 
-            if(bbox != null) {
+            if(bbox != null && geoCol != null) {
                 PGbox2d box = new org.postgis.PGbox2d(new org.postgis.Point(bbox[0], bbox[1]), new org.postgis.Point(bbox[2], bbox[3]));
-                ps.setString(counter,box.toString());
+                ps.setString(counter, box.toString());
             }
 
             rs = ps.executeQuery();
