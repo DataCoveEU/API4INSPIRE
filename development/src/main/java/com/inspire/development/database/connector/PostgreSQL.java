@@ -29,7 +29,10 @@ import mil.nga.sf.geojson.Position;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.postgis.Geometry;
+import org.postgis.PGbox2d;
 import org.postgis.PGgeometry;
+import org.postgis.Point;
+import org.springframework.security.core.parameters.P;
 
 /**
  * DBConnector for a PostgreSQL database
@@ -530,7 +533,7 @@ public class PostgreSQL implements DBConnector {
 
             log.debug("Converting table: " + queryName + " to featureCollection");
             //Executing sql
-            ResultSet rs = SqlWhere(sql, filterParams);
+            ResultSet rs = SqlWhere(sql, filterParams,bbox, geoCol, queryName);
             //Creating featureCollection with given name
             FeatureCollection fs = new FeatureCollection(alias);
             //Create offset
@@ -543,68 +546,47 @@ public class PostgreSQL implements DBConnector {
                 ResultSetMetaData md = rs.getMetaData();
                 for (int x = 1; x <= md.getColumnCount(); x++) {
                     String colName = md.getColumnName(x);
-                    if (colName.equals(idCol)) {
+                    if(colName.equals("ogc_bbox")){
+                        org.postgis.PGgeometry box = (org.postgis.PGgeometry) rs.getObject(x);
+                        Point fp = box.getGeometry().getFirstPoint();
+                        Point lp = box.getGeometry().getLastPoint();
+                        f.setBbox(new double[]{fp.x,fp.y,lp.x,lp.y});
+                    }else{
+                        if (colName.equals(idCol)) {
                         //ID
                         f.setId(rs.getString(x));
-                    } else {
-                        //Normal Feature
-                        if (!colName.equals(geoCol)) {
-                            String col = md.getColumnName(x);
-                            //Check if there is a config for that table and if it has a column rename
-                            if (config.containsKey(queryName) && config.get(queryName).getMap().containsKey(col)) {
-                                col = config.get(queryName).getMap().get(col).getAlias();
-                            }
-                            Object o = rs.getObject(x);
-                            if (o instanceof PGgeometry && geoCol == null && isView) {
-                                //Auto detecting geo column if the table is a view
-                                geoCol = colName;
-                                setGeo(queryName, colName);
-                            } else {
-                                if (tc != null) {
-                                    ColumnConfig columnConfig = tc.getMap().get(col);
-                                    if (columnConfig != null && !columnConfig.isExclude()) {
-                                        prop.put(columnConfig.getAlias(), o);
+                        } else {
+                                //Normal Feature
+                                if (!colName.equals(geoCol)) {
+                                    String col = md.getColumnName(x);
+                                    //Check if there is a config for that table and if it has a column rename
+                                    if (tc != null && tc.getMap().containsKey(col)) {
+                                        col = tc.getMap().get(col).getAlias();
+                                    }
+                                    Object o = rs.getObject(x);
+                                    if (o instanceof PGgeometry && geoCol == null && isView) {
+                                        //Auto detecting geo column if the table is a view
+                                        geoCol = colName;
+                                        setGeo(queryName, colName);
+                                    } else {
+                                        if (tc != null) {
+                                            ColumnConfig columnConfig = tc.getMap().get(col);
+                                            if (columnConfig != null && !columnConfig.isExclude()) {
+                                                prop.put(columnConfig.getAlias(), o);
+                                            }
+                                        } else {
+                                            prop.put(colName, o);
+                                        }
                                     }
                                 }else{
-                                    prop.put(colName, o);
-                                }
-                            }
-                        }
-                    }
-                }
-                boolean intersect = true;
-                if (geoCol != null) {
-                    String geometry = new String(rs.getBytes(geoCol));
-                    if (geometry != null) {
-                        Geometry geometr = PGgeometry.geomFromString(geometry);
-                        if (geometr != null) {
-                            if (geometr.getSrid() == 0) {
-                                log.warn("SRID is 0, assuming that the format used 4326! Collection: " + alias);
-                            }
-                            if (geometr.getSrid() != 4326 && geometr.getSrid() != 0) {
-                                log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                            } else {
-                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geometr);
-                                if (geo != null) {
+                                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(((PGgeometry) rs.getObject(x)).getGeometry());
                                     f.setGeometry(geo);
-                                    double[] bboxFeature = geo.getBbox();
-                                    f.setBbox(bboxFeature);
-                                    if (bbox != null) {
-                                        Rectangle a = rectFromBBox(bboxFeature);
-                                        Rectangle b = rectFromBBox(bbox);
-                                        intersect = a.intersects(b);
-                                    }
                                 }
-                            }
                         }
-                    }else{
-                        log.error("Error converting database geoColumn to valid geometry at table: " + queryName);
                     }
                 }
-                if (intersect) {
-                    f.setProperties(prop);
-                    fs.addFeature(f);
-                }
+                f.setProperties(prop);
+                fs.addFeature(f);
             }
 
             if (geoCol != null) {
@@ -637,19 +619,35 @@ public class PostgreSQL implements DBConnector {
             return fs;
     }
 
-    public ResultSet SqlWhere(String sql, Map<String,String> filterParams) throws Exception{
+    public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table) throws Exception{
         ResultSet rs;
-        if(filterParams != null && filterParams.size() > 0){
-            sql = "SELECT * FROM (" + sql + ") as tabula where ";
-            for(Map.Entry<String,String> entry:filterParams.entrySet()){
-                sql = sql + entry.getKey() + "::varchar = ? and";
+        if((filterParams != null && filterParams.size() > 0) || bbox != null){
+            if(geoCol != null) {
+                sql = "SELECT *, ST_Envelope(" + geoCol + ") as ogc_bbox FROM (" + sql + ") as tabula where ";
+            }else{
+                sql = "SELECT * FROM (" + sql + ") as tabula where ";
             }
-            sql = sql.substring(0,sql.length()-4);
+            for(Map.Entry<String,String> entry:filterParams.entrySet()){
+                String col = getConfigByAlias(table,entry.getKey());
+                col = col == null ? entry.getKey() : col;
+                sql = sql + col + "::varchar = ? and ";
+            }
+            if(bbox != null && geoCol != null) {
+                sql += "ST_Intersects(ST_Envelope(" + geoCol + "),?)";
+            }else {
+                sql = sql.substring(0, sql.length() - 4);
+            }
             PreparedStatement ps = c.prepareStatement(sql);
             int counter = 1;
+
             for(Map.Entry<String,String> entry:filterParams.entrySet()){
                 ps.setString(counter,entry.getValue());
                 counter++;
+            }
+
+            if(bbox != null) {
+                PGbox2d box = new org.postgis.PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
+                ps.setObject(counter,box);
             }
             rs = ps.executeQuery();
         }else {
@@ -689,6 +687,17 @@ public class PostgreSQL implements DBConnector {
             rs = c.createStatement().executeQuery(sql);
         }
         return rs;
+    }
+
+    private String getConfigByAlias(String table, String alias){
+        TableConfig tc =  config.get(table);
+        if(tc == null) return null;
+        for(Map.Entry<String,ColumnConfig> entry : tc.getMap().entrySet()){
+            if(entry.getValue().getAlias().equals(alias)){
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     /**
@@ -770,11 +779,6 @@ public class PostgreSQL implements DBConnector {
             }
         }
         return null;
-    }
-
-    public Rectangle rectFromBBox(double[] bbox) {
-        return new Rectangle((int) bbox[0], (int) bbox[3], (int) (bbox[2] - bbox[0]),
-                (int) (bbox[3] - bbox[1]));
     }
 
     /**
