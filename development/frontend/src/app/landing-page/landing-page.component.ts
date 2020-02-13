@@ -27,9 +27,12 @@ export class LandingPageComponent implements OnInit {
 
   collections: any = ["Lukas", "Tobias"];
 
-  constructor(private homeService: HomeService, private http: HttpClient) { }
+  constructor(private homeService: HomeService, private http: HttpClient, private httpClient: HttpClient) { }
 
   async ngOnInit() {
+    var col:any = (await this.getCollections());
+    this.collections = col.collections;
+
     this.importantLinks = await this.homeService.getLinks();
 
     this.http.get("collections/tna_insp_airspacearea/items").subscribe(json =>{
@@ -59,5 +62,15 @@ export class LandingPageComponent implements OnInit {
 
 });
     
+  }
+
+  async getCollections() {
+    return new Promise((resolve, reject) =>{
+      this.httpClient.get('collections').subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    });
   }
 }
