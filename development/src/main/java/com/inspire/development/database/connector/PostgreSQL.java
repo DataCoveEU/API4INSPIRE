@@ -526,6 +526,11 @@ public class PostgreSQL implements DBConnector {
         }else {
             geoCol = getGeometry(queryName);
         }
+
+        if (config.containsKey(queryName) && config.get(queryName).isExclude()) {
+            return null;
+        }
+
         //Checking if table is a view
         String sql = sqlString.get(queryName);
         boolean isView = sql != null;
@@ -559,10 +564,7 @@ public class PostgreSQL implements DBConnector {
                                 //Normal Feature
                                 if (!colName.equals(geoCol)) {
                                     String col = md.getColumnName(x);
-                                    //Check if there is a config for that table and if it has a column rename
-                                    if (tc != null && tc.getMap().containsKey(col)) {
-                                        col = tc.getMap().get(col).getAlias();
-                                    }
+
                                     Object o = rs.getObject(x);
                                     if (o instanceof PGgeometry && geoCol == null && isView) {
                                         //Auto detecting geo column if the table is a view
@@ -571,8 +573,16 @@ public class PostgreSQL implements DBConnector {
                                     } else {
                                         if (tc != null) {
                                             ColumnConfig columnConfig = tc.getMap().get(col);
-                                            if (columnConfig != null && !columnConfig.isExclude()) {
-                                                prop.put(columnConfig.getAlias(), o);
+                                            if(columnConfig == null){
+                                                prop.put(colName, o);
+                                            }else{
+                                                if(!columnConfig.isExclude()){
+                                                    if(columnConfig.getAlias() == null){
+                                                        prop.put(colName, o);
+                                                    }else{
+                                                        prop.put(columnConfig.getAlias(), o);
+                                                    }
+                                                }
                                             }
                                         } else {
                                             prop.put(colName, o);
@@ -621,12 +631,12 @@ public class PostgreSQL implements DBConnector {
 
     public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table) throws Exception{
         ResultSet rs;
-        if((filterParams != null && filterParams.size() > 0) || bbox != null){
-            if(geoCol != null) {
-                sql = "SELECT *, ST_Envelope(" + geoCol + ") as ogc_bbox FROM (" + sql + ") as tabula where ";
-            }else{
-                sql = "SELECT * FROM (" + sql + ") as tabula where ";
-            }
+        if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
+            sql = "SELECT *, ST_Envelope(" + geoCol + ") as ogc_bbox FROM (" + sql + ") as tabula";
+
+            if(filterParams.size() > 0)
+                sql += " where ";
+
             for(Map.Entry<String,String> entry:filterParams.entrySet()){
                 String col = getConfigByAlias(table,entry.getKey());
                 col = col == null ? entry.getKey() : col;
@@ -635,7 +645,8 @@ public class PostgreSQL implements DBConnector {
             if(bbox != null && geoCol != null) {
                 sql += "ST_Intersects(ST_Envelope(" + geoCol + "),?)";
             }else {
-                sql = sql.substring(0, sql.length() - 4);
+                if(filterParams.size() > 0)
+                    sql = sql.substring(0, sql.length() - 4);
             }
             PreparedStatement ps = c.prepareStatement(sql);
             int counter = 1;
@@ -645,10 +656,11 @@ public class PostgreSQL implements DBConnector {
                 counter++;
             }
 
-            if(bbox != null) {
+            if(bbox != null && geoCol != null) {
                 PGbox2d box = new org.postgis.PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
-                ps.setObject(counter,box);
+                ps.setObject(counter, box);
             }
+
             rs = ps.executeQuery();
         }else {
             //Executing sql
