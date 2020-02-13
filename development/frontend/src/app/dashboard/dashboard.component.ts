@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
   geoColumn: string = "";
   idColumn: string = "";
 
-  allTablesExcluded: boolean = false;
+  allTablesExcluded: boolean;
 
   constructor(  private formBuilder: FormBuilder, 
                 private conService: ConnectorService, 
@@ -120,7 +120,20 @@ export class DashboardComponent implements OnInit {
      // this.checkIfAllTableExcluded();
     }
 
-    this.allTablesExcluded = this.areAllTableExcluded();
+    for(let i = 0; i < this.tableNames.length; i++) {
+      if(this.selectedConnector.config[this.tableNames[i]] == undefined) {
+        this.allTablesExcluded = false;
+        break;
+      } else if(this.selectedConnector.config[this.tableNames[i]].exclude == undefined) {
+        this.allTablesExcluded = false;
+        break;
+      } else if(this.selectedConnector.config[this.tableNames[i]].exclude == false) {
+        this.allTablesExcluded = false;
+        break;
+      } else {
+        this.allTablesExcluded = true;
+      }
+    }
   }
 
 
@@ -385,12 +398,12 @@ export class DashboardComponent implements OnInit {
     };
 
     await this.conService.excludeTable(json);
-    this.allTablesExcluded = this.areAllTableExcluded();
+    this.allTablesExcluded = this.areAllTableExcludedCheckbox();
+    console.log(this.allTablesExcluded);
   }
 
   excludeColumn(colName: string) {
     var cb = document.getElementById("checkbox-" + colName) as HTMLInputElement;
-    console.log(cb);
     var checked: boolean = cb.checked;
     var bool: boolean = false;
     if(checked) {
@@ -482,6 +495,7 @@ export class DashboardComponent implements OnInit {
       for(var i = 0; i < tables.length; i++) {
         tables[i].checked = "checked";
       }
+      this.allTablesExcluded = true;
     } else {
       // After clicking the checkbox is not checked
       // so all of the tables will be included
@@ -489,6 +503,7 @@ export class DashboardComponent implements OnInit {
       for(var i = 0; i < tables.length; i++) {
         tables[i].checked = false;
       }
+      this.allTablesExcluded = false;
     }
     var json = {
       'id': this.selectedConnector.id,
@@ -540,21 +555,19 @@ export class DashboardComponent implements OnInit {
     this.homeSerivce.addLink(json);
   }
 
-  areAllTableExcluded(): boolean {
+  areAllTableExcludedCheckbox(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
-      if(this.selectedConnector.config[this.tableNames[i]] == undefined) {
-        return false;
-      } else if(this.selectedConnector.config[this.tableNames[i]].exclude == undefined) {
-        return false;
-      } else if(this.selectedConnector.config[this.tableNames[i]].exclude == false) {
+      var check = document.getElementById("checkbox-" + this.tableNames[i]) as HTMLInputElement;
+      console.log(check.checked)
+      if(check.checked == false) {
         return false;
       }
-    }   
+    }
     return true;
   }
 
   checkIfAllColumnExcluded() {
-    var allExclude = true;
+   /*var allExclude = true;
     for(let i = 0; i < this.columnNames.length; i++) {
       var check = document.getElementById("checkbox-" + this.columnNames[i]) as HTMLInputElement;
       if(check.checked) {
@@ -569,7 +582,7 @@ export class DashboardComponent implements OnInit {
       checkbox.checked = true;
     } else {
       checkbox.checked = false;
-    }
+    }*/
   }
 
 
