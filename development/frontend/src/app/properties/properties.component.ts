@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR } from '@angular/core';
 
 import * as $ from 'jquery';
 import { ConnectorService } from '../connector.service';
@@ -31,6 +31,9 @@ export class PropertiesComponent implements OnInit {
 
   changeSchemaForm: FormGroup;
   changeSchmemaSubmitted: boolean = false;
+
+  changeDatabaseForm: FormGroup;
+  changeDatabaseSubmitted: boolean = false;
 
   selectedConnector: any;
 
@@ -65,6 +68,10 @@ export class PropertiesComponent implements OnInit {
       newSchema: ['', Validators.required]
     });
 
+    this.changeDatabaseForm = this.formBuilder.group({
+      name: ['', Validators.required]
+    })
+
     this.sqlite = true;
 
     //Load all connectors
@@ -96,6 +103,7 @@ export class PropertiesComponent implements OnInit {
     if(this.connectorNameForm.invalid) {
       return;
     }
+    alert("Not implemented in the backend")
   }
 
   changeUsername() {
@@ -103,6 +111,16 @@ export class PropertiesComponent implements OnInit {
     if(this.changeUsernameForm.invalid) {
       return;
     }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'database': null,
+      'schema': null,
+      'hostname': null,
+      'port': null,
+      'username': this.changeUsernameForm.value.newName,
+      'password': null
+    };
   }
 
   changePassword() {
@@ -110,6 +128,16 @@ export class PropertiesComponent implements OnInit {
     if(this.changePasswordForm.invalid) {
       return;
     }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'database': null,
+      'schema': null,
+      'hostname': null,
+      'port': null,
+      'username': null,
+      'password': this.changePasswordForm.value.newPwd
+    };
   }
 
   changeHostname() {
@@ -117,6 +145,16 @@ export class PropertiesComponent implements OnInit {
     if(this.changeHostnameForm.invalid) {
       return;
     } 
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'database': null,
+      'schema': null,
+      'hostname': this.changeHostnameForm.value.hostname,
+      'port': null,
+      'username': null,
+      'password': null
+    };
   }
 
   changePort() {
@@ -124,6 +162,15 @@ export class PropertiesComponent implements OnInit {
     if(this.changePortForm.invalid) {
       return;
     }
+    var json = {
+      'id': this.selectedConnector.id,
+      'database': null,
+      'schema': null,
+      'hostname': null,
+      'port': this.changePortForm.value.newPort,
+      'username': null,
+      'password': null
+    };
   }
 
   changeSchema() {
@@ -131,6 +178,33 @@ export class PropertiesComponent implements OnInit {
     if(this.changeSchemaForm.invalid) {
       return;
     }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'database': null,
+      'schema': this.changeSchemaForm.value.newSchema,
+      'hostname': null,
+      'port': null,
+      'username': null,
+      'password': null
+    };
+  }
+
+  changeDatabase() {
+    this.changeDatabaseSubmitted = true;
+    if(this.changeDatabaseForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'database': this.changeDatabaseForm.value.name,
+      'schema': null,
+      'hostname': null,
+      'port': null,
+      'username': null,
+      'password': null
+    };
   }
 
 }

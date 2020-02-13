@@ -21,32 +21,37 @@
                     <button class="btn btn-success shadow-sm" style="width: 100%;">Test connection</button>
                 </div>
             </div>
-                <form [formGroup]="connectorNameForm" (ngSubmit)="submitConnectorName()" >
-                    <div class="row" style="width: 100%; margin-top: 1%">
-                        <div class="col-sm-6">
-                            <label style="width: 100%">
-                                <input type="text" formControlName="conName" class="form-control shadow-sm" placeholder="Connectorname" />
-                                <div *ngIf="connectorNameSubmitted && connectorNameForm.controls.conName.errors" class="error">
-                                    <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>
-                                </div>
-                            </label>
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-success shadow-sm" style="width: 100%" type="submit">Submit</button>
-                        </div>
-                    </div>
-                </form>
+                
             <div id="content">
                 <div *ngIf="this.postgres">
+                    <form [formGroup]="connectorNameForm" (ngSubmit)="submitConnectorName()" >
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Connection name
+                                    <input type="text" formControlName="conName" class="form-control shadow-sm" placeholder="Connectorname" />
+                                    <div *ngIf="connectorNameSubmitted && connectorNameForm.controls.conName.errors" class="error">
+                                        <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn-success shadow-sm" style="width: 100%" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
                     <h3 style="margin-top: 1%">Change credentials</h3>
                     <hr />
                     <form [formGroup]="changeUsernameForm" (ngSubmit)="changeUsername()">
                         <div class="row" style="width: 100%">
                             <div class="col-sm-6">
-                                <input type="text" formControlName="newName" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Username" />
-                                <div *ngIf="changeUserSubmitted && changeUsernameForm.controls.newName.errors" class="error">
-                                    <div *ngIf="changeUsernameForm.controls.newName.errors.required">A username is required</div>
-                                </div>
+                                <label style="width: 100%">
+                                    Username
+                                    <input type="text" formControlName="newName" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Username" />
+                                    <div *ngIf="changeUserSubmitted && changeUsernameForm.controls.newName.errors" class="error">
+                                        <div *ngIf="changeUsernameForm.controls.newName.errors.required">A username is required</div>
+                                    </div>
+                                </label>
                             </div>
                             <div class="col-sm-6">
                                 <button type="submit" class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change username</button>
@@ -58,18 +63,24 @@
                     <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()">
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
-                                <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" placeholder="New password" />
-                                <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.newPwd.errors" class="error">
-                                    <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
-                                </div>
+                                <label style="width: 100%">
+                                    Password
+                                    <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" placeholder="New password" />
+                                    <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.newPwd.errors" class="error">
+                                        <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
+                                    </div>
+                                </label>
                             </div>
                         </div>
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
-                                <input type="text" class="form-control shadow-sm" formControlName="reNewPwd" style="width: 100%; margin-top: 1%" placeholder="Repeat new password" />
-                                <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.reNewPwd.errors" class="error">
-                                    <div *ngIf="changePasswordForm.controls.reNewPwd.errors.required">Please repeat the password</div>
-                                </div>
+                                <label style="width: 100%">
+                                    Repeat password
+                                    <input type="text" class="form-control shadow-sm" formControlName="reNewPwd" style="width: 100%; margin-top: 1%" placeholder="Repeat new password" />
+                                    <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.reNewPwd.errors" class="error">
+                                        <div *ngIf="changePasswordForm.controls.reNewPwd.errors.required">Please repeat the password</div>
+                                    </div>
+                                </label>
                             </div>
                             <div class="col-sm-6">
                                 <button type="submit" class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change password</button>
@@ -83,10 +94,13 @@
                     <form [formGroup]="changeHostnameForm" (ngSubmit)="changeHostname()">
                         <div class="row" style="width: 100%">
                             <div class="col-sm-6">
-                                <input type="text" formControlName="hostname" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Hostname" />
-                                <div *ngIf="changeHostnameSubmitted && changeHostnameForm.controls.hostname.errors" class="error">
-                                    <div *ngIf="changeHostnameForm.controls.hostname.errors.required">A hostname is required</div>
-                                </div>
+                                <label style="width: 100%">
+                                    Hostname
+                                    <input type="text" formControlName="hostname" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Hostname" />
+                                    <div *ngIf="changeHostnameSubmitted && changeHostnameForm.controls.hostname.errors" class="error">
+                                        <div *ngIf="changeHostnameForm.controls.hostname.errors.required">A hostname is required</div>
+                                    </div>
+                                </label>
                             </div>
                             <div class="col-sm-6">
                                 <button class="btn btn-success shadow-sm" type="submit" style="width: 100%; margin-top: 1%">Change hostname</button>
@@ -98,10 +112,13 @@
                     <form [formGroup]="changePortForm" (ngSubmit)="changePort()">
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
-                                <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port" />
-                                <div *ngIf="changePortSubmitted && changePortForm.controls.newPort.errors" class="error">
-                                    <div *ngIf="changePortForm.controls.newPort.errors.required">A port is required</div>
-                                </div>
+                                <label style="width: 100%">
+                                    Port number
+                                    <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port" />
+                                    <div *ngIf="changePortSubmitted && changePortForm.controls.newPort.errors" class="error">
+                                        <div *ngIf="changePortForm.controls.newPort.errors.required">A port is required</div>
+                                    </div>
+                                </label>
                             </div>
                             <div class="col-sm-6">
                                 <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change port</button>
@@ -112,13 +129,34 @@
                     <form [formGroup]="changeSchemaForm" (ngSubmit)="changeSchema()">
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
-                                <input type="text" formControlName="newSchema" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Schema" />
-                                <div *ngIf="changeSchmemaSubmitted && changeSchemaForm.controls.newSchema.errors" class="error">
-                                    <div *ngIf="changeSchemaForm.controls.newSchema.errors.required">A schema is required</div>
-                                </div>
+                                <label style="width: 100%">
+                                    Schema
+                                    <input type="text" formControlName="newSchema" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Schema" />
+                                    <div *ngIf="changeSchmemaSubmitted && changeSchemaForm.controls.newSchema.errors" class="error">
+                                        <div *ngIf="changeSchemaForm.controls.newSchema.errors.required">A schema is required</div>
+                                    </div>
+                                </label>
                             </div>
                             <div class="col-sm-6">
                                 <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change schema name</button>
+                            </div>
+                        </div>
+                    </form> 
+
+
+                    <form [formGroup]="changeDatabaseForm" (ngSubmit)="changeDatabase()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Database
+                                    <input type="text" formControlName="name" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Database" />
+                                    <div *ngIf="changeDatabaseSubmitted && changeDatabaseForm.controls.name.errors" class="error">
+                                        <div *ngIf="changeDatabaseForm.controls.name.errors.required">A database is required</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change database</button>
                             </div>
                         </div>
                     </form> 
