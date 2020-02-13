@@ -8,20 +8,20 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
+    HashMap<String, HashMap<String, ArrayList<List<Double>>>> extent = new HashMap<>();
     private String id;
     private ArrayList<Link> links;
-    HashMap<String,HashMap<String, ArrayList<List<Double>>>> extent = new HashMap<>();
 
-    public FeatureCollection(String id){
+    public FeatureCollection(String id) {
         this.id = id;
         links = new ArrayList<>();
     }
 
-    public String getId(){
+    public String getId() {
         return id;
     }
 
-    public ArrayList<Link> getLinks(){
+    public ArrayList<Link> getLinks() {
         return links;
     }
 
@@ -30,7 +30,7 @@ public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
         return extent;
     }
 
-    public void setBB(List<Double> bb){
+    public void setBB(List<Double> bb) {
         HashMap<String, ArrayList<List<Double>>> m = new HashMap<>();
         ArrayList<List<Double>> a = new ArrayList<>(Arrays.asList(bb));
         m.put("bbox", a);

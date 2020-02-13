@@ -1,49 +1,57 @@
 package com.inspire.development.database;
 
-
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inspire.development.collections.FeatureCollection;
-import com.inspire.development.database.connector.SQLite;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonTypeName("dbconnector")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface DBConnector {
     String database = "";
     String hostname = "";
     String password = "";
     String username = "";
 
-    public String checkConnection();
+    String checkConnection();
 
-    public void delete(String fc);
+    void delete(String fc);
 
-    public FeatureCollection execute(String sql, String fcName, boolean check);
+    HashMap<String,String> getErrorBuffer();
 
-    public FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset, double[] bbox);
+    boolean removeError(String UUID);
 
-    public FeatureCollection[] getAll();
+    FeatureCollection execute(String sql, String fcName, boolean check) throws Exception;
 
-    public void save(FeatureCollection fc);
+    FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset,
+                          double[] bbox, Map<String,String> filterParams);
 
-    public void update(FeatureCollection fc);
+    FeatureCollection[] getAll();
 
-    public String getId();
+    void save(FeatureCollection fc);
 
-    public ArrayList<String> getAllTables();
+    void update(FeatureCollection fc);
 
-    public ArrayList<String> getColumns(String table);
+    String getId();
 
-    public void renameTable(String table, String tableAlias);
+    ArrayList<String> getAllTables();
 
-    public void renameProp(String table, String feature, String featureAlias);
+    ArrayList<String> getColumns(String table);
 
-    public void setGeo(String table, String column);
+    void renameTable(String table, String tableAlias);
 
-    public void setId(String table, String column);
+    void renameProp(String table, String feature, String featureAlias);
 
-    public String updateConnector();
+    void setGeo(String table, String column);
+
+    void setId(String table, String column);
+
+    String updateConnector();
+
+    void setColumnExclude(String table, String column, boolean exclude);
+
+    void setTableExclude(String table, boolean exclude);
 }
