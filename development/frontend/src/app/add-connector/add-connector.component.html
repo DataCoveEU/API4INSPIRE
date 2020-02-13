@@ -15,8 +15,9 @@
                     </select>
                 </div>
             </div>
+            <div id="errorField"></div>
             <div>
-                <form [formGroup]="addPostgresConnectorForm" (ngSubmit)="addPostgresConnector(false)">
+                <form [formGroup]="addPostgresConnectorForm">
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
                             <label>
@@ -92,12 +93,12 @@
                     </div>
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
-                            <button class="btn btn-success" style="width: 100%" (click)="addPostgresConnector(true)">Test connection</button>
+                            <button class="btn btn-success" style="width: 100%" (click)="addPostgresTest()">Test connection</button>
                         </div>
                     </div>
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
-                            <button class="btn btn-success" style="width: 100%" type="submit">Add connection</button>
+                            <button class="btn btn-success" style="width: 100%" type="submit" (click)="addPostgresConnector()">Add connection</button>
                         </div>
                     </div>
                 </form>
