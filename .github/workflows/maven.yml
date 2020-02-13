@@ -16,6 +16,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Install dependencies
+      working-directory: ./development
+      run: mvn --file ./pom.xml clean 
     - name: Build with Maven
       working-directory: ./development
       run: mvn --file ./pom.xml clean install 
