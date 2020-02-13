@@ -25,6 +25,8 @@ export class LandingPageComponent implements OnInit {
   map: any;
   importantLinks: any = []; 
 
+  collections: any = ["Lukas", "Tobias"];
+
   constructor(private homeService: HomeService, private http: HttpClient) { }
 
   async ngOnInit() {

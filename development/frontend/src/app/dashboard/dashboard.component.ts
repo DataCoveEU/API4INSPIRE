@@ -51,7 +51,7 @@ export class DashboardComponent implements OnInit {
   addImportantLinkFrom: FormGroup;
   addLinkSubmitted: boolean = false;
 
-  sqlSucess: boolean = true;
+  sqlNotSucess: boolean = false;
 
   checkedTable:boolean = false;
   checkedColumn: boolean = false;
@@ -246,10 +246,10 @@ export class DashboardComponent implements OnInit {
         } else if(con.config[tab[j]].alias == undefined) {
 
         } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
-          //alert("This name is already assigned to a table");
+          
+          this.errorField = true;
           var er = document.getElementById("errorField");
           er.innerHTML = "ERROR: This name is already assigned to a table";
-          this.errorField = true;
           return;
         }
       }
@@ -375,11 +375,16 @@ export class DashboardComponent implements OnInit {
         alert("SQL executed successfully")
       }
     ).catch((err)=>{
-      this.sqlSucess = false;
-      console.log(err);
+      this.sqlNotSucess = true;      
       var errorText = document.getElementById('sqlError');
-      errorText.innerHTML = err;
-      alert("Not executed successfully")
+      errorText.innerHTML = `<div class="card card-custom">
+                              <div class="card-header" style="background-color: #F56565; color: white">SQL ERROR</div>
+                              <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
+                                  <p>
+                                      ${err.error}
+                                  </p>
+                                  </div>
+                          </div>`;
     });
 
   }
