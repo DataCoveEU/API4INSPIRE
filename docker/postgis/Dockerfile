@@ -19,7 +19,8 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc -O- | a
 # We add postgis as well to prevent build errors (that we dont see on local builds)
 # on docker hub e.g.
 # The following packages have unmet dependencies:
-RUN apt-get update; apt-get install -y postgresql-client-11 postgresql-common postgresql-11 postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat postgresql-11-ogr-fdw
+#RUN apt-get update; apt-get install -y postgresql-client-11 postgresql-common postgresql-11 postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat postgresql-11-ogr-fdw
+RUN apt-get update; apt-get install -y postgresql-client-12 postgresql-common postgresql-12 postgresql-12-postgis-3 netcat postgresql-12-ogr-fdw postgresql-12-postgis-3-scripts postgresql-12-cron postgresql-plpython3-12
 
 # Open port 5432 so linked containers can see them
 EXPOSE 5432
@@ -50,5 +51,8 @@ ADD setup-user.sh /
 CMD mkdir /docker-entrypoint-initdb.d
 ADD setup-db.sql /docker-entrypoint-initdb.d/setup-db.sql
 RUN chmod +x /docker-entrypoint.sh
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && dpkg --remove --force-depends unzip
 
 ENTRYPOINT /docker-entrypoint.sh
