@@ -376,6 +376,7 @@ export class DashboardComponent implements OnInit {
       }
     ).catch((err)=>{
       this.sqlSucess = false;
+      console.log(err);
       var errorText = document.getElementById('sqlError');
       errorText.innerHTML = err;
       alert("Not executed successfully")
