@@ -190,9 +190,6 @@ export class DashboardComponent implements OnInit {
       this.idColumn = this.selectedConnector.config[name].idCol 
     }
     this.allColumnsExcluded = this.checkIfAllColumnExcluded();
-    console.log(this.allColumnsExcluded);
-    console.log(this.checkIfAllColumnExcluded());
-    console.log("--")
   }
 
   /**
@@ -725,20 +722,15 @@ export class DashboardComponent implements OnInit {
   checkIfAllColumnExcluded():boolean {
     for(let i = 0; i< this.columnNames.length; i++) {
       if(this.selectedConnector.config[this.idTableSelected] == undefined) {
-        console.log("undef v1")
         return false;
       } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
-        console.log("undef v2")
         return false;
       } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].exclude == undefined)  {
-        console.log("udef v3")
         return false;
       } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].exclude == false) {
-        console.log("just false lol")
         return false;
       }
     }
-    console.log("true")
     return true;
   }
 
