@@ -246,10 +246,10 @@ export class DashboardComponent implements OnInit {
         } else if(con.config[tab[j]].alias == undefined) {
 
         } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
-          //alert("This name is already assigned to a table");
+          
+          this.errorField = true;
           var er = document.getElementById("errorField");
           er.innerHTML = "ERROR: This name is already assigned to a table";
-          this.errorField = true;
           return;
         }
       }
