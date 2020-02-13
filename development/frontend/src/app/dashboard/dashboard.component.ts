@@ -305,8 +305,16 @@ export class DashboardComponent implements OnInit {
 
         } else {
           if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
-            alert("This name is already assigned to a column");
-            return;
+            var er = document.getElementById("infoField");
+            er.style.marginTop = "2%";
+            er.innerHTML = `<div class="card card-custom">
+                          <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                              <p>
+                                  This name is already assigned to a column
+                              </p>
+                              </div>
+                      </div>`;            return;
           }
         }
       }
@@ -341,8 +349,27 @@ export class DashboardComponent implements OnInit {
     this.conService.renameColumn(json).then(async()=>{
       this.reload();
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+      var er = document.getElementById("infoField");
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                        <p>
+                            Column renamed successfull
+                        </p>
+                        </div>
+                </div>`;
     }).catch(()=>{
-      alert("Not renamed")
+      var er = document.getElementById("infoField");
+          er.style.marginTop = "2%";
+          er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                        <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                            <p>
+                                Column not renamed
+                            </p>
+                            </div>
+                    </div>`;
     });
 
   }
@@ -481,7 +508,30 @@ export class DashboardComponent implements OnInit {
     }
     
     this.idColumn = this.idColumnSelected;
-    this.featureService.setAsId(json);
+    this.featureService.setAsId(json).then(()=>{
+      
+      var er = document.getElementById("infoField");
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                        <p>
+                           ${this.idColumnSelected} is now the ID column
+                        </p>
+                        </div>
+                </div>`;
+      }).catch((err)=>{
+        var er = document.getElementById("infoField");
+        er.style.marginTop = "2%";
+        er.innerHTML = `<div class="card card-custom">
+                      <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                      <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                          <p>
+                              Not selected as ID column
+                          </p>
+                          </div>
+                  </div>`;
+    });
   }
 
   /**
@@ -511,7 +561,29 @@ export class DashboardComponent implements OnInit {
       
     }
     this.geoColumn = this.idColumnSelected;
-    this.featureService.setAsGeometry(json);
+    this.featureService.setAsGeometry(json).then(()=>{
+      var er = document.getElementById("infoField");
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                        <p>
+                           ${this.idColumnSelected} is now the GEO column
+                        </p>
+                        </div>
+                </div>`;
+    }).catch(()=>{
+      var er = document.getElementById("infoField");
+        er.style.marginTop = "2%";
+        er.innerHTML = `<div class="card card-custom">
+                      <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                      <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                          <p>
+                              Not selected as GEO column
+                          </p>
+                          </div>
+                  </div>`;
+    });
   }
 
   /**
