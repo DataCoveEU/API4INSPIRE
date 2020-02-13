@@ -246,10 +246,16 @@ export class DashboardComponent implements OnInit {
         } else if(con.config[tab[j]].alias == undefined) {
 
         } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
-          
-          this.errorField = true;
-          var er = document.getElementById("errorField");
-          er.innerHTML = "ERROR: This name is already assigned to a table";
+          var er = document.getElementById("infoField");
+          er.style.marginTop = "2%";
+          er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                        <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                            <p>
+                                This name is already assigned to another table
+                            </p>
+                            </div>
+                    </div>`;
           return;
         }
       }
@@ -257,6 +263,16 @@ export class DashboardComponent implements OnInit {
 
     this.conService.renameTable(json).then(
       async ()=>{
+        var er = document.getElementById("infoField");
+          er.style.marginTop = "2%";
+          er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>
+                                Table renamed successfull
+                            </p>
+                            </div>
+                    </div>`;
         this.reload();
       }
     ).catch(()=>{
@@ -372,19 +388,27 @@ export class DashboardComponent implements OnInit {
 
     this.sqlService.executeSQL(json).then(
       async ()=>{
-        alert("SQL executed successfully")
+        var errorText = document.getElementById('sqlError');
+
+        errorText.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>
+                                SQL executed successfull
+                            </p>
+                            </div>
+                    </div>`;
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;      
       var errorText = document.getElementById('sqlError');
       errorText.innerHTML = `<div class="card card-custom">
-                              <div class="card-header" style="background-color: #F56565; color: white">SQL ERROR</div>
-                              <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
-                                  <p>
-                                      ${err.error}
-                                  </p>
+                                <div class="card-header" style="background-color: #F56565; color: white">SQL ERROR</div>
+                                  <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
+                                    <p>${err.error}</p>
                                   </div>
-                          </div>`;
+                                </div>
+                              </div>`;
     });
 
   }
