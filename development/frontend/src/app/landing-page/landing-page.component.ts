@@ -23,14 +23,13 @@ export class LandingPageComponent implements OnInit {
 
   map: any;
   importantLinks: any = []; 
-    //[{link: '#', name: 'No links available yet'}];
 
   constructor(private homeService: HomeService, private http: HttpClient) { }
 
   async ngOnInit() {
     this.importantLinks = await this.homeService.getLinks();
 
-    this.http.get("collections/insp_airspacearea/items").subscribe(json =>{
+    this.http.get("collections/tna_insp_airspacearea/items").subscribe(json =>{
 
       var vectorSource = new VectorSource({
         features: (new GeoJSON({ featureProjection: 'EPSG:4326' })).readFeatures(json)
@@ -51,7 +50,7 @@ export class LandingPageComponent implements OnInit {
         view: new View({
           projection: 'EPSG:4326',
           center: [16, 48],
-          zoom: 10
+          zoom: 6
         })
       });
 
