@@ -397,7 +397,7 @@ export class DashboardComponent implements OnInit {
   /**
    * Handle the "execute" event for the sql query
    */
-  executeSQL(check: boolean) {
+  executeSQL() {
     this.sqlSubmitted = true;
     if(this.sqlForm.invalid) {
       return;
@@ -407,13 +407,12 @@ export class DashboardComponent implements OnInit {
       'id': this.selectedConnector.id,
       'sql': this.sqlForm.value.sqlQuery,
       'collectionName': this.sqlForm.value.collectionId,
-      'check':check
+      'check': false
     };
 
     this.sqlService.executeSQL(json).then(
       async ()=>{
         var errorText = document.getElementById('sqlError');
-
         errorText.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
                         <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
@@ -428,6 +427,45 @@ export class DashboardComponent implements OnInit {
       var errorText = document.getElementById('sqlError');
       errorText.innerHTML = `<div class="card card-custom">
                                 <div class="card-header" style="background-color: #F56565; color: white">SQL ERROR</div>
+                                  <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
+                                    <p>${err.error}</p>
+                                  </div>
+                                </div>
+                              </div>`;
+    });
+
+  }
+
+  testSQL() {
+    this.sqlSubmitted = true;
+    if(this.sqlForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'id': this.selectedConnector.id,
+      'sql': this.sqlForm.value.sqlQuery,
+      'collectionName': this.sqlForm.value.collectionId,
+      'check': false
+    };
+    
+    this.sqlService.executeSQL(json).then(
+      async ()=>{
+        var errorText = document.getElementById('sqlError');
+        errorText.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #38B2AC; color: white">TEST INFORMATION</div>
+                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>
+                                SQL executed successfull
+                            </p>
+                            </div>
+                    </div>`;
+      }
+    ).catch((err)=>{
+      this.sqlNotSucess = true;      
+      var errorText = document.getElementById('sqlError');
+      errorText.innerHTML = `<div class="card card-custom">
+                                <div class="card-header" style="background-color: #F56565; color: white">SQL TEST ERROR</div>
                                   <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
                                     <p>${err.error}</p>
                                   </div>
