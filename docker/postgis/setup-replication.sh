@@ -24,13 +24,13 @@ function configure_replication_permissions {
 
     echo "Setup data permissions"
     echo "----------------------"
-    chown -R postgres:postgres $(getent passwd postgres  | cut -d: -f6)
+    chown -R postgres:postgres $(getent passwd postgres | cut -d: -f6)
         su - postgres -c "echo \"${REPLICATE_FROM}:${REPLICATE_PORT}:*:${REPLICATION_USER}:${REPLICATION_PASS}\" > ~/.pgpass"
         su - postgres -c "chmod 0600 ~/.pgpass"
 }
 
 function streaming_replication {
-until su - postgres -c "${PG_BASEBACKUP} -X stream -h ${REPLICATE_FROM} -p ${REPLICATE_PORT} -D ${DATADIR} -U ${REPLICATION_USER} -vP -w --label=gis_pg_custer"
+until su - postgres -c "${PG_BASEBACKUP} -X stream -h ${REPLICATE_FROM} -p ${REPLICATE_PORT} -D ${DATADIR} -U ${REPLICATION_USER} -R -vP -w --label=gis_pg_custer"
 	do
 		echo "Waiting for master to connect..."
 		sleep 1s
@@ -55,18 +55,8 @@ if [[ "$DESTROY_DATABASE_ON_RESTART" =~ [Tt][Rr][Uu][Ee] ]]; then
 fi
 
 
-# Setup recovery.conf, a configuration file for slave
-cat > ${DATADIR}/recovery.conf <<EOF
-standby_mode = on
-primary_conninfo = 'host=${REPLICATE_FROM} port=${REPLICATE_PORT} user=${REPLICATION_USER} password=${REPLICATION_PASS} sslmode=${PGSSLMODE}'
-trigger_file = '${PROMOTE_FILE}'
-recovery_target_timeline='latest'
-recovery_target_action='promote'
-#restore_command = 'cp /opt/archive/%f "%p"' Use if you are syncing the wal segments from master
-EOF
-# Setup permissions. Postgres won't start without this.
-chown postgres ${DATADIR}/recovery.conf
-chmod 600 ${DATADIR}/recovery.conf
+
+
 
 # Promote to master if desired
 if [[ ! -z "${PROMOTE_MASTER}" ]]; then
