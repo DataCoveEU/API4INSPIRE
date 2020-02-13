@@ -69,15 +69,17 @@ public class Core {
         }
 
         File[] listOfFiles = new File("./../ogcapisimple/sqlite").listFiles();
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                File f = listOfFiles[i];
-                if (!checkIfConnectorExists(f.getName())) {
-                    connectors.add(new SQLite(f.getPath(), f.getName()));
+        if(listOfFiles != null) {
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile()) {
+                    File f = listOfFiles[i];
+                    if (!checkIfConnectorExists(f.getName())) {
+                        connectors.add(new SQLite(f.getPath(), f.getName()));
+                    }
                 }
             }
+            writeConnectors();
         }
-        writeConnectors();
     }
 
     public ImportantLinkList getLinks() {

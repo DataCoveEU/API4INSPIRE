@@ -54,12 +54,12 @@
     </div>
 </div>-->
 <div class="row"  style="margin-bottom: 2%">
-    <div class="col-sm-10">
+    <div class="col-sm-8">
         <div class="card" style="width: 100%">
             <div id="map" class="map"></div>
         </div>
     </div>
-    <div class="col-sm-2">
+    <div class="col-sm-4">
         <div style="height: 30vh; overflow: auto">
             <table class="table">
                 <thead>
@@ -72,7 +72,7 @@
                 <tbody>
                     <tr *ngFor="let thing of collections; let i = index;" class="tableRow">
                         <th scope="row">{{ i+1 }}</th>
-                        <td>{{ thing }}</td>
+                        <td>{{ thing.id }}</td>
                         <td style="text-align: center">
                             <input type="checkbox" /> <!-- [checked]="this.selectedConnector?.config[tablename]?.exclude" -->
                         </td>
