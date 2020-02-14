@@ -29,7 +29,8 @@
             ],
             "styles": [
               "src/styles.scss",
-              "./node_modules/ol/ol.css"
+              "./node_modules/ol/ol.css",
+              "./node_modules/ol-layerswitcher/src/ol-layerswitcher.css"
             ],
             "scripts": [
               "./node_modules/jquery/dist/jquery.js"
