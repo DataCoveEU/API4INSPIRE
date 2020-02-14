@@ -46,7 +46,7 @@ export class AddConnectorComponent implements OnInit {
   /**
    * Handle event if a postgres connector is submitted
    */
-  addPostgresConnector(isTest: boolean) {
+  addPostgresConnector() {
     this.postgresSubmitted = true;
     if(this.addPostgresConnectorForm.invalid){
       return;
@@ -70,7 +70,7 @@ export class AddConnectorComponent implements OnInit {
       "port": port,
       "username": uname,
       "password": pwd,
-      "isTest": isTest
+      "isTest": false
     };
 
     //Call the service
@@ -78,6 +78,56 @@ export class AddConnectorComponent implements OnInit {
       alert("Connector added")
     }).catch(()=>{
       alert("ERROR: Connector not added")
+    });
+  }
+
+  addPostgresTest() {
+    this.postgresSubmitted = true;
+    if(this.addPostgresConnectorForm.invalid){
+      return;
+    }
+    //Get the values from the input form
+    var conName = this.addPostgresConnectorForm.value.connectorName;
+    var uname = this.addPostgresConnectorForm.value.username;
+    var pwd = this.addPostgresConnectorForm.value.password;
+    var host = this.addPostgresConnectorForm.value.hostname;
+    var port = this.addPostgresConnectorForm.value.port;
+    var schema = this.addPostgresConnectorForm.value.schema;
+    var database = this.addPostgresConnectorForm.value.database;
+
+    //Create the json which will be sent to the backend
+    var json = {
+      "class": "postgres",
+      "id": conName,
+      "database": database,
+      "schema": schema,
+      "hostname": host,
+      "port": port,
+      "username": uname,
+      "password": pwd,
+      "isTest": true
+    };
+
+    var er = document.getElementById("errorField");
+
+    //Call the service
+    this.conService.addConnector(json).then(()=>{
+      er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #38B2AC; color: white">TEST POSTGRES</div>
+                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>
+                                Connector added successfully
+                            </p>
+                            </div>
+                    </div>`;
+    }).catch(()=>{
+      er.innerHTML = `<div class="card card-custom">
+                                <div class="card-header" style="background-color: #F56565; color: white">TEST POSTGRES</div>
+                                  <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
+                                    <p>Connector NOT added</p>
+                                  </div>
+                                </div>
+                              </div>`;
     });
   }
 }

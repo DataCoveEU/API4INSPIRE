@@ -26,6 +26,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import mil.nga.sf.geojson.Feature;
+import org.apache.catalina.ssi.ResponseIncludeWrapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -119,10 +120,11 @@ public class RESTController {
      */
     @GetMapping("/conformance")
     public ConformanceDeclaration getConformance() {
-        String[] links = {"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
+        String[] links = {
+                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
                 //"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html", ==> Parameter to choose html no implemented yet
-                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"};
+                "http://www.opengis.net/spec/ogcapi-features-1/1.0/con  f/geojson"};
         return new ConformanceDeclaration(links);
     }
 
@@ -714,6 +716,18 @@ public class RESTController {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Name is null", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @RequestMapping(value ="/api/deleteConnector", method=RequestMethod.POST)
+    public ResponseEntity<Object> deleteConnector(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if(id != null) {
+            core.removeConnector(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
         }
     }
 
