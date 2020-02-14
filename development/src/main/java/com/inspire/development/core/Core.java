@@ -65,7 +65,7 @@ public class Core {
 
             @Override
             public void onFileDelete(File file) {
-                deleteByName(file.getName());
+                deleteByPath(file.getName());
                 writeConfig();
             }
         });
@@ -121,7 +121,7 @@ public class Core {
 
             @Override
             public void onFileDelete(File file) {
-                deleteByName(file.getName());
+                deleteByPath(file.getPath());
             }
         });
 
@@ -197,7 +197,7 @@ public class Core {
 
     public boolean removeConnector(String id){
         for(DBConnector db:config.getConnectors()){
-            if(db.getId() == id){
+            if(db.getId().equals(id)){
                 config.getConnectors().remove(db);
                 return true;
             }
@@ -205,12 +205,15 @@ public class Core {
         return false;
     }
 
-    private void deleteByName(String id) {
+    private void deleteByPath(String path) {
         for (int i = 0; i < config.getConnectors().size(); i++) {
             DBConnector db = config.getConnectors().get(i);
-            if (db.getId().equals(id)) {
-                config.getConnectors().remove(i);
-                break;
+            if(db instanceof SQLite) {
+                SQLite sqLite = (SQLite)db;
+                if (sqLite.getHostname().equals(path)) {
+                    config.getConnectors().remove(i);
+                    break;
+                }
             }
         }
     }

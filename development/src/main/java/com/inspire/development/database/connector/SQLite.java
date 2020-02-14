@@ -353,11 +353,8 @@ public class SQLite implements DBConnector {
 
     public String updateConnector() {
         Connection oldCon = c;
-        if (zwHostname == null) {
-            return null;
-        }
         try {
-            File sqliteFile = new File(zwHostname);
+            File sqliteFile = new File(hostname);
 
             if (sqliteFile.exists()) {
                 Properties prop = new Properties();
@@ -366,8 +363,6 @@ public class SQLite implements DBConnector {
                 prop.setProperty("enable_spatialite", "true");
                 Connection connection = DriverManager.getConnection("jdbc:spatialite:" + zwHostname, prop);
                 c = connection;
-                hostname = zwHostname;
-                zwHostname = null;
                 return null;
             } else {
                 c = oldCon;
@@ -777,5 +772,9 @@ public class SQLite implements DBConnector {
 
     public void setPath(String path) {
         this.zwHostname = path;
+    }
+
+    public void setConnectorId(String id) {
+        this.id = id;
     }
 }
