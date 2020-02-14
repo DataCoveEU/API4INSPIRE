@@ -11,13 +11,11 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option *ngFor="let connector of this.connectors" [attr.id]=connector.class >{{ connector.id }}</option>  <!-- [attr.id]=connector["@class"] -->
-                        <!--
-                        <option id="sqlite">SQLite connector</option>
-                        <option id="postgres">PostgreSQL connector</option>-->
+                        <option id="sqLite-general">SQLite general</option>
+                        <option *ngFor="let connector of this.connectors" [attr.id]=connector.class >{{ connector.id }}</option>
                     </select>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6" *ngIf="this.sqliteGeneral == false">
                     <button class="btn btn-success shadow-sm" style="width: 100%;">Test connection</button>
                     <br />
                     <br />
@@ -28,8 +26,41 @@
             <div id="infoField"></div>
                 
             <div id="content">
+                <div *ngIf="this.sqliteGeneral">
+                    <form [formGroup]="sqliteGeneralForm" (ngSubmit)="changePath()">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Path to sqlite folder
+                                    <input type="text" formControlName="path" class="form-control" placeholder="Path to sqlite folder" />
+                                    <div *ngIf="sqlliteGeneralSub && sqliteGeneralForm.controls.path.errors" class="error">
+                                        <div *ngIf="sqliteGeneralForm.controls.path.errors.required">A connector name is required</div>
+                                    </div>
+                                    <br />
+                                    <button class="btn btn-success" type="submit">Change folder path</button>
+                                </label>
+                            </div>
+                        </div>
+                        
+                    </form>
+                </div>
+
                 <div *ngIf="this.sqlite">
-                
+                    <form [formGroup]="sqlConnectorNameForm" (ngSubmit)="sqLiteConnectorName()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Connector name
+                                    <input type="text" formControlName="conName" class="form-control" placeholder="Connector name" />
+                                    <div *ngIf="sqlConnectorNameSub && sqlConnectorNameForm.controls.conName.errors" class="error">
+                                        <div *ngIf="sqlConnectorNameForm.controls.conName.errors.required">A connector name is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button class="btn btn-success" type="submit">Change name</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
 
@@ -44,9 +75,8 @@
                                         <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>
                                     </div>
                                 </label>
-                            </div>
-                            <div class="col-sm-6">
-                                <button class="btn btn-success shadow-sm" style="width: 100%" type="submit">Submit</button>
+                                <br />
+                                <button class="btn btn-success shadow-sm" type="submit">Submit</button>
                             </div>
                         </div>
                     </form>
@@ -62,10 +92,10 @@
                                         <div *ngIf="changeUsernameForm.controls.newName.errors.required">A username is required</div>
                                     </div>
                                 </label>
+                                <br />
+                                <button type="submit" class="btn btn-success shadow-sm" style="margin-top: 1%">Change username</button>
                             </div>
-                            <div class="col-sm-6">
-                                <button type="submit" class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change username</button>
-                            </div>
+                            
                         </div>
                     </form>
 
@@ -80,9 +110,8 @@
                                         <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
                                     </div>
                                 </label>
-                            </div>
-                            <div class="col-sm-6">
-                                <button type="submit" class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change password</button>
+                                <br />
+                                <button type="submit" class="btn btn-success shadow-sm" style="margin-top: 1%">Change password</button>
                             </div>
                         </div>
                     </form>
@@ -100,9 +129,8 @@
                                         <div *ngIf="changeHostnameForm.controls.hostname.errors.required">A hostname is required</div>
                                     </div>
                                 </label>
-                            </div>
-                            <div class="col-sm-6">
-                                <button class="btn btn-success shadow-sm" type="submit" style="width: 100%; margin-top: 1%">Change hostname</button>
+                                <br />
+                                <button class="btn btn-success shadow-sm" type="submit" style="margin-top: 1%">Change hostname</button>
                             </div>
                         </div>
 
@@ -118,9 +146,8 @@
                                         <div *ngIf="changePortForm.controls.newPort.errors.required">A port is required</div>
                                     </div>
                                 </label>
-                            </div>
-                            <div class="col-sm-6">
-                                <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change port</button>
+                                <br />
+                                <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change port</button>
                             </div>
                         </div>
                     </form>
@@ -135,9 +162,8 @@
                                         <div *ngIf="changeSchemaForm.controls.newSchema.errors.required">A schema is required</div>
                                     </div>
                                 </label>
-                            </div>
-                            <div class="col-sm-6">
-                                <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change schema name</button>
+                                <br />
+                                <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change schema name</button>
                             </div>
                         </div>
                     </form> 
@@ -153,9 +179,8 @@
                                         <div *ngIf="changeDatabaseForm.controls.name.errors.required">A database is required</div>
                                     </div>
                                 </label>
-                            </div>
-                            <div class="col-sm-6">
-                                <button class="btn btn-success shadow-sm" style="width: 100%; margin-top: 1%">Change database</button>
+                                <br />
+                                <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change database</button>
                             </div>
                         </div>
                     </form> 

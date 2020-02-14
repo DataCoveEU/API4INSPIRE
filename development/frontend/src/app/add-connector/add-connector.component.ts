@@ -116,7 +116,7 @@ export class AddConnectorComponent implements OnInit {
                         <div class="card-header" style="background-color: #38B2AC; color: white">TEST POSTGRES</div>
                         <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
                             <p>
-                                Connector added successfully
+                                Connector add test was successfully
                             </p>
                             </div>
                     </div>`;

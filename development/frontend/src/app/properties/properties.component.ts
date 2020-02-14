@@ -13,6 +13,7 @@ export class PropertiesComponent implements OnInit {
 
   sqlite: boolean = false;
   postgres: boolean = false;
+  sqliteGeneral: boolean = false;
 
   connectorNameForm: FormGroup;
   connectorNameSubmitted: boolean = false;
@@ -34,6 +35,12 @@ export class PropertiesComponent implements OnInit {
 
   changeDatabaseForm: FormGroup;
   changeDatabaseSubmitted: boolean = false;
+
+  sqlConnectorNameForm: FormGroup;
+  sqlConnectorNameSub: boolean = false
+
+  sqliteGeneralForm: FormGroup;
+  sqlliteGeneralSub: boolean = false;
 
   selectedConnector: any;
 
@@ -69,30 +76,59 @@ export class PropertiesComponent implements OnInit {
 
     this.changeDatabaseForm = this.formBuilder.group({
       name: ['', Validators.required]
-    })
+    });
 
-    this.sqlite = true;
+    this.sqlConnectorNameForm = this.formBuilder.group({
+      conName: ['', Validators.required]
+    });
+
+    this.sqliteGeneralForm = this.formBuilder.group({
+      path: ['', Validators.required]
+    });
+
 
     //Load all connectors
     this.connectors = await this.con.getConnector();
     this.connectors.push({"id":"Lukas", "class": "PostgreSQL"})
     
-    console.log(this.connectors);
 
     var sel = document.getElementById('connector') as HTMLSelectElement;
     this.selectedConnector = this.connectors[0];
+    
+    var index = sel.selectedIndex;
+    index == -1 ? index = 0 : index = index
+
+    console.log()
+    if(sel.options[index].getAttribute('id') == "sqLite-general") {
+      this.sqliteGeneral = true;
+      this.postgres = false;
+      this.sqlite = false;
+    } else if(this.connectors[index].class.includes("PostreSQL")) {
+      this.postgres = true;
+      this.sqlite = false;
+    } else if(this.connectors[index].class.includes("SQLite")) {
+      this.sqlite = true;
+      this.postgres = false;
+    } 
+
 
     //Change the form depending on what connector it is
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
       this.selectedConnector = this.connectors[sel.selectedIndex];
 
-      if(cal.includes("PostgreSQL")) {
+      if(cal == "sqLite-general") {
+        this.sqliteGeneral = true;
+        this.postgres = false;
+        this.sqlite = false;
+      } else if(cal.includes("PostgreSQL")) {
         this.sqlite = false;
         this.postgres = true;
+        this.sqliteGeneral = false;
       } else if(cal.includes("SQLite")) {
         this.sqlite = true;
         this.postgres = false;
+        this.sqliteGeneral = false;
       }
     }
   }
@@ -230,6 +266,20 @@ export class PropertiesComponent implements OnInit {
                 </div>`;
     });
 
+  }
+
+  sqLiteConnectorName() {
+    this.sqlConnectorNameSub = true;
+    if(this.sqlConnectorNameForm.invalid) {
+      return;
+    }
+  }
+
+  changePath() {
+    this.sqlliteGeneralSub = true;
+    if(this.sqliteGeneralForm.invalid) {
+      return;
+    }
   }
 
 }
