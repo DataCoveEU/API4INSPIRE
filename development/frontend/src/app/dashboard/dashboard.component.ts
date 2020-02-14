@@ -308,55 +308,46 @@ export class DashboardComponent implements OnInit {
       'orgName': this.idColumnSelected
     };
 
+    var er = document.getElementById("infoField");
+    if(this.columnNames.includes(this.renameColumnForm.value.columnName)) {
+      
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                            <p>This name is the original name of another column</p>
+                          </div>
+                        </div>
+                      </div>`;
+      return;
+    }
+    
     for(let i = 0; i < this.columnNames.length; i++) {
       if(this.selectedConnector.config[this.idTableSelected] == undefined) {
-        
-      } else {
-        if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
+          console.log("undefined v1");
+      }
+      
+      if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
+        console.log("undefined v2");
+      }
 
-        } else {
-          if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
-            var er = document.getElementById("infoField");
-            er.style.marginTop = "2%";
-            er.innerHTML = `<div class="card card-custom">
+      if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == undefined) {
+        console.log("undefined v3");
+      } 
+
+      if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
+        er.style.marginTop = "2%";
+        er.innerHTML = `<div class="card card-custom">
                           <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                              <p>
-                                  This name is already assigned to a column
-                              </p>
-                              </div>
-                      </div>`;            return;
-          }
-        }
+                            <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                              <p>This name is already assigned to a column: ${this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias}</p>
+                            </div>
+                          </div>
+                        </div>`;
+        return;
       }
     }
 
-
-/*
-    for(let i = 0; i < this.connectors.length; i++) {
-      var con = this.connectors[i];
-      var tabs = await this.conService.getTables({'id': con.id });
-      for(let j = 0; j < tabs.length; j++) {
-        var tab = tabs[j];
-        var cols = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+tab});
-        for(let h = 0; h < cols.length; h++) {
-          var col = cols[h];
-          if(con.config[tab] == undefined) {
-            console.log("undefined v1")
-          } else if(con.config[tab].map[col] == undefined) {
-            console.log("undefined v2")
-          } else if(con.config[tab].map[col].alias == undefined) {
-            console.log("undefined v3");
-          } else if(con.config[tab].map[col].alias == this.renameColumnForm.value.columnName) {
-            var er = document.getElementById("errorField");
-            er.innerHTML = "ERROR: This name is already assigned to a column";
-            return;
-          }
-        }        
-      }
-    }
-
-*/
     this.conService.renameColumn(json).then(async()=>{
       this.reload();
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
