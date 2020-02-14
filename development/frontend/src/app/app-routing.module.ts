@@ -15,7 +15,6 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'properties', component: PropertiesComponent },
   { path: 'connector', component: AddConnectorComponent }, 
-  { path: 'imprint', component: ImprintComponent },
   { path: 'user-management', component: UserManagementComponent },
   { path: '', component: LandingPageComponent },
   { path: 'error', component: ErrorComponent },

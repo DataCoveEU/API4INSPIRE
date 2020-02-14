@@ -19,10 +19,20 @@
                 </div>
                 <div class="col-sm-6">
                     <button class="btn btn-success shadow-sm" style="width: 100%;">Test connection</button>
+                    <br />
+                    <br />
+                    <button class="btn btn-danger" id="delDb" style="width: 100%;" (click)="delConnector()">Delete DB connector</button>
                 </div>
             </div>
+
+            <div id="infoField"></div>
                 
             <div id="content">
+                <div *ngIf="this.sqlite">
+                
+                </div>
+
+
                 <div *ngIf="this.postgres">
                     <form [formGroup]="connectorNameForm" (ngSubmit)="submitConnectorName()" >
                         <div class="row" style="width: 100%; margin-top: 1%">
@@ -68,17 +78,6 @@
                                     <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" placeholder="New password" />
                                     <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.newPwd.errors" class="error">
                                         <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="row" style="width: 100%; margin-top: 1%">
-                            <div class="col-sm-6">
-                                <label style="width: 100%">
-                                    Repeat password
-                                    <input type="text" class="form-control shadow-sm" formControlName="reNewPwd" style="width: 100%; margin-top: 1%" placeholder="Repeat new password" />
-                                    <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.reNewPwd.errors" class="error">
-                                        <div *ngIf="changePasswordForm.controls.reNewPwd.errors.required">Please repeat the password</div>
                                     </div>
                                 </label>
                             </div>

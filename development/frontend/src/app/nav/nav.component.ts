@@ -40,11 +40,7 @@ export class NavComponent implements OnInit {
     } else if (url == "/login") {
       //If you are on the login page --> the "Login" link is bold
       this.isLogin = true;
-    } else if(url == "/imprint") {
-      //If you are on the imprint page --> the "Imprint" link is bold
-      var imp = document.getElementById("imp");
-      imp.style.fontWeight = "bold";
-    }
+    } 
   }
 
 

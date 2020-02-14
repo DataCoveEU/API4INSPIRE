@@ -49,17 +49,6 @@
                             </label>
                         </div>
                     </div>
-                    <div class="row" style="width: 100%">
-                        <div class="col-sm-6">
-                            <label>
-                                Repeat password
-                                <input class="form-control" formControlName="hostname" type="text" style="width: 100%" placeholder="Hostname" />
-                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.hostname.errors" class="error">
-                                    <div *ngIf="addPostgresConnectorForm.controls.hostname.errors.required">A hostname is required</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
                             <label>

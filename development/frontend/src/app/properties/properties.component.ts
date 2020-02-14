@@ -52,8 +52,7 @@ export class PropertiesComponent implements OnInit {
     });
 
     this.changePasswordForm = this.formBuilder.group({
-      newPwd: ['', Validators.required],
-      reNewPwd: ['', Validators.required]
+      newPwd: ['', Validators.required]
     });
   
     this.changeHostnameForm = this.formBuilder.group({
@@ -205,6 +204,32 @@ export class PropertiesComponent implements OnInit {
       'username': null,
       'password': null
     };
+  }
+
+  delConnector() {
+    var er = document.getElementById("infoField");
+    this.conService.deleteConnector({'id': this.selectedConnector.id}).then(()=>{
+      er.style.marginTop = "2%";
+          er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>
+                                Connection deleted
+                            </p>
+                            </div>
+                    </div>`;
+    }).catch((err)=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                        <p>
+                            Connection not deleted
+                        </p>
+                        </div>
+                </div>`;
+    });
+
   }
 
 }
