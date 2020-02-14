@@ -20,7 +20,7 @@ export class ConnectorService {
   async getConnector() {
     this.connectors = await new Promise((resolve, reject) =>{
       this.httpClient.post('/ogcapisimple/api/getConnectors', {
-      }).subscribe((res)=>{
+      }).subscribe((res:any)=>{
         resolve(res);
       }, (err)=>{
         reject(err);
@@ -182,6 +182,18 @@ export class ConnectorService {
   async excludeAllColumns(json:object) {
     return new Promise((resolve, reject)=>{
       this.httpClient.post("/ogcapisimple/api/excludeAllColumns", json, {
+        responseType: "text"
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    })
+  }
+
+  async deleteConnector(json:object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post("/ogcapisimple/api/deleteConnector", json, {
         responseType: "text"
       }).subscribe((res)=>{
         resolve(res);

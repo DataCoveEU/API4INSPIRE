@@ -634,26 +634,29 @@ public class PostgreSQL implements DBConnector {
         if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
             sql = "SELECT *, ST_Envelope(" + geoCol + ") as ogc_bbox FROM (" + sql + ") as tabula";
 
-            if(filterParams.size() > 0)
+            if(filterParams != null && filterParams.size() > 0) {
                 sql += " where ";
 
-            for(Map.Entry<String,String> entry:filterParams.entrySet()){
-                String col = getConfigByAlias(table,entry.getKey());
-                col = col == null ? entry.getKey() : col;
-                sql = sql + col + "::varchar = ? and ";
+                for (Map.Entry<String, String> entry : filterParams.entrySet()) {
+                    String col = getConfigByAlias(table, entry.getKey());
+                    col = col == null ? entry.getKey() : col;
+                    sql = sql + col + "::varchar = ? and ";
+                }
             }
             if(bbox != null && geoCol != null) {
                 sql += "ST_Intersects(ST_Envelope(" + geoCol + "),?)";
             }else {
-                if(filterParams.size() > 0)
+                if(filterParams != null && filterParams.size() > 0)
                     sql = sql.substring(0, sql.length() - 4);
             }
             PreparedStatement ps = c.prepareStatement(sql);
             int counter = 1;
 
-            for(Map.Entry<String,String> entry:filterParams.entrySet()){
-                ps.setString(counter,entry.getValue());
-                counter++;
+            if(filterParams != null) {
+                for (Map.Entry<String, String> entry : filterParams.entrySet()) {
+                    ps.setString(counter, entry.getValue());
+                    counter++;
+                }
             }
 
             if(bbox != null && geoCol != null) {

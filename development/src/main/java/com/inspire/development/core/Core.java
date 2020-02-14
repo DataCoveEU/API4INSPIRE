@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.collections.ImportantLinkList;
+import com.inspire.development.config.Config;
 import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.config.ImportantLink;
 import com.inspire.development.database.DBConnector;
@@ -27,23 +28,95 @@ import org.apache.logging.log4j.Logger;
 
 public class Core {
     static Logger log = LogManager.getLogger(Core.class.getName());
-    DBConnectorList connectors;
-    ImportantLinkList links;
+    Config config;
+    FileAlterationObserver observer;
+    FileAlterationMonitor monitor;
 
     public Core() {
-        connectors = new DBConnectorList();
-        links = new ImportantLinkList();
-        File folder = new File("./../ogcapisimple/sqlite");
+        config = new Config();
+
+        Config conf = parseConfig();
+        if(conf != null){
+            this.config = conf;
+        }
+
+        String logPath = System.getProperty("log4j.saveDirectory");
+
+        if(logPath == null){
+            System.setProperty("log4j.saveDirectory",config.getLogPath());
+        }
+
+
+        File folder = new File(config.getSqlitePath());
         if (!folder.exists()) {
             folder.mkdirs();
         }
 
-        FileAlterationObserver observer = new FileAlterationObserver("./../ogcapisimple/sqlite");
+
+
+        observer = new FileAlterationObserver(config.getSqlitePath());
 
         observer.addListener(new FileAlterationListenerAdaptor() {
             @Override
             public void onFileCreate(File file) {
-                connectors.add(new SQLite(file.getPath(), file.getName()));
+                config.getConnectors().add(new SQLite(file.getPath(), file.getName()));
+                writeConfig();
+            }
+
+            @Override
+            public void onFileDelete(File file) {
+                deleteByName(file.getName());
+                writeConfig();
+            }
+        });
+        monitor = new FileAlterationMonitor(500, observer);
+        try {
+            monitor.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        File[] listOfFiles = new File(config.getSqlitePath()).listFiles();
+        if(listOfFiles != null) {
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile()) {
+                    File f = listOfFiles[i];
+                    if (!checkIfConnectorExists(f.getName())) {
+                        config.getConnectors().add(new SQLite(f.getPath(), f.getName()));
+                    }
+                }
+            }
+            writeConfig();
+        }
+    }
+
+    public ImportantLinkList getLinks() {
+        return config.getImportantLinks();
+    }
+
+    public void setLogDirectory(String dir){
+        config.setLogPath(dir);
+    }
+
+    public void setSqlitePath(String path){
+        try {
+            monitor.stop();
+        }catch (Exception e){
+
+        }
+
+        File folder = new File(path);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        observer = new FileAlterationObserver(path);
+
+        observer.addListener(new FileAlterationListenerAdaptor() {
+            @Override
+            public void onFileCreate(File file) {
+                config.getConnectors().add(new SQLite(file.getPath(), file.getName()));
             }
 
             @Override
@@ -51,51 +124,39 @@ public class Core {
                 deleteByName(file.getName());
             }
         });
-        FileAlterationMonitor monitor = new FileAlterationMonitor(500, observer);
+
+        monitor = new FileAlterationMonitor(500, observer);
         try {
             monitor.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        config.setSqlitePath(path);
 
-        DBConnectorList list = parseConnectors();
-        if (list != null) {
-            connectors = list;
-        }
-
-        ImportantLinkList links = parseImportantLinks();
-        if (links != null) {
-            this.links = links;
-        }
-
-        File[] listOfFiles = new File("./../ogcapisimple/sqlite").listFiles();
+        File[] listOfFiles = new File(config.getSqlitePath()).listFiles();
         if(listOfFiles != null) {
             for (int i = 0; i < listOfFiles.length; i++) {
                 if (listOfFiles[i].isFile()) {
                     File f = listOfFiles[i];
                     if (!checkIfConnectorExists(f.getName())) {
-                        connectors.add(new SQLite(f.getPath(), f.getName()));
+                        config.getConnectors().add(new SQLite(f.getPath(), f.getName()));
                     }
                 }
             }
-            writeConnectors();
+            writeConfig();
         }
-    }
-
-    public ImportantLinkList getLinks() {
-        return links;
     }
 
     public HashMap<String, String> getErrors(){
         HashMap<String,String> errors = new HashMap<>();
-        for(DBConnector db:connectors){
+        for(DBConnector db:config.getConnectors()){
             errors.putAll(db.getErrorBuffer());
         }
         return errors;
     }
 
     public boolean removeError(String UUID){
-        for(DBConnector db:connectors){
+        for(DBConnector db:config.getConnectors()){
             if(db.removeError(UUID)){
                 return true;
             }
@@ -103,13 +164,13 @@ public class Core {
         return false;
     }
 
-    public static DBConnectorList parseConnectors() {
+    public static Config parseConfig() {
         log.info("Parsing config");
-        File f = new File("../ogcapisimple/config.json");
+        File f = new File("./config.json");
         if (f.exists()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                return objectMapper.readValue(f, DBConnectorList.class);
+                return objectMapper.readValue(f, Config.class);
             } catch (IOException e) {
 
             }
@@ -117,29 +178,17 @@ public class Core {
         return null;
     }
 
-    public static ImportantLinkList parseImportantLinks() {
-        log.info("Parsing important links");
-        File f = new File("../ogcapisimple/links.json");
-        if (f.exists()) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                return objectMapper.readValue(f, ImportantLinkList.class);
-            } catch (IOException e) {
 
-            }
-        }
-        return null;
-    }
 
     public void addLink(String link, String name){
-        this.links.add(new ImportantLink(link,name));
-        writeImportantLinks();
+        config.getImportantLinks().add(new ImportantLink(link,name));
+        writeConfig();
     }
 
     public boolean removeLink(String name){
-        for(ImportantLink link:links){
+        for(ImportantLink link:config.getImportantLinks()){
             if(link.getName().equals(name)){
-                links.remove(link);
+                config.getImportantLinks().remove(link);
                 return true;
             }
         }
@@ -147,9 +196,9 @@ public class Core {
     }
 
     public boolean removeConnector(String id){
-        for(DBConnector db:connectors){
+        for(DBConnector db:config.getConnectors()){
             if(db.getId() == id){
-                connectors.remove(db);
+                config.getConnectors().remove(db);
                 return true;
             }
         }
@@ -157,17 +206,17 @@ public class Core {
     }
 
     private void deleteByName(String id) {
-        for (int i = 0; i < connectors.size(); i++) {
-            DBConnector db = connectors.get(i);
+        for (int i = 0; i < config.getConnectors().size(); i++) {
+            DBConnector db = config.getConnectors().get(i);
             if (db.getId().equals(id)) {
-                connectors.remove(i);
+                config.getConnectors().remove(i);
                 break;
             }
         }
     }
 
     private boolean checkIfConnectorExists(String id) {
-        for (DBConnector db : connectors) {
+        for (DBConnector db : config.getConnectors()) {
             if (db.getId().equals(id)) {
                 return true;
             }
@@ -175,28 +224,13 @@ public class Core {
         return false;
     }
 
-    public void writeConnectors() {
+
+    public void writeConfig() {
         log.info("Writing config to file");
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.addMixIn(SQLite.class, DBConnector.class);
         try {
-            File f = new File("../ogcapisimple/config.json");
-            objectMapper.writeValue(f, connectors);
-        } catch (JsonGenerationException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void writeImportantLinks() {
-        log.info("Writing links to file");
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            File f = new File("../ogcapisimple/links.json");
-            objectMapper.writeValue(f, links);
+            File f = new File("./config.json");
+            objectMapper.writeValue(f, config);
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -207,23 +241,21 @@ public class Core {
     }
 
     public DBConnectorList getConnectors() {
-        return connectors;
+        return config.getConnectors();
     }
 
-    public void setConnectors(DBConnectorList l) {
-        this.connectors = l;
-    }
+
 
     public void addConnector(DBConnector d) {
         if (!checkIfConnectorExists(d.getId())) {
-            this.connectors.add(d);
+            config.getConnectors().add(d);
         }
     }
 
     public FeatureCollection[] getAll() {
         String hostname = InetAddress.getLoopbackAddress().getHostName();
         ArrayList<FeatureCollection> fsl = new ArrayList<>();
-        for (DBConnector db : connectors) {
+        for (DBConnector db : config.getConnectors()) {
             FeatureCollection[] fca = db.getAll();
             fsl.addAll(Arrays.asList(fca));
         }
@@ -245,7 +277,7 @@ public class Core {
     public FeatureCollection get(String featureCollection, boolean withSpatial, int limit, int offset,
                                  double[] bbox, Map<String,String> filterParams) {
         log.info("Getting Collection: " + featureCollection);
-        for (DBConnector db : connectors) {
+        for (DBConnector db : config.getConnectors()) {
             FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox, filterParams);
             if (f != null) {
                 return f;
@@ -255,7 +287,7 @@ public class Core {
     }
 
     public DBConnector getConnectorById(String id) {
-        for (DBConnector db : connectors) {
+        for (DBConnector db : config.getConnectors()) {
             if (db.getId().equals(id)) {
                 return db;
             }

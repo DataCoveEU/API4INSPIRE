@@ -5,4 +5,5 @@ import com.inspire.development.database.DBConnector;
 import java.util.ArrayList;
 
 public class DBConnectorList extends ArrayList<DBConnector> {
+
 }

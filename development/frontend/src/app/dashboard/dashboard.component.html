@@ -7,12 +7,12 @@
             </select>
         </div>
         <div class="col-sm-3">
-            <button class="btn btn-danger" id="delDb">Delete DB connector</button>
+            <button class="btn btn-danger" id="delDb" (click)="delConnector()">Delete DB connector</button>
             <div id="delDbText"></div>
         </div>
     </div>
 
-    <div id="errorField" *ngIf="this.errorField"></div>
+    <div id="infoField"></div>
 
     <div class="row card-deck" id="tables">
         <div class="card" style="height: 30vh; overflow: auto">
@@ -143,10 +143,10 @@
                 <br />
                 <div class="row">
                     <div class="col-sm-2">
-                        <button class="btn btn-success" style="width: 100%" (click)="executeSQL(false)">Execute</button>
+                        <button class="btn btn-success" style="width: 100%" (click)="executeSQL()">Execute</button>
                     </div>
                     <div class="col-sm-2">
-                        <button class="btn btn-success" style="width: 100%" (click)="executeSQL(true)">Check</button>
+                        <button class="btn btn-success" style="width: 100%" (click)="testSQL()">Check</button>
                     </div>
                 </div>
             </form>
@@ -156,6 +156,7 @@
         </div>
     </div>
 
+    <div id="infoLinkField"></div>
     <!-- Add and remove important links from the landing page -->
     <div class="row">
         <div class="col-sm-12">
@@ -196,3 +197,31 @@
         </div>
     </div>
 </div>
+
+<footer class="pt-4 my-md-5 pt-md-5 border-top">
+    <div class="row" style="margin-left: 1%">
+        <div class="col-8 col-md">
+            <h5>Important Links</h5>
+            <ul class="list-unstyled text-small">
+                <li *ngFor="let link of importantLinks">
+                    <a href="{{ link.link }}">{{ link.name }}</a>
+                </li>
+                
+            <li><a class="text-muted" href="#"></a></li>
+            </ul>
+        </div>
+        <div class="col-8 col-md">
+            <h5>Lukas Gäbler</h5>
+            <h6><b>Mail: </b><a href="mailto:lukas.gaebler@gmail.com?Subject=OGC%API" target="_top">lukas.gaebler@gmail.com</a></h6>
+        </div>
+        <div class="col-8 col-md">
+            <h5>Tobias Pressler</h5>
+            <h6><b>Mail: </b><a href="mailto:pressler.tobias@gmail.com?Subject=OGC%API" target="_top">pressler.tobias@gmail.com</a></h6>
+        </div>
+    </div>
+    <div class="row" style="margin-left: 1%">
+        <div class="col-sm-12">
+            © 2020
+        </div>
+    </div>
+  </footer>
