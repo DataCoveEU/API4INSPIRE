@@ -251,7 +251,7 @@ public class RESTController {
                 if (error == null) {
                     if (!test) {
                         core.addConnector(s);
-                        core.writeConnectors();
+                        core.writeConfig();
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 } else {
