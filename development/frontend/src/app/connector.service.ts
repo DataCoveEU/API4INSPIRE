@@ -20,8 +20,8 @@ export class ConnectorService {
   async getConnector() {
     this.connectors = await new Promise((resolve, reject) =>{
       this.httpClient.post('/ogcapisimple/api/getConnectors', {
-      }).subscribe((res)=>{
-        resolve(res);
+      }).subscribe((res:any)=>{
+        resolve(res.connectors);
       }, (err)=>{
         reject(err);
       })
