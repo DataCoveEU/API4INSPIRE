@@ -94,6 +94,7 @@ export class DashboardComponent implements OnInit {
 
     this.importantLinks = await this.homeSerivce.getLinks();
 
+    
     //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
 
