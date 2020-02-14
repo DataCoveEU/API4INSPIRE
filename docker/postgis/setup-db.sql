@@ -1888,6 +1888,10 @@ INSERT INTO tna.insp_runwayarea (statename,geodatenstelle,ds_md_fileidentifier,a
 
 COMMIT;
 
+ALTER TABLE tna.insp_navaids ALTER COLUMN beginlifespanversion SET DATA TYPE TIMESTAMPTZ USING beginlifespanversion::timestamp with time zone;
+ALTER TABLE tna.insp_navaids ALTER COLUMN blspv SET DATA TYPE date USING blspv::date;
+COMMIT;
+
 ALTER TABLE tna.insp_aerodromenode ADD PRIMARY KEY (airport_pk);
 ALTER TABLE tna.insp_airspacearea ADD PRIMARY KEY (airspace_pk);
 ALTER TABLE tna.insp_designatedpoint ADD PRIMARY KEY (waypoint_pk);
