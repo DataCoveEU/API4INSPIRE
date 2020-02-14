@@ -22,8 +22,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class LandingPageComponent implements OnInit {
 
-  map: any;
+  map: Map;
   importantLinks: any = []; 
+
 
   collections: any = ["Lukas", "Tobias"];
 
@@ -33,24 +34,13 @@ export class LandingPageComponent implements OnInit {
     var col:any = (await this.getCollections());
     this.collections = col.collections;
 
-    this.importantLinks = await this.homeService.getLinks();
-
-    this.http.get("collections/tna_insp_airspacearea/items").subscribe(json =>{
-
-      var vectorSource = new VectorSource({
-        features: (new GeoJSON({ featureProjection: 'EPSG:4326' })).readFeatures(json)
-      });
+    this.importantLinks = await this.homeService.getLinks();    
       
-      var vectorLayer = new VectorLayer({
-        source: vectorSource
-      });
-      
-      var map = new Map({
+      this.map = new Map({
         layers: [
           new TileLayer({
             source: new OSM()
-          }),
-          vectorLayer
+          })
         ],
         target: 'map',
         view: new View({
@@ -58,7 +48,6 @@ export class LandingPageComponent implements OnInit {
           center: [16, 48],
           zoom: 6
         })
-      });
 
 });
     
@@ -73,4 +62,34 @@ export class LandingPageComponent implements OnInit {
       })
     });
   }
+
+  onClick(event: any){
+    var checked = event.target.checked;
+    var link = event.target.parentNode.parentNode.children[1].textContent;
+
+    if(checked){
+      this.http.get(`collections/${link}/items`).subscribe(json =>{
+
+        var vectorSource = new VectorSource({
+          features: (new GeoJSON({ featureProjection: 'EPSG:4326' })).readFeatures(json)
+        });
+        
+        var vectorLayer = new VectorLayer({
+          source: vectorSource,
+          name: link
+        });
+
+        this.map.getLayers().getArray().push(vectorLayer);
+        this.map.render();
+      });
+    }else{
+      console.log(this.map)
+      var layers = this.map.getLayerGroup().getLayers().getArray()
+      .filter(layer => layer.getProperties().name != link)
+      var layerObject = this.map.getLayerGroup().getLayers()
+      layerObject.array_ = layers;
+      this.map.getLayerGroup().setLayers(layerObject);
+      this.map.render();
+    }
+ }
 }
