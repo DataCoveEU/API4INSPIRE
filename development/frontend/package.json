@@ -22,8 +22,9 @@
     "@angular/router": "~8.2.14",
     "@auth0/angular-jwt": "^3.0.1",
     "jquery": "^3.4.1",
-    "ol": "^6.2.0",
+    "ol": "^6.2.1",
     "ol-layerswitcher": "^3.5.0",
+    "osm": "^1.0.0",
     "rxjs": "^6.4.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"

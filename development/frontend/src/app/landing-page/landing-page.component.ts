@@ -16,8 +16,8 @@ import GeoJSON from 'ol/format/GeoJSON';
 import ImageWMS from 'ol/source/ImageWMS';
 import { HttpClient } from '@angular/common/http';
 import LayerSwitcher from 'ol-layerswitcher';
-import SourceOSM from 'ol/source/osm';
-import LayerTile from 'ol/layer/tile';
+import SourceOSM from 'ol/source/OSM';
+import LayerTile from 'ol/layer/Tile';
 
 
 @Component({
