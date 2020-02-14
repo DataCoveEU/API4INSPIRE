@@ -143,7 +143,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     public void setUsername(String username) {
-        this.zwUsername = username;
+        this.username = username;
     }
 
     @JsonProperty
@@ -152,7 +152,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     public void setPassword(String password) {
-        this.zwPassword = password;
+        this.password = password;
     }
 
     public HashMap<String, String> getSqlString() {
@@ -249,6 +249,28 @@ public class PostgreSQL implements DBConnector {
             }catch (Exception e){
                 return null;
             }
+    }
+
+    public String updateConnector(){
+        Connection oldCon = c;
+        Connection connection = null;
+        // create a database connection
+        //jdbc:postgresql://host:port/database
+        Properties prop = new Properties();
+        prop.setProperty("user", username);
+        prop.setProperty("password", password);
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection =
+                    DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database,
+                            prop);
+            c = connection;
+           return null;
+        } catch (SQLException | ClassNotFoundException e) {
+            errorBuffer.put(getUUID(),e.getMessage());
+            c = oldCon;
+            return e.getMessage();
+        }
     }
 
     /**
@@ -407,70 +429,6 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
-    public String updateConnector() {
-        log.debug("Updating Connector");
-        Connection oldCon = c;
-        try {
-            Properties prop = new Properties();
-            String un = zwUsername;
-            if (un == null) {
-                un = username;
-            }
-            String pw = zwPassword;
-            if (pw == null) {
-                pw = password;
-            }
-
-            prop.setProperty("user", un);
-            prop.setProperty("password", pw);
-
-            String hn = zwHostname;
-            if (hn == null) {
-                hn = hostname;
-            }
-
-            int pt = zwPort;
-            if (pt == 0) {
-                pt = port;
-            }
-
-            String db = zwDatabase;
-            if (db == null) {
-                db = database;
-            }
-
-            Connection connection =
-                    DriverManager.getConnection("jdbc:postgresql://" + hn + ":" + pt + "/" + db, prop);
-            c = connection;
-            if (zwSchema != null) {
-                schema = zwSchema;
-            }
-            //Set properties
-            hostname = hn;
-            password = pw;
-            username = un;
-            port = pt;
-            hostname = hn;
-
-            //Reset zw
-            zwPassword = null;
-            zwHostname = null;
-            zwUsername = null;
-            zwPort = 0;
-            zwSchema = null;
-            zwDatabase = null;
-            return null;
-        } catch (SQLException e) {
-            //Reset zw
-            zwPassword = null;
-            zwHostname = null;
-            zwPort = 0;
-            zwSchema = null;
-            zwDatabase = null;
-            c = oldCon;
-            return e.getMessage();
-        }
-    }
 
     public void setColumnExclude(String table, String column, boolean exclude) {
         if (config.containsKey(table)) {
@@ -835,7 +793,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     public void setDatabase(String database) {
-        this.zwDatabase = database;
+        this.database = database;
     }
 
     @JsonProperty
@@ -844,7 +802,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     public void setPort(int port) {
-        this.zwPort = port;
+        this.port = port;
     }
 
     @JsonProperty
@@ -853,6 +811,6 @@ public class PostgreSQL implements DBConnector {
     }
 
     public void setSchema(String schema) {
-        this.zwSchema = schema;
+        this.schema = schema;
     }
 }

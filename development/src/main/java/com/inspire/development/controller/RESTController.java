@@ -27,6 +27,7 @@ import javax.validation.constraints.Min;
 
 import mil.nga.sf.geojson.Feature;
 import org.apache.catalina.ssi.ResponseIncludeWrapper;
+import org.spatialite.core.DB;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -167,7 +168,8 @@ public class RESTController {
                                                      @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit,
                                                      @RequestParam(required = false) double[] bbox,
                                                      @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset,
-                                                     @RequestParam(required = false) Map<String,String> filterParams) {
+                                                     @RequestParam(required = false) Map<String,String> filterParams,
+                                                     @RequestHeader(name="Host", required=false) final String host) {
         //Removing offset and limit param and bbox
         filterParams.remove("offset");
         filterParams.remove("limit");
@@ -176,21 +178,21 @@ public class RESTController {
         if (fc != null) {
             fc.getLinks()
                     .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + offset,
+                            "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + offset,
                             "self", "application/json", "this document"));
             //Test if any data is available after the current selected data
             FeatureCollection featureCollectionNext = core.get(id,false,1,limit+offset,bbox,filterParams);
             if(featureCollectionNext.getFeatures().size() == 1) {
                 fc.getLinks()
                         .add(new Link(
-                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset + limit),
+                                "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset + limit),
                                 "next", "application/json", "this document"));
             }
 
             if(offset > 0){
                 fc.getLinks()
                         .add(new Link(
-                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset-limit<0?0:offset-limit),
+                                "http://" + host +  "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset-limit<0?0:offset-limit),
                                 "prev", "application/json", "this document"));
             }
             return new ResponseEntity<>(fc, HttpStatus.OK);
@@ -302,9 +304,8 @@ public class RESTController {
                             String hostname = (String) input.get("hostname");
                             postgreSQL.setHostname(hostname);
 
-                            String portString = (String) input.get("port");
-                            if (portString != null) {
-                                int port = Integer.parseInt(portString);
+                            Integer port = (Integer) input.get("port");
+                            if (port != null) {
                                 postgreSQL.setPort(port);
                             }
 
@@ -314,38 +315,43 @@ public class RESTController {
                             String password = (String) input.get("password");
                             postgreSQL.setPassword(password);
 
-                            String error = db.updateConnector();
-                            if (error == null) {
-                                return new ResponseEntity<>("OK", HttpStatus.OK);
-                            } else {
-                                return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+                            String error = postgreSQL.updateConnector();
+                            if(error == null){
+                                return new ResponseEntity<>(HttpStatus.OK);
+                            }else{
+                                return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
                             }
                         }
                     }
                 }
                 if (classe.equals("sqlite")) {
                     //Index of connector to be changed
-                    String id = (String) input.get("id");
-                    if (id != null) {
-                        //Get Connector by ID
-                        DBConnector db = core.getConnectorById(id);
-                        if (db != null) {
-                            //Cast to SQLite Connector to set Path
-                            SQLite sqLite = (SQLite) db;
-                            String path = (String) input.get("path");
-                            if (path != null) {
-                                sqLite.setPath(path);
-                                String error = db.updateConnector();
-                                if (error == null) {
-                                    return new ResponseEntity<>("OK", HttpStatus.OK);
-                                } else {
-                                    return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-                                }
-                            }
-                        }
-                    } else {
-                        return new ResponseEntity<>("Connector id is null", HttpStatus.OK);
+                    String path = (String)input.get("path");
+                    String orgId = (String)input.get("orgid");
+                    String id = (String)input.get("id");
+                    if(path != null){
+                        core.setSqlitePath(path);
                     }
+                    if(orgId != null && id != null){
+                        DBConnector db = core.getConnectorById(orgId);
+                        if(db != null) {
+                            if (db instanceof SQLite) {
+                                SQLite sqLite = (SQLite) db;
+                                sqLite.setConnectorId(id);
+                                String error = sqLite.updateConnector();
+                                if(error != null){
+                                    return new ResponseEntity<>(HttpStatus.OK);
+                                }else{
+                                    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                                }
+                            } else {
+                                return new ResponseEntity<>("given connector is not an sqlite connector", HttpStatus.BAD_REQUEST);
+                            }
+                        }else{
+                            return new ResponseEntity<>("Connector not found", HttpStatus.BAD_REQUEST);
+                        }
+                    }
+                    return new ResponseEntity<>(HttpStatus.OK);
                 }
             } else {
                 return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
