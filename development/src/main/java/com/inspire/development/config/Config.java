@@ -12,8 +12,8 @@ public class Config {
     ImportantLinkList importantLinks;
 
     public Config(){
-        logPath = "./../ogcapisimple/sqlite";
-        sqlitePath = "./../ogcapisimple/sqlite";
+        logPath = "./logs";
+        sqlitePath = "./sqlite";
         connectors = new DBConnectorList();
         importantLinks = new ImportantLinkList();
     }
