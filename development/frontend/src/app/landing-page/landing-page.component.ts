@@ -4,11 +4,8 @@ declare var ol: any;
 import * as $ from 'jquery';
 
 import 'ol/ol.css';
-import Feature from 'ol/Feature';
 import Map from 'ol/Map';
 import View from 'ol/View';
-import FullScreen from 'ol/control';
-import Circle from 'ol/geom/Circle';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import {Image as ImageLayer} from 'ol/layer';
 import {OSM, Vector as VectorSource} from 'ol/source';
@@ -18,6 +15,8 @@ import { HttpClient } from '@angular/common/http';
 import LayerSwitcher from 'ol-layerswitcher';
 import SourceOSM from 'ol/source/OSM';
 import LayerTile from 'ol/layer/Tile';
+import LayerGroup from 'ol/layer/Group';
+import {defaults as defaultControls, ZoomToExtent} from 'ol/control';
 
 
 @Component({
@@ -29,6 +28,7 @@ export class LandingPageComponent implements OnInit {
 
   map: Map;
   importantLinks: any = []; 
+  zoomToExtent: ZoomToExtent;
 
 
   collections: any = ["Lukas", "Tobias"];
@@ -78,7 +78,11 @@ export class LandingPageComponent implements OnInit {
       })
   });
 
+  
+
   this.map.addControl(layerSwitcher);
+  this.zoomToExtent = new ZoomToExtent();
+  this.map.addControl(this.zoomToExtent);
     
   }
 
@@ -110,9 +114,14 @@ export class LandingPageComponent implements OnInit {
               source: vectorSource,
               name: link
             });
+
+            vectorLayer.setExtent(vectorSource.getExtent())
     
             this.map.getLayers().getArray().push(vectorLayer);
             this.map.render();
+            
+            this.setExtent();
+            
             break;
           }
         }
@@ -124,6 +133,37 @@ export class LandingPageComponent implements OnInit {
       layerObject.array_ = layers;
       this.map.getLayerGroup().setLayers(layerObject);
       this.map.render();
+
+      this.setExtent();
     }
+ }
+
+ setExtent(){
+  var layers = this.map.getLayerGroup().getLayers().getArray()
+  .filter(layer => layer.getProperties().name != undefined)
+  if(layers.length > 0){
+    var bbox = layers[0].getExtent();
+    for(var x = 1;x<layers.length;x++){
+      var bboxZw = layers[x].getExtent();
+      if(bboxZw){
+        bbox[0] = bbox[0] > bboxZw[0] ? bboxZw[0] : bbox[0];
+        bbox[1] = bbox[1] > bboxZw[1] ? bboxZw[1] : bbox[1];
+        bbox[2] = bbox[2] < bboxZw[2] ? bboxZw[2] : bbox[2];
+        bbox[3] = bbox[3] < bboxZw[3] ? bboxZw[3] : bbox[3];
+      }
+    }
+    
+    this.map.removeControl(this.zoomToExtent);
+    this.zoomToExtent = new ZoomToExtent({
+      extent: bbox
+    })
+    this.map.addControl(this.zoomToExtent);
+    this.map.render();
+  }else{
+    this.map.removeControl(this.zoomToExtent);
+    this.zoomToExtent = new ZoomToExtent()
+    this.map.addControl(this.zoomToExtent);
+    this.map.render();
+  }
  }
 }
