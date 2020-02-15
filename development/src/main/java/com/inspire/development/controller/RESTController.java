@@ -37,6 +37,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class RESTController {
@@ -89,29 +90,36 @@ public class RESTController {
         }
     }
 
-    @GetMapping("/collections")
-    public Collections Collections(@RequestHeader("Accept") String content) {
-        Collections c = new Collections(Arrays.asList(core.getAll()));
-        for (FeatureCollection fc : c.getCollections()) {
-            if(fc == null){
-                c.getCollections().remove(null);
-            }else {
-                //Add required links
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                                "self", "application/json", "this document"));
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                                "alternate", "text/html", "this document as html"));
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
-                                "items", "application/json", "this document as html"));
+    @RequestMapping(path = "/collections", method = RequestMethod.GET)
+    @ResponseBody
+    public Object Collections(@RequestHeader("Accept") String content, @RequestParam(required = false, defaultValue = "application/json") String f) {
+        if(f.equals("application/json")) {
+            Collections c = new Collections(Arrays.asList(core.getAll()));
+            for (FeatureCollection fc : c.getCollections()) {
+                if(fc == null){
+                    c.getCollections().remove(null);
+                }else {
+                    //Add required links
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                                    "self", "application/json", "this document"));
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                                    "alternate", "text/html", "this document as html"));
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
+                                    "items", "application/json", "this document as html"));
+                }
             }
+            return new ResponseEntity(c, HttpStatus.OK);
+        } else if(f.equals("text/html")){
+            return new RedirectView("/allCollections", true);
+        } else {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        return c;
     }
 
     /**
