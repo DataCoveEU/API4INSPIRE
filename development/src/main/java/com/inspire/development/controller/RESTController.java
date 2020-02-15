@@ -176,41 +176,49 @@ public class RESTController {
      * @param id the id of the feature Collection
      * @return all of the items of the matching feature collection
      */
-    @GetMapping("/collections/{collectionId}/items")
-    public ResponseEntity<Object> getCollectionItems(@PathVariable("collectionId") String id,
+    @RequestMapping(path = "/collections/{collectionId}/items", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getCollectionItems(@PathVariable("collectionId") String id,
                                                      @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(10000) int limit,
                                                      @RequestParam(required = false) double[] bbox,
                                                      @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset,
                                                      @RequestParam(required = false) Map<String,String> filterParams,
-                                                     @RequestHeader(name="Host", required=false) final String host) {
-        //Removing offset and limit param and bbox
-        filterParams.remove("offset");
-        filterParams.remove("limit");
-        filterParams.remove("bbox");
-        FeatureCollection fc = core.get(id, false, limit, offset, bbox,filterParams);
-        if (fc != null) {
-            fc.getLinks()
-                    .add(new Link(
-                            "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + offset,
-                            "self", "application/json", "this document"));
-            //Test if any data is available after the current selected data
-            FeatureCollection featureCollectionNext = core.get(id,false,1,limit+offset,bbox,filterParams);
-            if(featureCollectionNext.getFeatures().size() == 1) {
+                                                     @RequestHeader(name="Host", required=false) final String host,
+                                                     @RequestParam(required = false, defaultValue = "application/json") String f) {
+        if(f.equals("application/json")) {
+            //Removing offset and limit param and bbox
+            filterParams.remove("offset");
+            filterParams.remove("limit");
+            filterParams.remove("bbox");
+            FeatureCollection fc = core.get(id, false, limit, offset, bbox,filterParams);
+            if (fc != null) {
                 fc.getLinks()
                         .add(new Link(
-                                "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset + limit),
-                                "next", "application/json", "this document"));
-            }
+                                "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + offset,
+                                "self", "application/json", "this document"));
+                //Test if any data is available after the current selected data
+                FeatureCollection featureCollectionNext = core.get(id,false,1,limit+offset,bbox,filterParams);
+                if(featureCollectionNext.getFeatures().size() == 1) {
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset + limit),
+                                    "next", "application/json", "this document"));
+                }
 
-            if(offset > 0){
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + host +  "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset-limit<0?0:offset-limit),
-                                "prev", "application/json", "this document"));
+                if(offset > 0){
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + host +  "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset-limit<0?0:offset-limit),
+                                    "prev", "application/json", "this document"));
+                }
+                return new ResponseEntity<>(fc, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(fc, HttpStatus.OK);
+        } else if(f.equals("text/html")){
+            return new RedirectView("/collections/" + id + "/allItems", true);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
 
