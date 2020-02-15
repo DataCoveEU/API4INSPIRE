@@ -14,11 +14,11 @@ export class ItemsComponent implements OnInit {
 
   constructor(private router: ActivatedRoute, private httpClient: HttpClient) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.router.params.subscribe(async(query)=>{
       this.collection = query.collection;
     });
-    this.items = this.getItems();
+    this.items = await this.getItems();
     console.log(this.items);
   }
 

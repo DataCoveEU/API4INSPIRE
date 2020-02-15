@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Scanner;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
@@ -42,9 +43,6 @@ import org.springframework.web.servlet.view.RedirectView;
 @RestController
 public class RESTController {
     private Core core;
-    String hostname = InetAddress.getLoopbackAddress().getHostName();
-    int port = 8080;
-
     @Value("classpath:openapi.json")
     Resource resourceFile;
 
@@ -90,33 +88,38 @@ public class RESTController {
         }
     }
 
-    @RequestMapping(path = "/collections", method = RequestMethod.GET)
-    @ResponseBody
-    public Object Collections(@RequestHeader("Accept") String content, @RequestParam(required = false, defaultValue = "application/json") String f) {
+    @GetMapping("/collections")
+    public Object Collections(@RequestHeader("Accept") String content,
+                                   @RequestHeader(name="Host", required=false) final String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
         if(f.equals("application/json")) {
-            Collections c = new Collections(Arrays.asList(core.getAll()));
-            for (FeatureCollection fc : c.getCollections()) {
-                if(fc == null){
-                    c.getCollections().remove(null);
-                }else {
-                    //Add required links
-                    fc.getLinks()
-                            .add(new Link(
-                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                                    "self", "application/json", "this document"));
-                    fc.getLinks()
-                            .add(new Link(
-                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
-                                    "alternate", "text/html", "this document as html"));
-                    fc.getLinks()
-                            .add(new Link(
-                                    "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
-                                    "items", "application/json", "this document as html"));
-                }
+        Collections c = new Collections(Arrays.asList(core.getAll()));
+        for (FeatureCollection fc : c.getCollections()) {
+            if (fc == null) {
+                c.getCollections().remove(null);
+            } else {
+                //Add required links
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
+                                "self", "application/json", "this document"));
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
+                                "alternate", "text/html", "this document as html"));
+                fc.getLinks()
+                        .add(new Link(
+                                "http://" + host + "/ogcapisimple/collections/" + fc.getId() + "/items",
+                                "items", "application/json", "this document as html"));
             }
-            return new ResponseEntity(c, HttpStatus.OK);
+        }
+        return new ResponseEntity(c, HttpStatus.OK);
         } else if(f.equals("text/html")){
-            return new RedirectView("/allCollections", true);
+            try {
+                File f1 = new File(this.getClass().getClassLoader().getResource("static/index.html").getFile());
+                return new Scanner(f1).useDelimiter("\\Z").next();
+            }catch(Exception e){
+                return e.getMessage();
+            }
         } else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
@@ -144,20 +147,21 @@ public class RESTController {
      * @return the collection with the id
      */
     @GetMapping("/collections/{collectionId}")
-    public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id) {
+    public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id,
+                                                 @RequestHeader(name="Host", required=false) final String host) {
         FeatureCollection fc = core.get(id, true, 0, 0, null,null);
         if (fc != null) {
             fc.getLinks()
                     .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                            "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
                             "self", "application/json", "this document"));
             fc.getLinks()
                     .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId(),
+                            "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
                             "alternate", "text/html", "this document as html"));
             fc.getLinks()
                     .add(new Link(
-                            "http://" + hostname + ":" + port + "/ogcapisimple/collections/" + fc.getId() + "/items",
+                            "http://" + host + "/ogcapisimple/collections/" + fc.getId() + "/items",
                             "items", "application/json", "this document as html"));
             return new ResponseEntity<>(fc, HttpStatus.OK);
         } else {
@@ -211,7 +215,12 @@ public class RESTController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } else if(f.equals("text/html")){
-            return new RedirectView("/collections/" + id + "/allItems", true);
+            try {
+                File f1 = new File(this.getClass().getClassLoader().getResource("static/index.html").getFile());
+                return new Scanner(f1).useDelimiter("\\Z").next();
+            }catch(Exception e){
+                return e.getMessage();
+            }
         } else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
