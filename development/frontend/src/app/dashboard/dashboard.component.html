@@ -14,19 +14,19 @@
     <div id="infoField"></div>
 
     <div class="row card-deck" id="tables">
-        <div class="card" style="height: 30vh; overflow: auto">
-            <table class="table">
+        <div class="card">
+            <table class="table" fixed-header>
                 <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Table name</th>
-                        <th scope="col">
+                    <tr class="table-head" fixed-header>
+                        <th scope="col" class="table-head-font-weight-normal">#</th>
+                        <th scope="col" class="table-head-font-weight-normal">Table name</th>
+                        <th scope="col" class="table-head-font-weight-normal">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="exludeAllTables" [checked]="this.allTablesExcluded" (click)="excludeAllTables()"> <!-- exludeAllTables -->
                                 <label class="custom-control-label" for="exludeAllTables">Exclude</label>
                             </div>
                         </th>
-                        <th scope="col">Connection name</th>
+                        <th scope="col" class="table-head-font-weight-normal">Connection name</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,19 +42,19 @@
                 </tbody>
             </table>
         </div>
-        <div class="card" style="width: 100%; height: 30vh; overflow: auto">
-            <table class="table">
+        <div class="card">
+            <table class="table" fixed-header>
                 <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Column name</th>
-                        <th scope="col">
+                    <tr class="table-head" fixed-header>
+                        <th scope="col" class="table-head-font-weight-normal">#</th>
+                        <th scope="col" class="table-head-font-weight-normal">Column name</th>
+                        <th scope="col" class="table-head-font-weight-normal">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" [checked]="this.allColumnsExcluded" id="excludeAllColumns" (click)="excludeAllColumns()">
                                 <label class="custom-control-label" for="excludeAllColumns">Exclude</label>
                             </div>
                         </th>
-                        <th scope="col">Property name</th>
+                        <th scope="col" class="table-head-font-weight-normal">Property name</th>
                     </tr>
                 </thead>
                 <tbody *ngIf="showCols">
@@ -62,7 +62,7 @@
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ colname }}</td>
                         <td style="text-align: center">
-                            <input class="form-check-input excludeColumn" id="{{ 'checkbox-' + colname }}" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
+                            <input class="excludeColumn" id="{{ 'checkbox-' + colname }}" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
                         </td>
                         <td>{{ this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.alias }}</td>
                     </tr>
