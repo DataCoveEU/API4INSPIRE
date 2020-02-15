@@ -21,6 +21,7 @@ import { JwtInterceptor } from './jwt.interceptor';
 import { UserManagementComponent } from './user-management/user-management.component';
 import {APP_BASE_HREF} from '@angular/common';
 import { CollectionsComponent } from './collections/collections.component';
+import { ItemsComponent } from './items/items.component';
 
 export function tokenGetter(){return localStorage.getItem('access_token')}
 
@@ -36,7 +37,8 @@ export function tokenGetter(){return localStorage.getItem('access_token')}
     AddConnectorComponent,
     ImprintComponent,
     UserManagementComponent,
-    CollectionsComponent
+    CollectionsComponent,
+    ItemsComponent
   ],
   imports: [
     BrowserModule,
