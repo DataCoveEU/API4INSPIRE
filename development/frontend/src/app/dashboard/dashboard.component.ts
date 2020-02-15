@@ -794,7 +794,30 @@ export class DashboardComponent implements OnInit {
     var json = {
       "name": name
     };
-    this.homeSerivce.removeLink(json);
+    this.homeSerivce.removeLink(json).then(async ()=>{
+      var er = document.getElementById("infoLinkField");
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                        <p>
+                        Imortant link successfully removed
+                        </p>
+                        </div>
+                </div>`;
+          this.importantLinks = await this.homeSerivce.getLinks();
+    }, (err)=>{
+      var er = document.getElementById("infoLinkField");
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                        <p>
+                            Link not removed
+                        </p>
+                        </div>
+                </div>`;
+    });
   }
 
  
