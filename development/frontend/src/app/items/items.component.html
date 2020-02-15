@@ -1,5 +1,25 @@
 <app-nav></app-nav>
 
 <div style="margin: 2%">
-    
+    <h3>Items</h3>
+    <ul>
+        <li><a href="collections/{{ this.collection }}/items">This document as JSON</a></li>
+    </ul>
+    <div>
+        <h5>{{ this.collection }}</h5>
+        <ul>
+            <li *ngFor="let feature of items.features">
+                <h6>{{ feature.id }}</h6>
+                <h6>Geometry: {{ feature.geometry["type"] }}</h6>
+                <h6>Properties</h6>
+                <ul>
+                    <li>nam:  {{ feature.properties["nam"] }}</li>
+                    <li>codemil: {{ feature.properties["codemil"] }}</li>
+                    <li>statename: {{ feature.properties["statename"] }}</li>
+                    <li>namespace_base: {{ feature.properties["namespace_base"] }}</li>
+                </ul>
+            </li>
+        </ul>
+            
+    </div>
 </div>
