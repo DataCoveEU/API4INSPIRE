@@ -19,7 +19,7 @@ const routes: Routes = [
   { path: 'collections', component: CollectionsComponent},
   { path: 'connector', component: AddConnectorComponent },
   { path: 'connector', component: AddConnectorComponent },
-  { path: 'collections/:collection/allItems', component: ItemsComponent},
+  { path: 'collections/:collection/items', component: ItemsComponent},
   { path: 'user-management', component: UserManagementComponent },
   { path: '', component: LandingPageComponent },
   { path: 'error', component: ErrorComponent },

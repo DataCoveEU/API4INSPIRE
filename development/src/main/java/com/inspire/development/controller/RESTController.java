@@ -114,7 +114,6 @@ public class RESTController {
         }
         return new ResponseEntity(c, HttpStatus.OK);
         } else if(f.equals("text/html")){
-            //classpath:/static/
             try {
                 File f1 = new File(this.getClass().getClassLoader().getResource("static/index.html").getFile());
                 return new Scanner(f1).useDelimiter("\\Z").next();
@@ -216,7 +215,12 @@ public class RESTController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } else if(f.equals("text/html")){
-            return new RedirectView("/collections/" + id + "/allItems", true);
+            try {
+                File f1 = new File(this.getClass().getClassLoader().getResource("static/index.html").getFile());
+                return new Scanner(f1).useDelimiter("\\Z").next();
+            }catch(Exception e){
+                return e.getMessage();
+            }
         } else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
