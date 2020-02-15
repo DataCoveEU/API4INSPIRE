@@ -13,7 +13,6 @@ export class PropertiesComponent implements OnInit {
 
   sqlite: boolean = false;
   postgres: boolean = false;
-  sqliteGeneral: boolean = false;
 
   connectorNameForm: FormGroup;
   connectorNameSubmitted: boolean = false;
@@ -39,8 +38,6 @@ export class PropertiesComponent implements OnInit {
   sqlConnectorNameForm: FormGroup;
   sqlConnectorNameSub: boolean = false
 
-  sqliteGeneralForm: FormGroup;
-  sqlliteGeneralSub: boolean = false;
 
   selectedConnector: any;
 
@@ -82,10 +79,6 @@ export class PropertiesComponent implements OnInit {
       conName: ['', Validators.required]
     });
 
-    this.sqliteGeneralForm = this.formBuilder.group({
-      path: ['', Validators.required]
-    });
-
 
     //Load all connectors
     this.connectors = await this.con.getConnector();
@@ -98,12 +91,7 @@ export class PropertiesComponent implements OnInit {
     var index = sel.selectedIndex;
     index == -1 ? index = 0 : index = index
 
-    console.log()
-    if(sel.options[index].getAttribute('id') == "sqLite-general") {
-      this.sqliteGeneral = true;
-      this.postgres = false;
-      this.sqlite = false;
-    } else if(this.connectors[index].class.includes("PostreSQL")) {
+    if(this.connectors[index].class.includes("PostreSQL")) {
       this.postgres = true;
       this.sqlite = false;
     } else if(this.connectors[index].class.includes("SQLite")) {
@@ -117,18 +105,12 @@ export class PropertiesComponent implements OnInit {
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
       this.selectedConnector = this.connectors[sel.selectedIndex];
 
-      if(cal == "sqLite-general") {
-        this.sqliteGeneral = true;
-        this.postgres = false;
-        this.sqlite = false;
-      } else if(cal.includes("PostgreSQL")) {
+      if(cal.includes("PostgreSQL")) {
         this.sqlite = false;
         this.postgres = true;
-        this.sqliteGeneral = false;
       } else if(cal.includes("SQLite")) {
         this.sqlite = true;
         this.postgres = false;
-        this.sqliteGeneral = false;
       }
     }
   }
@@ -275,11 +257,5 @@ export class PropertiesComponent implements OnInit {
     }
   }
 
-  changePath() {
-    this.sqlliteGeneralSub = true;
-    if(this.sqliteGeneralForm.invalid) {
-      return;
-    }
-  }
 
 }

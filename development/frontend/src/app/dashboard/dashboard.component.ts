@@ -427,6 +427,7 @@ export class DashboardComponent implements OnInit {
                             </p>
                             </div>
                     </div>`;
+                    this.reload();
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;      

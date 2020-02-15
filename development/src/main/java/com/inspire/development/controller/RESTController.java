@@ -67,7 +67,8 @@ public class RESTController {
     }
 
     @RequestMapping(path = "/api", produces={"text/html", "application/json"})
-    public @ResponseBody Object index (@RequestParam(required = false, defaultValue = "text/html") String f) {
+    @ResponseBody
+    public Object index (@RequestParam(required = false, defaultValue = "text/html") String f) {
         if(f.equals("text/html")) {
             try {
                 return new String(Files.readAllBytes(Paths.get(indexFile.getURI())));
