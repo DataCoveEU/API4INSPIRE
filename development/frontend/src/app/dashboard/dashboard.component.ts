@@ -508,6 +508,30 @@ export class DashboardComponent implements OnInit {
     var cb = document.getElementById("checkbox-" + colName) as HTMLInputElement;
     var checked: boolean = cb.checked;
     var bool: boolean = false;
+    var er = document.getElementById("infoField");
+    if(colName == this.geoColumn) {
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                            <p>${colName} cant be excluded as it is the GEO Column</p>
+                          </div>
+                        </div>
+                      </div>`;
+      return;
+    }
+
+    if(colName == this.idColumn) {
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                            <p>${colName} cant be excluded as it is the ID Column</p>
+                          </div>
+                        </div>
+                      </div>`;
+      return;
+    }
     if(checked) {
       bool = true;
     } else {
@@ -550,9 +574,8 @@ export class DashboardComponent implements OnInit {
     }
     
     this.idColumn = this.idColumnSelected;
+    var er = document.getElementById("infoField");
     this.featureService.setAsId(json).then(()=>{
-      
-      var er = document.getElementById("infoField");
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -563,7 +586,6 @@ export class DashboardComponent implements OnInit {
                         </div>
                 </div>`;
       }).catch((err)=>{
-        var er = document.getElementById("infoField");
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
                       <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -694,31 +716,28 @@ export class DashboardComponent implements OnInit {
     this.addLinkSubmitted = true;
     if(this.addImportantLinkFrom.invalid) {
       return;
-    }
+    }        
+    var er = document.getElementById("infoLinkField");
     for(let i = 0; i < this.importantLinks.length; i++) {
       if(this.addImportantLinkFrom.value.displayName == this.importantLinks[i].name) {
-        var er = document.getElementById("infoLinkField");
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
-                      <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                      <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                          <p>
-                              A link with this name already exists
-                          </p>
+                          <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                            <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                              <p>A link with this name already exists</p>
+                            </div>
                           </div>
-                  </div>`;
+                        </div>`;
         return;
       } else if (this.addImportantLinkFrom.value.addLink == this.importantLinks[i].link) {
-        var er = document.getElementById("infoLinkField");
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
-                      <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                      <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                          <p>
-                              This link already exists
-                          </p>
+                          <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                            <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                              <p>This link already exists</p>
+                            </div>
                           </div>
-                  </div>`;
+                        </div>`;
         return;
       }
     }
@@ -727,25 +746,23 @@ export class DashboardComponent implements OnInit {
       'link': this.addImportantLinkFrom.value.addLink,
       'name': this.addImportantLinkFrom.value.displayName
     };
-
+    var er = document.getElementById("infoLinkField");
     this.homeSerivce.addLink(json).then( async ()=>{
-      var er = document.getElementById("infoLinkField");
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                        <p>
-                        Added as important link
-                        </p>
+                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                          <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>Added as important link</p>
+                          </div>
                         </div>
-                </div>`;
-          this.importantLinks = await this.homeSerivce.getLinks();
+                      </div>`;
+      this.importantLinks = await this.homeSerivce.getLinks();
+
     }).catch((err)=>{
-      var er = document.getElementById("infoLinkField");
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
                         <p>
                             Not added as important link
                         </p>
