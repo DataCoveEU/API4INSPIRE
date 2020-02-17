@@ -11,7 +11,6 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option id="sqLite-general">SQLite general</option>
                         <option *ngFor="let connector of this.connectors" [attr.id]=connector.class >{{ connector.id }}</option>
                     </select>
                 </div>
@@ -26,7 +25,6 @@
             <div id="infoField"></div>
                 
             <div id="content">
-
                 <div *ngIf="this.sqlite">
                     <form [formGroup]="sqlConnectorNameForm" (ngSubmit)="sqLiteConnectorName()">
                         <div class="row" style="width: 100%; margin-top: 1%">

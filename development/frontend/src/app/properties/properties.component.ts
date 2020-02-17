@@ -120,16 +120,8 @@ export class PropertiesComponent implements OnInit {
     if(this.connectorNameForm.invalid) {
       return;
     }
-    alert("Not implemented in the backend")
-  }
-
-  changeUsername() {
-    this.changeUserSubmitted = true;
-    if(this.changeUsernameForm.invalid) {
-      return;
-    }
-
     var json = {
+      'class': "postgres",
       'id': this.selectedConnector.id,
       'database': null,
       'schema': null,
@@ -140,6 +132,27 @@ export class PropertiesComponent implements OnInit {
     };
   }
 
+  changeUsername() {
+    this.changeUserSubmitted = true;
+    if(this.changeUsernameForm.invalid) {
+      return;
+    }
+
+    var json = {
+      'class': "postgres",
+      'id': this.selectedConnector.id,
+      'database': null,
+      'schema': null,
+      'hostname': null,
+      'port': null,
+      'username': this.changeUsernameForm.value.newName,
+      'password': null
+    };
+
+
+    this.conService.changeConnectorProps(json);
+  }
+
   changePassword() {
     this.changePasswordSubmitted = true;
     if(this.changePasswordForm.invalid) {
@@ -147,14 +160,11 @@ export class PropertiesComponent implements OnInit {
     }
 
     var json = {
+      'class': "postgres",
       'id': this.selectedConnector.id,
-      'database': null,
-      'schema': null,
-      'hostname': null,
-      'port': null,
-      'username': null,
       'password': this.changePasswordForm.value.newPwd
     };
+    this.conService.changeConnectorProps(json);
   }
 
   changeHostname() {
@@ -164,14 +174,11 @@ export class PropertiesComponent implements OnInit {
     } 
 
     var json = {
+      'class': "postgres",
       'id': this.selectedConnector.id,
-      'database': null,
-      'schema': null,
       'hostname': this.changeHostnameForm.value.hostname,
-      'port': null,
-      'username': null,
-      'password': null
     };
+    this.conService.changeConnectorProps(json);
   }
 
   changePort() {
@@ -180,14 +187,11 @@ export class PropertiesComponent implements OnInit {
       return;
     }
     var json = {
+      'class': "postgres",
       'id': this.selectedConnector.id,
-      'database': null,
-      'schema': null,
-      'hostname': null,
-      'port': this.changePortForm.value.newPort,
-      'username': null,
-      'password': null
+      'port': this.changePortForm.value.newPort
     };
+    this.conService.changeConnectorProps(json);
   }
 
   changeSchema() {
@@ -197,14 +201,11 @@ export class PropertiesComponent implements OnInit {
     }
 
     var json = {
+      'class': "postgres",
       'id': this.selectedConnector.id,
-      'database': null,
-      'schema': this.changeSchemaForm.value.newSchema,
-      'hostname': null,
-      'port': null,
-      'username': null,
-      'password': null
+      'schema': this.changeSchemaForm.value.newSchema
     };
+    this.conService.changeConnectorProps(json);
   }
 
   changeDatabase() {
@@ -214,14 +215,11 @@ export class PropertiesComponent implements OnInit {
     }
 
     var json = {
+      'class': "postgres",
       'id': this.selectedConnector.id,
-      'database': this.changeDatabaseForm.value.name,
-      'schema': null,
-      'hostname': null,
-      'port': null,
-      'username': null,
-      'password': null
+      'database': this.changeDatabaseForm.value.name
     };
+    this.conService.changeConnectorProps(json);
   }
 
   delConnector() {
@@ -255,6 +253,13 @@ export class PropertiesComponent implements OnInit {
     if(this.sqlConnectorNameForm.invalid) {
       return;
     }
+
+    var json = {
+      'class': "sqlite",
+      'orgid': this.selectedConnector.id,
+      'id': this.sqlConnectorNameForm.value.conName
+    };
+    this.conService.changeConnectorProps(json);
   }
 
 
