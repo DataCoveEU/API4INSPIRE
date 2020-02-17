@@ -40,11 +40,6 @@ public class Core {
             this.config = conf;
         }
 
-        String logPath = System.getProperty("log4j.saveDirectory");
-
-        if(logPath == null){
-            System.setProperty("log4j.saveDirectory",config.getLogPath());
-        }
 
 
         File folder = new File(config.getSqlitePath());

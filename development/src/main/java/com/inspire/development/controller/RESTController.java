@@ -762,6 +762,26 @@ public class RESTController {
         }
     }
 
+    @RequestMapping(value = "/api/checkConnection", method = RequestMethod.POST)
+    public ResponseEntity<Object> checkConnection(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if (id != null) {
+            DBConnector db = core.getConnectorById(id);
+            if(db != null){
+                String error = db.checkConnection();
+                if(error == null){
+                    return new ResponseEntity<>(HttpStatus.OK);
+                }else{
+                    return new ResponseEntity<>(error,HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }else{
+                return new ResponseEntity<>("Connection not found", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 
 

@@ -173,11 +173,7 @@ public class PostgreSQL implements DBConnector {
     public String checkConnection() {
         try {
             if (c == null) {
-                if (errorBuffer.size() > 0) {
-                    return errorBuffer.get(errorBuffer.size() - 1);
-                } else {
-                    return "some error occurred";
-                }
+                return "an error occurred while creating the connection";
             }
             if (!c.isClosed()) {
                 return null;
