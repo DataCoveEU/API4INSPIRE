@@ -173,11 +173,7 @@ public class PostgreSQL implements DBConnector {
     public String checkConnection() {
         try {
             if (c == null) {
-                if (errorBuffer.size() > 0) {
-                    return errorBuffer.get(errorBuffer.size() - 1);
-                } else {
-                    return "some error occurred";
-                }
+                return "an error occurred while creating the connection";
             }
             if (!c.isClosed()) {
                 return null;
@@ -497,6 +493,15 @@ public class PostgreSQL implements DBConnector {
             log.debug("Converting table: " + queryName + " to featureCollection");
             //Executing sql
             ResultSet rs = SqlWhere(sql, filterParams,bbox, geoCol, queryName);
+
+            ResultSet test = c.getMetaData().getImportedKeys(null, null, queryName);
+            while(test.next()){
+                //Key in current table
+                String fkTableName = test.getString("PKTABLE_NAME");
+                //Table to link to
+                String fkColumnName = test.getString("FKCOLUMN_NAME");
+                System.out.println(fkColumnName + "; " + fkTableName );
+            }
             //Creating featureCollection with given name
             FeatureCollection fs = new FeatureCollection(alias);
             //Create offset

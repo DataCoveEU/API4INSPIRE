@@ -15,7 +15,7 @@
                         <option *ngFor="let connector of this.connectors" [attr.id]=connector.class >{{ connector.id }}</option>
                     </select>
                 </div>
-                <div class="col-sm-6" *ngIf="this.sqliteGeneral == false">
+                <div class="col-sm-6">
                     <button class="btn btn-success shadow-sm" style="width: 100%;">Test connection</button>
                     <br />
                     <br />
@@ -26,24 +26,6 @@
             <div id="infoField"></div>
                 
             <div id="content">
-                <div *ngIf="this.sqliteGeneral">
-                    <form [formGroup]="sqliteGeneralForm" (ngSubmit)="changePath()">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <label style="width: 100%">
-                                    Path to sqlite folder
-                                    <input type="text" formControlName="path" class="form-control" placeholder="Path to sqlite folder" />
-                                    <div *ngIf="sqlliteGeneralSub && sqliteGeneralForm.controls.path.errors" class="error">
-                                        <div *ngIf="sqliteGeneralForm.controls.path.errors.required">A connector name is required</div>
-                                    </div>
-                                    <br />
-                                    <button class="btn btn-success" type="submit">Change folder path</button>
-                                </label>
-                            </div>
-                        </div>
-                        
-                    </form>
-                </div>
 
                 <div *ngIf="this.sqlite">
                     <form [formGroup]="sqlConnectorNameForm" (ngSubmit)="sqLiteConnectorName()">

@@ -28,5 +28,25 @@ a#collections:hover, a#conformance:hover {
 
 .map {
     width: 100%;
-    height:400px;
+    height:451px;
   }
+
+
+
+ 
+tbody {
+    display:block;
+    height:400px;
+    overflow:auto;
+}
+thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;/* even columns width , fix width of table too*/
+}
+thead {
+    width: calc( 100% - 1em )/* scrollbar is average 1em/16px width, remove it from thead width */
+}
+table {
+    width:100%;
+}

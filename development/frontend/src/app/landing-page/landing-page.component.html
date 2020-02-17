@@ -5,7 +5,7 @@
         <p><a id="conformance" routerLink="/conformance" target="_blank">Conformance declaration</a></p>
     </div>
     <div class="card card-top">
-        <p><a id="collections" routerLink="/collections" target="_blank">Feature Collections</a></p>
+        <p><a id="collections" href="collections?f=text%2Fhtml">Feature Collections</a></p>
     </div>
 </div>
 
@@ -19,8 +19,7 @@
             </p>
             <p>
                 It is available as
-                <a href="#">application/yaml</a>,
-                <a href="#">application/json</a> and
+                <a href="api?f=application%2Fjson">application/json</a> and
                 <a href="api">text/html</a>
             </p>
             </div>
@@ -60,13 +59,13 @@
         </div>
     </div>
     <div class="col-sm-4">
-        <div style="height: 400px; overflow: auto">
-            <table class="table">
+        <div>
+            <table class="table" fixed-header>
                 <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Collection</th>
-                        <th scope="col">Use</th>
+                    <tr class="table-head" fixed-header>
+                        <th scope="col" class="table-head-font-weight-normal">#</th>
+                        <th scope="col" class="table-head-font-weight-normal">Collection</th>
+                        <th scope="col" class="table-head-font-weight-normal">Use</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,7 +106,7 @@
     </div>
     <div class="row">
         <div class="col-sm-12">
-            © 2020
+            © 2020 Lukas Gäbler, Tobias Pressler
         </div>
     </div>
   </footer>

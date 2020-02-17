@@ -1,0 +1,17 @@
+<app-nav></app-nav>
+
+<div style="margin: 2%">
+    <h3>Feature Collections</h3>
+    <ul>
+        <li><a href="collections">This document as JSON</a></li>
+    </ul>
+    <div *ngFor="let featureCollection of featureCollections; let i = index">
+        <h4>{{ i + 1 }}: {{ featureCollection.id }}</h4>
+        <h6>Links: </h6>
+        <ul>
+            <li><a href="collections/{{ featureCollection.id }}">The feature collection as JSON</a></li>
+            <li><a href="collections/{{ featureCollection.id }}/items">The items as JSON</a></li>
+            <li><a href="collections/{{ featureCollection.id }}/items?f=text%2Fhtml">The items as HTML</a></li>
+        </ul>
+    </div>
+</div>

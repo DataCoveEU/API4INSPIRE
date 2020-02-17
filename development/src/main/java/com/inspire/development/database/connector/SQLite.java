@@ -142,6 +142,8 @@ public class SQLite implements DBConnector {
     @Override
     public String checkConnection() {
         try {
+            if(c == null)
+                return "an error occurred while creating the connection";
             if (!c.isClosed()) {
                 return null;
             } else {

@@ -8,13 +8,18 @@ import { PropertiesComponent } from './properties/properties.component';
 import { AddConnectorComponent } from './add-connector/add-connector.component';
 import { ImprintComponent } from './imprint/imprint.component';
 import { UserManagementComponent } from './user-management/user-management.component';
+import { CollectionsComponent } from './collections/collections.component';
+import { ItemsComponent } from './items/items.component';
 
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'properties', component: PropertiesComponent },
-  { path: 'connector', component: AddConnectorComponent }, 
+  { path: 'collections', component: CollectionsComponent},
+  { path: 'connector', component: AddConnectorComponent },
+  { path: 'connector', component: AddConnectorComponent },
+  { path: 'collections/:collection/items', component: ItemsComponent},
   { path: 'user-management', component: UserManagementComponent },
   { path: '', component: LandingPageComponent },
   { path: 'error', component: ErrorComponent },
