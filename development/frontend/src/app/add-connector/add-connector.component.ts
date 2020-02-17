@@ -35,7 +35,7 @@ export class AddConnectorComponent implements OnInit {
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
       if(cal == "sqlite") {
-
+        
       } else if(cal == "postgres") {
 
       }

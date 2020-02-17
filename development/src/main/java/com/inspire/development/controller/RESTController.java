@@ -365,7 +365,7 @@ public class RESTController {
                                 SQLite sqLite = (SQLite) db;
                                 sqLite.setConnectorId(id);
                                 String error = sqLite.updateConnector();
-                                if(error != null){
+                                if(error == null){
                                     return new ResponseEntity<>(HttpStatus.OK);
                                 }else{
                                     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -782,8 +782,4 @@ public class RESTController {
             return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
         }
     }
-
-
-
-
 }
