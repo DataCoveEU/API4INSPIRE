@@ -20,7 +20,7 @@
                 <form [formGroup]="addPostgresConnectorForm">
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
-                            <label>
+                            <label style="width: 100%">
                                 Connection name
                                 <input type="text" formControlName="connectorName" class="form-control" style="width: 100%" placeholder="Connection name" />
                                 <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.connectorName.errors" class="error">
@@ -31,7 +31,7 @@
                     </div>
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
-                            <label>
+                            <label style="width: 100%">
                                 Username
                                 <input type="text" formControlName="username" class="form-control" style="width: 100%" placeholder="Username" />
                                 <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.username.errors" class="error">
@@ -40,7 +40,7 @@
                             </label>
                         </div>
                         <div class="col-sm-6">
-                            <label>
+                            <label style="width: 100%">
                                 Password
                                 <input type="password" formControlName="password" class="form-control" style="width: 100%" placeholder="Password" />
                                 <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.password.errors" class="error">
@@ -51,16 +51,18 @@
                     </div>
                     <div class="row" style="width: 100%">
                         <div class="col-sm-6">
-                            Hostname
-                            <input class="form-control" formControlName="hostname" type="text" style="width: 100%" placeholder="Hostname" />
-                            <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.hostname.errors" class="error">
-                                <div *ngIf="addPostgresConnectorForm.controls.hostname.errors.required">A hostname is required</div>
-                            </div>
+                            <label style="width: 100%">
+                                Hostname
+                                <input class="form-control" formControlName="hostname" type="text" style="width: 100%" placeholder="Hostname" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.hostname.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.hostname.errors.required">A hostname is required</div>
+                                </div>
+                            </label>
                         </div>
                     </div>
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
-                            <label>
+                            <label style="width: 100%">
                                 Port number
                                 <input type="number" formControlName="port" class="form-control" style="width: 100%" placeholder="Port" />
                                 <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.port.errors" class="error">
@@ -71,7 +73,7 @@
                     </div>
                     <div class="row" style="width: 100%; margin-top: 1%">
                         <div class="col-sm-6">
-                            <label>
+                            <label style="width: 100%">
                                 Database
                                 <input class="form-control" formControlName="database" type="text" style="width: 100%" placeholder="Database" />
                                 <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.database.errors" class="error">
@@ -80,7 +82,7 @@
                             </label>
                         </div>
                         <div class="col-sm-6">
-                            <label>
+                            <label style="width: 100%">
                                 Schema
                                 <input class="form-control" formControlName="schema" type="text" style="width: 100%" placeholder="Schema" />
                                 <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.schema.errors" class="error">
