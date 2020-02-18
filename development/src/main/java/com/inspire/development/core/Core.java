@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inspire.development.collections.FeatureCollection;
+import com.inspire.development.collections.FeatureWithLinks;
 import com.inspire.development.collections.ImportantLinkList;
 import com.inspire.development.config.Config;
 import com.inspire.development.config.DBConnectorList;
@@ -14,10 +15,7 @@ import com.inspire.development.database.connector.SQLite;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import mil.nga.sf.geojson.Feature;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -35,7 +33,7 @@ public class Core {
     public Core() {
         config = new Config();
 
-        Config conf = parseConfig();
+        Config conf = parseConfig(config.getConfigPath());
         if(conf != null){
             this.config = conf;
         }
@@ -55,13 +53,13 @@ public class Core {
             @Override
             public void onFileCreate(File file) {
                 config.getConnectors().add(new SQLite(file.getPath(), file.getName()));
-                writeConfig();
+                writeConfig(config.getConfigPath());
             }
 
             @Override
             public void onFileDelete(File file) {
                 deleteByPath(file.getName());
-                writeConfig();
+                writeConfig(config.getConfigPath());
             }
         });
         monitor = new FileAlterationMonitor(500, observer);
@@ -82,8 +80,9 @@ public class Core {
                     }
                 }
             }
-            writeConfig();
         }
+
+        writeConfig(config.getConfigPath());
     }
 
     public ImportantLinkList getLinks() {
@@ -138,8 +137,8 @@ public class Core {
                     }
                 }
             }
-            writeConfig();
         }
+        writeConfig(config.getConfigPath());
     }
 
     public HashMap<String, String> getErrors(){
@@ -159,15 +158,15 @@ public class Core {
         return false;
     }
 
-    public static Config parseConfig() {
+    public static Config parseConfig(String path) {
         log.info("Parsing config");
-        File f = new File("./config.json");
+        File f = new File(path);
         if (f.exists()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 return objectMapper.readValue(f, Config.class);
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
         }
         return null;
@@ -177,7 +176,7 @@ public class Core {
 
     public void addLink(String link, String name){
         config.getImportantLinks().add(new ImportantLink(link,name));
-        writeConfig();
+        writeConfig(config.getConfigPath());
     }
 
     public boolean removeLink(String name){
@@ -223,11 +222,11 @@ public class Core {
     }
 
 
-    public void writeConfig() {
+    public void writeConfig(String path) {
         log.info("Writing config to file");
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            File f = new File("./config.json");
+            File f = new File(path);
             objectMapper.writeValue(f, config);
         } catch (JsonGenerationException e) {
             e.printStackTrace();
@@ -260,24 +259,30 @@ public class Core {
         return fsl.toArray(new FeatureCollection[fsl.size()]);
     }
 
-    public Feature getFeature(String collection, String feature) {
+    public FeatureWithLinks getFeature(String collection, String feature, String host) {
         log.info("Getting feature: " + feature + " from collection: " + collection);
-        FeatureCollection fs = get(collection, false, -1, 0, null, null);
+        FeatureCollection fs = get(collection, false, -1, 0, null, null, host);
         for (Object o : fs.getFeatures().toArray()) {
             Feature f = (Feature) o;
-            if (f.getId().equals(feature)) {
-                return f;
+            if(f != null) {
+                if (f.getId().equals(feature)) {
+                    f = replaceFk(f, host);
+                    FeatureWithLinks fl = new FeatureWithLinks(f);
+                    fl.collection = fs.getId();
+                    return fl;
+                }
             }
         }
         return null;
     }
 
     public FeatureCollection get(String featureCollection, boolean withSpatial, int limit, int offset,
-                                 double[] bbox, Map<String,String> filterParams) {
+                                 double[] bbox, Map<String,String> filterParams, String host) {
         log.info("Getting Collection: " + featureCollection);
         for (DBConnector db : config.getConnectors()) {
             FeatureCollection f = db.get(featureCollection, withSpatial, limit, offset, bbox, filterParams);
             if (f != null) {
+                f.setFeatures(replaceFkFromList(f.getFeatures(), host));
                 return f;
             }
         }
@@ -291,5 +296,35 @@ public class Core {
             }
         }
         return null;
+    }
+
+    public String getPagingLimit(){
+        return config.getPagingLimit();
+    }
+
+    public String getConfigPath(){
+        return config.getConfigPath();
+    }
+
+    public List<Feature> replaceFkFromList(List<Feature> features, String host){
+        ArrayList<Feature> out = new ArrayList<>();
+        for(Feature f:features) {
+            out.add(replaceFk(f, host));
+        }
+        return out;
+    }
+
+    public Feature replaceFk(Feature f, String host){
+            Map<String,Object> props = f.getProperties();
+            for (Map.Entry<String, Object> entry : props.entrySet()) {
+                if (entry.getValue() instanceof String) {
+                    String value = (String) entry.getValue();
+                    if (value.contains("ogc_fk")) {
+                        String[] strings = value.split(";");
+                        entry.setValue("http://" + host + "/ogcapisimple/collections/" + strings[1] + "/items?" + strings[2] + "=" + strings[3]);
+                    }
+                }
+            }
+        return f;
     }
 }

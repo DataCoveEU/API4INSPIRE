@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Collections {
     List<FeatureCollection> collections;
+    List<Link> links;
 
     public Collections(List<FeatureCollection> collections) {
         this.collections = collections;
@@ -11,5 +12,9 @@ public class Collections {
 
     public List<FeatureCollection> getCollections() {
         return collections;
+    }
+
+    public List<Link> getLinks() {
+        return links;
     }
 }

@@ -10,7 +10,6 @@ import com.inspire.development.config.ColumnConfig;
 import com.inspire.development.config.TableConfig;
 import com.inspire.development.database.DBConnector;
 
-import java.awt.Rectangle;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -49,12 +48,6 @@ public class PostgreSQL implements DBConnector {
     private String schema;
     private String username;
     private String password;
-    private String zwPassword;
-    private String zwSchema;
-    private int zwPort = 0;
-    private String zwDatabase;
-    private String zwUsername;
-    private String zwHostname;
     private HashMap<String, String> sqlString; // Table name, SQL String
     private Connection c;
     @JsonProperty("id")
@@ -449,7 +442,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Gets table name of alias
-     *
      * @param alias Table alias
      * @return real table name
      */
@@ -467,18 +459,30 @@ public class PostgreSQL implements DBConnector {
     }
 
 
+    /**
+     * FK Pattern -> ogc_fk;PK_TABLE;PK_COLUMNNAME;KEY_VALUE
+     * @param alias
+     * @param withSpatial
+     * @param limit
+     * @param offset
+     * @param bbox
+     * @param filterParams
+     * @return
+     * @throws Exception
+     */
     public FeatureCollection getFeatureCollectionByName(String alias, boolean withSpatial, int limit, int offset, double[] bbox, Map<String,String> filterParams) throws Exception {
         TableConfig tc = getConfByAlias(alias);
         String queryName = alias;
         String geoCol;
-        String idCol = "localid";
+        String idCol;
         if(tc != null){
             queryName = tc.getTable();
             //Setting geoCol and idCol if it is set in the config
             geoCol = tc.getGeoCol() != null ? tc.getGeoCol() : getGeometry(queryName);
-            idCol = tc.getIdCol() != null ? tc.getIdCol() : "localid";
+            idCol = tc.getIdCol() != null ? tc.getIdCol() : getPrimaryKey(queryName);
         }else {
             geoCol = getGeometry(queryName);
+            idCol = getPrimaryKey(queryName);
         }
 
         if (config.containsKey(queryName) && config.get(queryName).isExclude()) {
@@ -494,13 +498,17 @@ public class PostgreSQL implements DBConnector {
             //Executing sql
             ResultSet rs = SqlWhere(sql, filterParams,bbox, geoCol, queryName);
 
-            ResultSet test = c.getMetaData().getImportedKeys(null, null, queryName);
-            while(test.next()){
+            ResultSet foreignKeys = c.getMetaData().getImportedKeys(null, null, queryName);
+
+            HashMap<String,String> fk = new HashMap<>();
+
+            while(foreignKeys.next()){
                 //Key in current table
-                String fkTableName = test.getString("PKTABLE_NAME");
+                String pkTableName = foreignKeys.getString("PKTABLE_NAME");
+                String pkColumnName = foreignKeys.getString("PKCOLUMN_NAME");
                 //Table to link to
-                String fkColumnName = test.getString("FKCOLUMN_NAME");
-                System.out.println(fkColumnName + "; " + fkTableName );
+                String fkColumnName = foreignKeys.getString("FKCOLUMN_NAME");
+                fk.put(fkColumnName, (pkTableName+";"+pkColumnName));
             }
             //Creating featureCollection with given name
             FeatureCollection fs = new FeatureCollection(alias);
@@ -516,9 +524,11 @@ public class PostgreSQL implements DBConnector {
                     String colName = md.getColumnName(x);
                     if(colName.equals("ogc_bbox")){
                         org.postgis.PGgeometry box = (org.postgis.PGgeometry) rs.getObject(x);
-                        Point fp = box.getGeometry().getFirstPoint();
-                        Point lp = box.getGeometry().getLastPoint();
-                        f.setBbox(new double[]{fp.x,fp.y,lp.x,lp.y});
+                        if(box != null) {
+                            Point fp = box.getGeometry().getFirstPoint();
+                            Point lp = box.getGeometry().getLastPoint();
+                            f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
+                        }
                     }else{
                         if (colName.equals(idCol)) {
                         //ID
@@ -529,6 +539,9 @@ public class PostgreSQL implements DBConnector {
                                     String col = md.getColumnName(x);
 
                                     Object o = rs.getObject(x);
+                                    if(fk.containsKey(colName)){
+                                        o = "ogc_fk;" + fk.get(colName) + ";" + o;
+                                    }
                                     if (o instanceof PGgeometry && geoCol == null && isView) {
                                         //Auto detecting geo column if the table is a view
                                         geoCol = colName;
@@ -552,8 +565,11 @@ public class PostgreSQL implements DBConnector {
                                         }
                                     }
                                 }else{
-                                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(((PGgeometry) rs.getObject(x)).getGeometry());
-                                    f.setGeometry(geo);
+                                    PGgeometry geom = (PGgeometry) rs.getObject(x);
+                                    if(geom != null) {
+                                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom.getGeometry());
+                                        f.setGeometry(geo);
+                                    }
                                 }
                         }
                     }
@@ -789,7 +805,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     public void setHostname(String hostname) {
-        this.zwHostname = hostname;
+        this.hostname = hostname;
     }
 
     @JsonProperty
@@ -817,5 +833,20 @@ public class PostgreSQL implements DBConnector {
 
     public void setSchema(String schema) {
         this.schema = schema;
+    }
+
+    public String getPrimaryKey(String table) {
+        log.debug("Get PrimaryKey for table: " + table);
+        try {
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rs = md.getPrimaryKeys(null, schema, table);
+            if (rs.next()) {
+                return rs.getString(4).toLowerCase();
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            return null;
+        }
     }
 }

@@ -44,7 +44,7 @@ export class LandingPageComponent implements OnInit {
   
 
     var austrocontorl = new ImageLayer({
-      title: "Bundeslaender",
+      title: "Federal States",
       type: 'base',
       source: new ImageWMS({
         url: 'https://sdigeo-free.austrocontrol.at/geoserver/free/wms',
