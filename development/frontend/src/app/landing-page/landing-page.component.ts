@@ -46,7 +46,7 @@ export class LandingPageComponent implements OnInit {
   
     //init the layer where only the borders of the federal states are shown
     var austrocontorl = new ImageLayer({
-      title: "Bundeslaender",
+      title: "Federal States",
       type: 'base',
       source: new ImageWMS({
         url: 'https://sdigeo-free.austrocontrol.at/geoserver/free/wms',

@@ -36,4 +36,5 @@ public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
         m.put("bbox", a);
         extent.put("spatial", m);
     }
+
 }

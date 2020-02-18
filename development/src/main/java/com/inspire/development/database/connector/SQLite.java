@@ -10,7 +10,6 @@ import com.inspire.development.config.ColumnConfig;
 import com.inspire.development.config.TableConfig;
 import com.inspire.development.database.DBConnector;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -168,7 +167,7 @@ public class SQLite implements DBConnector {
     /**
      * Executes given SQL String
      *
-     * @param sql                   SQL String to be executed
+     * @param sql SQL String to be executed
      * @param featureCollectionName
      * @return Feature Collection from SQL query result, null if error occurred. Error is stored in
      * errorBuffer. See {@link PostgreSQL#getErrorBuffer()}.
@@ -208,7 +207,6 @@ public class SQLite implements DBConnector {
 
     /**
      * Returns all FeatureCollections for the Database
-     *
      * @return FeatureCollection Array, null if error occurred.
      */
     @JsonIgnore
