@@ -11,11 +11,11 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option *ngFor="let connector of this.connectors" [attr.id]=connector.class >{{ connector.id }}</option>
+                        <option *ngFor="let connector of this.connectors" [attr.id]=connector.class>{{ connector.id }}</option>
                     </select>
                 </div>
                 <div class="col-sm-6">
-                    <button class="btn btn-success shadow-sm" style="width: 100%;">Test connection</button>
+                    <button class="btn btn-success shadow-sm" style="width: 100%;" (click)="testConnection()">Test connection</button>
                     <br />
                     <br />
                     <button class="btn btn-danger" id="delDb" style="width: 100%;" (click)="delConnector()">Delete DB connector</button>
@@ -23,7 +23,7 @@
             </div>
 
             <div id="infoField"></div>
-                
+
             <div id="content">
                 <div *ngIf="this.sqlite">
                     <form [formGroup]="sqlConnectorNameForm" (ngSubmit)="sqLiteConnectorName()">
@@ -43,9 +43,8 @@
                     </form>
                 </div>
 
-
                 <div *ngIf="this.postgres">
-                    <form [formGroup]="connectorNameForm" (ngSubmit)="submitConnectorName()" >
+                    <form [formGroup]="connectorNameForm" (ngSubmit)="submitConnectorName()">
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
                                 <label style="width: 100%">
@@ -75,11 +74,10 @@
                                 <br />
                                 <button type="submit" class="btn btn-success shadow-sm" style="margin-top: 1%">Change username</button>
                             </div>
-                            
+
                         </div>
                     </form>
 
-                    
                     <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()">
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
@@ -96,9 +94,8 @@
                         </div>
                     </form>
 
-                    
                     <hr />
-                    
+
                     <form [formGroup]="changeHostnameForm" (ngSubmit)="changeHostname()">
                         <div class="row" style="width: 100%">
                             <div class="col-sm-6">
@@ -131,7 +128,7 @@
                             </div>
                         </div>
                     </form>
-                    
+
                     <form [formGroup]="changeSchemaForm" (ngSubmit)="changeSchema()">
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
@@ -146,8 +143,7 @@
                                 <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change schema name</button>
                             </div>
                         </div>
-                    </form> 
-
+                    </form>
 
                     <form [formGroup]="changeDatabaseForm" (ngSubmit)="changeDatabase()">
                         <div class="row" style="width: 100%; margin-top: 1%">
@@ -163,9 +159,8 @@
                                 <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change database</button>
                             </div>
                         </div>
-                    </form> 
-                   
-                   
+                    </form>
+
                     <hr />
                 </div>
             </div>

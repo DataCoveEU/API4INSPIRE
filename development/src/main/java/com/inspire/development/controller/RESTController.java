@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.inspire.development.collections.Collections;
 import com.inspire.development.collections.FeatureCollection;
+import com.inspire.development.collections.FeatureWithLinks;
 import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
 import com.inspire.development.conformance.ConformanceDeclaration;
@@ -93,27 +94,37 @@ public class RESTController {
     public Object Collections(@RequestHeader("Accept") String content,
                                    @RequestHeader(name="Host", required=false) final String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
         if(f.equals("application/json")) {
-        Collections c = new Collections(Arrays.asList(core.getAll()));
-        for (FeatureCollection fc : c.getCollections()) {
-            if (fc == null) {
-                c.getCollections().remove(null);
-            } else {
-                //Add required links
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
-                                "self", "application/json", "this document"));
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
-                                "alternate", "text/html", "this document as html"));
-                fc.getLinks()
-                        .add(new Link(
-                                "http://" + host + "/ogcapisimple/collections/" + fc.getId() + "/items",
-                                "items", "application/json", "this document as html"));
+            Collections c = new Collections(Arrays.asList(core.getAll()));
+            for (FeatureCollection fc : c.getCollections()) {
+                if (fc == null) {
+                    c.getCollections().remove(fc);
+                } else {
+                    //Add required links
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
+                                    "self", "application/json", "this document"));
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + host + "/ogcapisimple/collections/" + fc.getId(),
+                                    "alternate", "text/html", "this document as html"));
+                    fc.getLinks()
+                            .add(new Link(
+                                    "http://" + host + "/ogcapisimple/collections/" + fc.getId() + "/items",
+                                    "items", "application/json", "this document as html"));
+                }
             }
-        }
-        return new ResponseEntity(c, HttpStatus.OK);
+
+            c.getLinks()
+                    .add(new Link(
+                            "http://" + host + "/ogcapisimple/collections/",
+                            "self", "application/json", "this document"));
+
+            c.getLinks()
+                    .add(new Link(
+                            "http://" + host + "/ogcapisimple/collections?f=text%2Fhtml",
+                            "self", "text/html", "this document"));
+            return new ResponseEntity(c, HttpStatus.OK);
         } else if(f.equals("text/html")){
             try {
                 File f1 = new File(this.getClass().getClassLoader().getResource("static/index.html").getFile());
@@ -150,7 +161,7 @@ public class RESTController {
     @GetMapping("/collections/{collectionId}")
     public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id,
                                                  @RequestHeader(name="Host", required=false) final String host) {
-        FeatureCollection fc = core.get(id, true, 0, 0, null,null);
+        FeatureCollection fc = core.get(id, true, 0, 0, null,null, host);
         if (fc != null) {
             fc.getLinks()
                     .add(new Link(
@@ -190,25 +201,31 @@ public class RESTController {
             filterParams.remove("offset");
             filterParams.remove("limit");
             filterParams.remove("bbox");
-            FeatureCollection fc = core.get(id, false, limit, offset, bbox,filterParams);
+            FeatureCollection fc = core.get(id, false, limit, offset, bbox,filterParams, host);
             if (fc != null) {
+                String params = filterParams.entrySet().stream()
+                        .map(p -> p.getKey() + "=" + p.getValue())
+                        .reduce((p1, p2) -> p1 + "&" + p2)
+                        .map(s -> "&" + s)
+                        .orElse("");
+
                 fc.getLinks()
                         .add(new Link(
-                                "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + offset,
+                                "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + offset + params,
                                 "self", "application/json", "this document"));
                 //Test if any data is available after the current selected data
-                FeatureCollection featureCollectionNext = core.get(id,false,1,limit+offset,bbox,filterParams);
+                FeatureCollection featureCollectionNext = core.get(id,false,1,limit+offset,bbox,filterParams, host);
                 if(featureCollectionNext.getFeatures().size() == 1) {
                     fc.getLinks()
                             .add(new Link(
-                                    "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset + limit),
+                                    "http://" + host  + "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset + limit) + params,
                                     "next", "application/json", "this document"));
                 }
 
                 if(offset > 0){
                     fc.getLinks()
                             .add(new Link(
-                                    "http://" + host +  "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset-limit<0?0:offset-limit),
+                                    "http://" + host +  "/ogcapisimple/collections/" + fc.getId() + "/items?limit=" + limit + "&offset=" + (offset-limit<0?0:offset-limit) + params,
                                     "prev", "application/json", "this document"));
                 }
                 return new ResponseEntity<>(fc, HttpStatus.OK);
@@ -237,9 +254,18 @@ public class RESTController {
     @GetMapping("/collections/{collectionId}/items/{featureId}")
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
-            @PathVariable("featureId") String featureId) {
-        Feature f = core.getFeature(collectionId, featureId);
+            @PathVariable("featureId") String featureId,
+            @RequestHeader(name="Host", required=false) final String host) {
+        FeatureWithLinks f = core.getFeature(collectionId, featureId, host);
         if (f != null) {
+            f.getLinks()
+                    .add(new Link(
+                            "http://" + host +  "/ogcapisimple/collections/" + f.collection + "/items/" + f.getId(),
+                            "self", "application/json", "this document"));
+            f.getLinks()
+                    .add(new Link(
+                            "http://" + host +  "/ogcapisimple/collections/" + f.collection,
+                            "collection", "application/json", "the collection the feature is contained in"));
             return new ResponseEntity<>(f, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -279,7 +305,7 @@ public class RESTController {
                 if (error == null) {
                     if (!test) {
                         core.addConnector(s);
-                        core.writeConfig();
+                        core.writeConfig(core.getConfigPath());
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 } else {
@@ -364,12 +390,7 @@ public class RESTController {
                             if (db instanceof SQLite) {
                                 SQLite sqLite = (SQLite) db;
                                 sqLite.setConnectorId(id);
-                                String error = sqLite.updateConnector();
-                                if(error == null){
-                                    return new ResponseEntity<>(HttpStatus.OK);
-                                }else{
-                                    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-                                }
+                                return new ResponseEntity<>(HttpStatus.OK);
                             } else {
                                 return new ResponseEntity<>("given connector is not an sqlite connector", HttpStatus.BAD_REQUEST);
                             }
@@ -781,5 +802,10 @@ public class RESTController {
         } else {
             return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @RequestMapping("/getPagingLimit")
+    public String checkConnection() {
+        return core.getPagingLimit();
     }
 }

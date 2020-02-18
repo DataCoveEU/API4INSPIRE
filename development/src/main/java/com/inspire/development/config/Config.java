@@ -1,5 +1,6 @@
 package com.inspire.development.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.inspire.development.collections.ImportantLinkList;
 
@@ -9,6 +10,7 @@ public class Config {
     DBConnectorList connectors;
     String logPath;
     String sqlitePath;
+    String configPath;
     ImportantLinkList importantLinks;
 
     public Config(){
@@ -18,6 +20,7 @@ public class Config {
             System.setProperty("log4j.saveDirectory",logPath);
 
         sqlitePath = "./../ogcapisimple/sqlite";
+        configPath = "./../ogcapisimple/config.json";
         connectors = new DBConnectorList();
         importantLinks = new ImportantLinkList();
     }
@@ -26,13 +29,14 @@ public class Config {
         return importantLinks;
     }
 
-    public Config(@JsonProperty("logPath") String logPath, @JsonProperty("sqlitePath") String sqlitePath, @JsonProperty("connectors") DBConnectorList connectors, @JsonProperty("importantLinks") ImportantLinkList importantLinks){
+    public Config(@JsonProperty("logPath") String logPath, @JsonProperty("sqlitePath") String sqlitePath, @JsonProperty("connectors") DBConnectorList connectors, @JsonProperty("importantLinks") ImportantLinkList importantLinks,@JsonProperty("configPath") String configPath){
         this.logPath = logPath;
 
         if(System.getProperty("log4j.saveDirectory") == null)
             System.setProperty("log4j.saveDirectory",logPath);
 
         this.sqlitePath = sqlitePath;
+        this.configPath = configPath;
         this.connectors = connectors;
         this.importantLinks = importantLinks;
     }
@@ -63,4 +67,17 @@ public class Config {
     public void setSqlitePath(String sqlitePath) {
         this.sqlitePath = sqlitePath;
     }
+
+    @JsonIgnore
+    public String getPagingLimit(){
+        if(System.getProperty("paging.limit") != null){
+            return System.getProperty("paging.limit");
+        }
+        return "10000";
+    }
+
+    public String getConfigPath() {
+        return configPath;
+    }
+
 }

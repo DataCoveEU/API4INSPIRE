@@ -14,15 +14,14 @@
         <div class="card-header">API definition</div>
         <div class="card-body">
             <p class="card-text">
-                The API definition provides a machine precessable
-                description of this service API conformant to OpenAPI 3.
+                The API definition provides a machine precessable description of this service API conformant to OpenAPI 3.
             </p>
             <p>
                 It is available as
                 <a href="api?f=application%2Fjson">application/json</a> and
                 <a href="api">text/html</a>
             </p>
-            </div>
+        </div>
     </div>
     <div class="card card-custom">
         <div class="card-header">INSPIRE</div>
@@ -52,7 +51,7 @@
         </div>
     </div>
 </div>-->
-<div class="row"  style="margin-bottom: 2%">
+<div class="row" style="margin-bottom: 2%">
     <div class="col-sm-8">
         <div class="card" style="width: 100%">
             <div id="map" class="map"></div>
@@ -73,7 +72,8 @@
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ thing.id }}</td>
                         <td style="text-align: center">
-                            <input type="checkbox" (click)="onClick($event)"/> <!-- [checked]="this.selectedConnector?.config[tablename]?.exclude" -->
+                            <input type="checkbox" (click)="onClick($event)" />
+                            <!-- [checked]="this.selectedConnector?.config[tablename]?.exclude" -->
                         </td>
                     </tr>
                 </tbody>
@@ -91,8 +91,10 @@
                 <li *ngFor="let link of importantLinks">
                     <a href="{{ link.link }}">{{ link.name }}</a>
                 </li>
-                
-            <li><a class="text-muted" href="#"></a></li>
+
+                <li>
+                    <a class="text-muted" href="#"></a>
+                </li>
             </ul>
         </div>
         <div class="col-8 col-md">
@@ -109,4 +111,4 @@
             © 2020 Lukas Gäbler, Tobias Pressler
         </div>
     </div>
-  </footer>
+</footer>
