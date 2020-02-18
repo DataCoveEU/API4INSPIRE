@@ -262,5 +262,31 @@ export class PropertiesComponent implements OnInit {
     this.conService.changeConnectorProps(json);
   }
 
+  testConnection() {
+    var json = {
+      'id': this.selectedConnector.id
+    };
+    var er = document.getElementById("infoField");
+
+    this.conService.checkConnection(json).then(()=>{
+      er.style.marginTop = "2%";
+          er.innerHTML = `<div class="card card-custom">
+                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>Test was successfull</p>
+                            </div>`
+    }).catch((err) =>{
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                        <p>
+                            Test was not successfull
+                        </p>
+                        </div>
+                </div>`;
+    }) 
+  }
+
 
 }

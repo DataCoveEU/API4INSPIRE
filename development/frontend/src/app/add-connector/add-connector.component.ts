@@ -34,11 +34,7 @@ export class AddConnectorComponent implements OnInit {
     //Handle the event if another kind of selector to add is selected
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
-      if(cal == "sqlite") {
-        
-      } else if(cal == "postgres") {
-
-      }
+      
     };
     
   }
@@ -109,25 +105,23 @@ export class AddConnectorComponent implements OnInit {
     };
 
     var er = document.getElementById("errorField");
-
     //Call the service
     this.conService.addConnector(json).then(()=>{
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">TEST POSTGRES</div>
-                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>
-                                Connector add test was successfully
-                            </p>
-                            </div>
-                    </div>`;
+                          <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                            <p>Postgres connection test was successfull</p>
+                          </div>
+                        </div>
+                      </div>`;
     }).catch(()=>{
       er.innerHTML = `<div class="card card-custom">
-                                <div class="card-header" style="background-color: #F56565; color: white">TEST POSTGRES</div>
-                                  <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
-                                    <p>Connector NOT added</p>
-                                  </div>
-                                </div>
-                              </div>`;
+                        <div class="card-header" style="background-color: #F56565; color: white">TEST POSTGRES</div>
+                          <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
+                            <p>Postgres conncetion test failed</p>
+                          </div>
+                        </div>
+                      </div>`;
     });
   }
 }
