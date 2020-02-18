@@ -114,6 +114,7 @@ public class RESTController {
                                     "items", "application/json", "this document as html"));
                 }
             }
+
             c.getLinks()
                     .add(new Link(
                             "http://" + host + "/ogcapisimple/collections/",
