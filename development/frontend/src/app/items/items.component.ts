@@ -15,13 +15,17 @@ export class ItemsComponent implements OnInit {
   constructor(private router: ActivatedRoute, private httpClient: HttpClient) { }
 
   async ngOnInit() {
+    // set the collection varibale (the collection that is selected)
     this.router.params.subscribe(async(query)=>{
       this.collection = query.collection;
     });
+    // load all the items
     this.items = await this.getItems();
-    console.log(this.items);
   }
 
+  /**
+   * Load the items using the OGC Simple API
+   */
   getItems() {
     return new Promise((resolve, reject)=>{
       this.httpClient.get("collections/" + this.collection + "/items")

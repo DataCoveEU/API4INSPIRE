@@ -46,7 +46,7 @@ export class PropertiesComponent implements OnInit {
   constructor(private con: ConnectorService, private formBuilder: FormBuilder, private conService: ConnectorService) { }
 
   async ngOnInit() {
-
+    //init all the forms
     this.connectorNameForm = this.formBuilder.group({
       conName: ['', Validators.required]
     });
@@ -91,6 +91,7 @@ export class PropertiesComponent implements OnInit {
     var index = sel.selectedIndex;
     index == -1 ? index = 0 : index = index
 
+    //Differentiate between sqlite and postgres
     if(this.connectors[index].class.includes("PostreSQL")) {
       this.postgres = true;
       this.sqlite = false;
@@ -115,6 +116,9 @@ export class PropertiesComponent implements OnInit {
     }
   }
 
+  /**
+   * Change a postgres connection name
+   */
   submitConnectorName() {
     this.connectorNameSubmitted = true;
     if(this.connectorNameForm.invalid) {
@@ -123,15 +127,14 @@ export class PropertiesComponent implements OnInit {
     var json = {
       'class': "postgres",
       'id': this.selectedConnector.id,
-      'database': null,
-      'schema': null,
-      'hostname': null,
-      'port': null,
-      'username': this.changeUsernameForm.value.newName,
-      'password': null
+      'username': this.changeUsernameForm.value.newName
     };
+
   }
 
+  /**
+   * Change a postgres connection username
+   */
   changeUsername() {
     this.changeUserSubmitted = true;
     if(this.changeUsernameForm.invalid) {
@@ -141,18 +144,16 @@ export class PropertiesComponent implements OnInit {
     var json = {
       'class': "postgres",
       'id': this.selectedConnector.id,
-      'database': null,
-      'schema': null,
-      'hostname': null,
-      'port': null,
-      'username': this.changeUsernameForm.value.newName,
-      'password': null
+      'username': this.changeUsernameForm.value.newName
     };
 
 
     this.conService.changeConnectorProps(json);
   }
 
+  /**
+   * Change a psotgres connection password
+   */
   changePassword() {
     this.changePasswordSubmitted = true;
     if(this.changePasswordForm.invalid) {
@@ -167,6 +168,9 @@ export class PropertiesComponent implements OnInit {
     this.conService.changeConnectorProps(json);
   }
 
+  /**
+   * Change a postgres connection hostname
+   */
   changeHostname() {
     this.changeHostnameSubmitted = true;
     if(this.changeHostnameForm.invalid) {
@@ -181,6 +185,9 @@ export class PropertiesComponent implements OnInit {
     this.conService.changeConnectorProps(json);
   }
 
+  /**
+   * Change a postgres connection port
+   */
   changePort() {
     this.changePortSubmitted = true;
     if(this.changePortForm.invalid) {
@@ -194,6 +201,9 @@ export class PropertiesComponent implements OnInit {
     this.conService.changeConnectorProps(json);
   }
 
+  /**
+   * Chnage postgres connection schema
+   */
   changeSchema() {
     this.changeSchmemaSubmitted = true;
     if(this.changeSchemaForm.invalid) {
@@ -208,6 +218,9 @@ export class PropertiesComponent implements OnInit {
     this.conService.changeConnectorProps(json);
   }
 
+  /**
+   * Change a postgres connection database
+   */
   changeDatabase() {
     this.changeDatabaseSubmitted = true;
     if(this.changeDatabaseForm.invalid) {
@@ -222,9 +235,13 @@ export class PropertiesComponent implements OnInit {
     this.conService.changeConnectorProps(json);
   }
 
+  /**
+   * Remove a connector
+   */
   delConnector() {
     var er = document.getElementById("infoField");
     this.conService.deleteConnector({'id': this.selectedConnector.id}).then(()=>{
+      //Show infor message
       er.style.marginTop = "2%";
           er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -235,6 +252,7 @@ export class PropertiesComponent implements OnInit {
                             </div>
                     </div>`;
     }).catch((err)=>{
+      //Show error message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -248,6 +266,9 @@ export class PropertiesComponent implements OnInit {
 
   }
 
+  /**
+   * Change sqlite connection name
+   */
   sqLiteConnectorName() {
     this.sqlConnectorNameSub = true;
     if(this.sqlConnectorNameForm.invalid) {
@@ -262,6 +283,9 @@ export class PropertiesComponent implements OnInit {
     this.conService.changeConnectorProps(json);
   }
 
+  /**
+   * Test a connection 
+   */
   testConnection() {
     var json = {
       'id': this.selectedConnector.id
@@ -269,6 +293,7 @@ export class PropertiesComponent implements OnInit {
     var er = document.getElementById("infoField");
 
     this.conService.checkConnection(json).then(()=>{
+      //Return info message
       er.style.marginTop = "2%";
           er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -276,6 +301,7 @@ export class PropertiesComponent implements OnInit {
                             <p>Test was successfull</p>
                             </div>`
     }).catch((err) =>{
+      //Return error message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>

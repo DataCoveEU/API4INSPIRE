@@ -14,11 +14,14 @@ export class CollectionsComponent implements OnInit {
   featureCollections: any = [];
 
   async ngOnInit() {
+    //Init the feature collectins array
     var col:any = (await this.getCollections());
     this.featureCollections = col.collections;
-    console.log(this.featureCollections);
   }
 
+  /**
+   * Load the collections from the DB using the OGC Simple API 
+   */
   async getCollections() {
     return new Promise((resolve, reject) =>{
       this.httpClient.get('collections').subscribe((res)=>{

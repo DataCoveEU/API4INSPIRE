@@ -22,7 +22,8 @@
                         <th scope="col" class="table-head-font-weight-normal">Table name</th>
                         <th scope="col" class="table-head-font-weight-normal">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="exludeAllTables" [checked]="this.allTablesExcluded" (click)="excludeAllTables()"> <!-- exludeAllTables -->
+                                <input type="checkbox" class="custom-control-input" id="exludeAllTables" [checked]="this.allTablesExcluded" (click)="excludeAllTables()">
+                                <!-- exludeAllTables -->
                                 <label class="custom-control-label" for="exludeAllTables">Exclude</label>
                             </div>
                         </th>
@@ -205,8 +206,10 @@
                 <li *ngFor="let link of importantLinks">
                     <a href="{{ link.link }}">{{ link.name }}</a>
                 </li>
-                
-            <li><a class="text-muted" href="#"></a></li>
+
+                <li>
+                    <a class="text-muted" href="#"></a>
+                </li>
             </ul>
         </div>
         <div class="col-8 col-md">
@@ -223,4 +226,4 @@
             © 2020
         </div>
     </div>
-  </footer>
+</footer>

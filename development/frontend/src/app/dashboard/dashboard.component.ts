@@ -119,9 +119,9 @@ export class DashboardComponent implements OnInit {
 
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
       this.tableSelect = false;
-     // this.checkIfAllTableExcluded();
     }
 
+    //Check if all the tables are excluded
     for(let i = 0; i < this.tableNames.length; i++) {
       if(this.selectedConnector.config[this.tableNames[i]] == undefined) {
         this.allTablesExcluded = false;
@@ -251,6 +251,7 @@ export class DashboardComponent implements OnInit {
     for(let i = 0;  i < this.connectors.length; i++) {
       var con = this.connectors[i];
       var tab = await this.conService.getTables({'id': con.id });
+      var er = document.getElementById("infoField");
       //The unique names have to be on all tables
       for(let j = 0; j < tab.length; j++) {
         if(con.config[tab[j]] == undefined) {
@@ -258,7 +259,7 @@ export class DashboardComponent implements OnInit {
         } else if(con.config[tab[j]].alias == undefined) {
 
         } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
-          var er = document.getElementById("infoField");
+          //Error Message
           er.style.marginTop = "2%";
           er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -275,7 +276,7 @@ export class DashboardComponent implements OnInit {
 
     this.conService.renameTable(json).then(
       async ()=>{
-        var er = document.getElementById("infoField");
+          //Info message
           er.style.marginTop = "2%";
           er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -288,7 +289,16 @@ export class DashboardComponent implements OnInit {
         this.reload();
       }
     ).catch(()=>{
-      alert("Not renamed")
+      //Error Message
+      er.style.marginTop = "2%";
+      er.innerHTML = `<div class="card card-custom">
+                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
+                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                        <p>
+                            Table not renamed
+                        </p>
+                        </div>
+                </div>`;
     });
   }
 
@@ -311,7 +321,7 @@ export class DashboardComponent implements OnInit {
 
     var er = document.getElementById("infoField");
     if(this.columnNames.includes(this.renameColumnForm.value.columnName)) {
-      
+      //Error message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -325,18 +335,13 @@ export class DashboardComponent implements OnInit {
     
     for(let i = 0; i < this.columnNames.length; i++) {
       if(this.selectedConnector.config[this.idTableSelected] == undefined) {
-          console.log("undefined v1");
-      }
-      
-      if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
-        console.log("undefined v2");
-      }
 
-      if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == undefined) {
-        console.log("undefined v3");
-      } 
+      } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]] == undefined) {
 
-      if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
+      } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == undefined) {
+
+      } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
+        //Error message
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
                           <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -348,11 +353,11 @@ export class DashboardComponent implements OnInit {
         return;
       }
     }
-
+    var er = document.getElementById("infoField");
     this.conService.renameColumn(json).then(async()=>{
       this.reload();
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
-      var er = document.getElementById("infoField");
+      //Info message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -363,7 +368,7 @@ export class DashboardComponent implements OnInit {
                         </div>
                 </div>`;
     }).catch(()=>{
-      var er = document.getElementById("infoField");
+          //Error message
           er.style.marginTop = "2%";
           er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -415,10 +420,11 @@ export class DashboardComponent implements OnInit {
       'collectionName': this.sqlForm.value.collectionId,
       'check': false
     };
-
+    
+    var errorText = document.getElementById('sqlError');
     this.sqlService.executeSQL(json).then(
       async ()=>{
-        var errorText = document.getElementById('sqlError');
+        //Show info message
         errorText.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
                         <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
@@ -431,7 +437,7 @@ export class DashboardComponent implements OnInit {
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;      
-      var errorText = document.getElementById('sqlError');
+      //Show error message
       errorText.innerHTML = `<div class="card card-custom">
                                 <div class="card-header" style="background-color: #F56565; color: white">SQL ERROR</div>
                                   <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
@@ -443,6 +449,9 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  /**
+   * Handle the "test SQL" button click event
+   */
   testSQL() {
     this.sqlSubmitted = true;
     if(this.sqlForm.invalid) {
@@ -456,9 +465,11 @@ export class DashboardComponent implements OnInit {
       'check': false
     };
     
+    var errorText = document.getElementById('sqlError');
+    //Call the service
     this.sqlService.executeSQL(json).then(
       async ()=>{
-        var errorText = document.getElementById('sqlError');
+        //Show infor message
         errorText.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">TEST INFORMATION</div>
                         <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
@@ -470,7 +481,7 @@ export class DashboardComponent implements OnInit {
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;      
-      var errorText = document.getElementById('sqlError');
+      //Show error message
       errorText.innerHTML = `<div class="card card-custom">
                                 <div class="card-header" style="background-color: #F56565; color: white">SQL TEST ERROR</div>
                                   <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
@@ -500,16 +511,24 @@ export class DashboardComponent implements OnInit {
       'exclude': bool
     };
 
+    //Call the service
     await this.conService.excludeTable(json);
+    //Check if all the tables are excluded
     this.allTablesExcluded = this.areAllTableExcludedCheckbox();
   }
 
+  /**
+   * Exclude a column
+   * 
+   * @param colName then name of the column that should be excluded
+   */
   excludeColumn(colName: string) {
     var cb = document.getElementById("checkbox-" + colName) as HTMLInputElement;
     var checked: boolean = cb.checked;
     var bool: boolean = false;
     var er = document.getElementById("infoField");
     if(colName == this.geoColumn) {
+      //Show error message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -522,6 +541,7 @@ export class DashboardComponent implements OnInit {
     }
 
     if(colName == this.idColumn) {
+      //Show error message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -543,7 +563,9 @@ export class DashboardComponent implements OnInit {
       'column': colName,
       'exclude': bool
     };
+    //Call the service to exclude the column
     this.conService.excludeColumn(json);
+    //Check if all the columns are excluded
     this.allColumnsExcluded = this.checkIfAllColumnExcludedCheckbox();
   }
 
@@ -576,6 +598,7 @@ export class DashboardComponent implements OnInit {
     this.idColumn = this.idColumnSelected;
     var er = document.getElementById("infoField");
     this.featureService.setAsId(json).then(()=>{
+      //Show info message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -586,6 +609,7 @@ export class DashboardComponent implements OnInit {
                         </div>
                 </div>`;
       }).catch((err)=>{
+        //Show error message
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
                       <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -624,9 +648,10 @@ export class DashboardComponent implements OnInit {
       
       
     }
+    var er = document.getElementById("infoField");
     this.geoColumn = this.idColumnSelected;
     this.featureService.setAsGeometry(json).then(()=>{
-      var er = document.getElementById("infoField");
+      //Show info message if the service call was successfull
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -637,7 +662,7 @@ export class DashboardComponent implements OnInit {
                         </div>
                 </div>`;
     }).catch(()=>{
-      var er = document.getElementById("infoField");
+      //Show an error message if the call wasnt successfull
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
                       <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -720,6 +745,7 @@ export class DashboardComponent implements OnInit {
     var er = document.getElementById("infoLinkField");
     for(let i = 0; i < this.importantLinks.length; i++) {
       if(this.addImportantLinkFrom.value.displayName == this.importantLinks[i].name) {
+        //Show error message
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
                           <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -730,6 +756,7 @@ export class DashboardComponent implements OnInit {
                         </div>`;
         return;
       } else if (this.addImportantLinkFrom.value.addLink == this.importantLinks[i].link) {
+        //Show error message
         er.style.marginTop = "2%";
         er.innerHTML = `<div class="card card-custom">
                           <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -748,6 +775,7 @@ export class DashboardComponent implements OnInit {
     };
     var er = document.getElementById("infoLinkField");
     this.homeSerivce.addLink(json).then( async ()=>{
+      //Show info message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -759,6 +787,7 @@ export class DashboardComponent implements OnInit {
       this.importantLinks = await this.homeSerivce.getLinks();
 
     }).catch((err)=>{
+      //Show error message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
@@ -771,6 +800,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Check if all the tales are excluded by checking if the checkboxes are checked
+   */
   areAllTableExcludedCheckbox(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
       var check = document.getElementById("checkbox-" + this.tableNames[i]) as HTMLInputElement;
@@ -781,6 +813,9 @@ export class DashboardComponent implements OnInit {
     return true;
   }
 
+  /**
+   * Check if all the columns are excluded by checking the config
+   */
   checkIfAllColumnExcluded():boolean {
     for(let i = 0; i< this.columnNames.length; i++) {
       if(this.selectedConnector.config[this.idTableSelected] == undefined) {
@@ -796,6 +831,9 @@ export class DashboardComponent implements OnInit {
     return true;
   }
 
+  /**
+   * Check if all the columns are exclueded by checking if the checkboxes are checked
+   */
   checkIfAllColumnExcludedCheckbox():boolean {
     for(let i = 0; i < this.columnNames.length; i++) {
       var check = document.getElementById("checkbox-" + this.columnNames[i]) as HTMLInputElement;
@@ -807,12 +845,18 @@ export class DashboardComponent implements OnInit {
   }
 
 
+  /**
+   * Handle the delete event for an important link
+   * 
+   * @param name the name of the important link that should be removed
+   */
   removeImortantLink(name:string) {
     var json = {
       "name": name
     };
+    var er = document.getElementById("infoLinkField");
     this.homeSerivce.removeLink(json).then(async ()=>{
-      var er = document.getElementById("infoLinkField");
+      //Show info message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
@@ -824,7 +868,7 @@ export class DashboardComponent implements OnInit {
                 </div>`;
           this.importantLinks = await this.homeSerivce.getLinks();
     }, (err)=>{
-      var er = document.getElementById("infoLinkField");
+      //Show the error message
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>

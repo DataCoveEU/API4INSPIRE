@@ -4,10 +4,10 @@
     <div class="col-sm-5">
         <form [formGroup]="changePwdForm" (ngSubmit)="renamePwd()">
             <label>
-              <input type="password" formControlName="oldPwd" class="form-control" placeholder="Old password"/>
-              <div *ngIf="submit && changePwdForm.controls.oldPwd.errors" class="error">
-                <div *ngIf="changePwdForm.controls.oldPwd.errors.required">The old password is required</div>
-            </div>
+                <input type="password" formControlName="oldPwd" class="form-control" placeholder="Old password" />
+                <div *ngIf="submit && changePwdForm.controls.oldPwd.errors" class="error">
+                    <div *ngIf="changePwdForm.controls.oldPwd.errors.required">The old password is required</div>
+                </div>
             </label>
             <br />
             <label>
@@ -26,6 +26,6 @@
             <div *ngIf="notEqual" class="error">The new passwords have to be identical</div>
             <br />
             <button type="submit" class="btn btn-success">Submit</button>
-          </form>
+        </form>
     </div>
 </div>
