@@ -38,6 +38,7 @@
                             <input type="checkbox" id="{{ 'checkbox-' + tablename }}" class="excludeTable" [checked]="this.selectedConnector?.config[tablename]?.exclude" (click)="excludeTable(tablename)" />
                         </td>
                         <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
+                        <td *ngIf="this.selectedConnector?.sqlString[tablename]">Delete</td>
                     </tr>
                 </tbody>
             </table>
