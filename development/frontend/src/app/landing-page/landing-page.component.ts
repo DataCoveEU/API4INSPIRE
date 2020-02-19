@@ -36,13 +36,15 @@ export class LandingPageComponent implements OnInit {
   constructor(private homeService: HomeService, private http: HttpClient, private httpClient: HttpClient) { }
 
   async ngOnInit() {
+    //Load all the collections
     var col:any = (await this.getCollections());
     this.collections = col.collections;
 
+    //Load all the important links to show them in the footer
     this.importantLinks = await this.homeService.getLinks(); 
     
   
-
+    //init the layer where only the borders of the federal states are shown
     var austrocontorl = new ImageLayer({
       title: "Federal States",
       type: 'base',
@@ -53,6 +55,7 @@ export class LandingPageComponent implements OnInit {
       })
     })
 
+    //init the open street map layer
     var osm = new LayerTile({
       title: 'OSM',
       type: 'base',
@@ -60,11 +63,13 @@ export class LandingPageComponent implements OnInit {
       source: new SourceOSM()
     })
 
+    // init the button to switch layer
     var layerSwitcher = new LayerSwitcher({
       tipLabel: 'Legende', // Optional label for button
       groupSelectStyle: 'children' // Can be 'children' [default], 'group' or 'none'
   });
 
+    //init the map with the tow layers and set the deafult view point
     this.map = new Map({
       layers: [
         austrocontorl,
@@ -79,13 +84,17 @@ export class LandingPageComponent implements OnInit {
   });
 
   
-
+  //Add the layer-switch button
   this.map.addControl(layerSwitcher);
+  //init and add the "zoom to extend button"
   this.zoomToExtent = new ZoomToExtent();
   this.map.addControl(this.zoomToExtent);
     
   }
 
+  /**
+   * Load the collections using the OGC Simple API
+   */
   async getCollections() {
     return new Promise((resolve, reject) =>{
       this.httpClient.get('collections').subscribe((res)=>{
@@ -96,6 +105,11 @@ export class LandingPageComponent implements OnInit {
     });
   }
 
+  /**
+   * Select a collection to show in the map
+   * 
+   * @param event 
+   */
   onClick(event: any){
     var checked = event.target.checked;
     var link = event.target.parentNode.parentNode.children[1].textContent;
@@ -138,6 +152,9 @@ export class LandingPageComponent implements OnInit {
     }
  }
 
+ /**
+  * Updates the extend of the "zoom to extend" button
+  */
  setExtent(){
   var layers = this.map.getLayerGroup().getLayers().getArray()
   .filter(layer => layer.getProperties().name != undefined)

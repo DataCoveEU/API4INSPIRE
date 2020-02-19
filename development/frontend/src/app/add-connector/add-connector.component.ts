@@ -77,6 +77,9 @@ export class AddConnectorComponent implements OnInit {
     });
   }
 
+  /**
+   *  Handle the event if a postgres connection should be tested 
+   */
   addPostgresTest() {
     this.postgresSubmitted = true;
     if(this.addPostgresConnectorForm.invalid){
@@ -107,6 +110,7 @@ export class AddConnectorComponent implements OnInit {
     var er = document.getElementById("errorField");
     //Call the service
     this.conService.addConnector(json).then(()=>{
+      //Info message
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">TEST POSTGRES</div>
                           <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
@@ -115,6 +119,7 @@ export class AddConnectorComponent implements OnInit {
                         </div>
                       </div>`;
     }).catch(()=>{
+      //Error message
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">TEST POSTGRES</div>
                           <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
