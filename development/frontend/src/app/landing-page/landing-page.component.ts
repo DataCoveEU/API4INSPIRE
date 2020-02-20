@@ -30,6 +30,7 @@ export class LandingPageComponent implements OnInit {
   importantLinks: any = []; 
   zoomToExtent: ZoomToExtent;
 
+  showLoading: boolean = false;
 
   collections: any = ["Lukas", "Tobias"];
 
@@ -111,6 +112,7 @@ export class LandingPageComponent implements OnInit {
    * @param event 
    */
   onClick(event: any){
+    this.showLoading = true;
     var checked = event.target.checked;
     var link = event.target.parentNode.parentNode.children[1].textContent;
 
@@ -135,7 +137,7 @@ export class LandingPageComponent implements OnInit {
             this.map.render();
             
             this.setExtent();
-            
+            this.showLoading = false;
             break;
           }
         }
@@ -149,6 +151,7 @@ export class LandingPageComponent implements OnInit {
       this.map.render();
 
       this.setExtent();
+      this.showLoading = false;
     }
  }
 
