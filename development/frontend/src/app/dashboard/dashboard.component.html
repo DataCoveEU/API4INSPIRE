@@ -88,7 +88,7 @@
                         <button type="submit" id="subTableName" style="width:100%" class="btn btn-success" (click)="submitTable()">Rename table</button>
                     </div>
                     <div class="col-sm-3">
-                        <button class="btn btn-danger" (click)="delSQL()" style="width:100%" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]">Delete</button>
+                        <button class="btn btn-danger" (click)="delSQL(this.idTableSelected)" style="width:100%" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]">Delete</button>
                     </div>
                     <div class="col-sm-6"></div>
                 </div>

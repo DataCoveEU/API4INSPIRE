@@ -64,13 +64,13 @@ export class DashboardComponent implements OnInit {
   allTablesExcluded: boolean;
   allColumnsExcluded: boolean = false;
 
-  constructor(  private formBuilder: FormBuilder, 
-                private conService: ConnectorService, 
-                private featureService: FeatureService, 
+  constructor(  private formBuilder: FormBuilder,
+                private conService: ConnectorService,
+                private featureService: FeatureService,
                 private sqlService: SqlService,
                 private homeSerivce: HomeService) { }
 
-  
+
 
   async ngOnInit() {
     //Init the forms to rename the tables and columns and to execute the sql query
@@ -94,7 +94,7 @@ export class DashboardComponent implements OnInit {
 
     this.importantLinks = await this.homeSerivce.getLinks();
 
-    
+
     //Load all the connectors from the config
     this.connectors = await this.conService.getConnector();
 
@@ -111,7 +111,7 @@ export class DashboardComponent implements OnInit {
     //Load the table names from the selected connector
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
-    
+
     //Event when another conneector in the dropdown is selected
     select.onchange = async (event: any)=>{
       var select = document.getElementById("selectField") as HTMLSelectElement;
@@ -176,7 +176,7 @@ export class DashboardComponent implements OnInit {
     this.showCols = true;
 
     this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
-    
+
     if(this.selectedConnector.config[name] == undefined) {
 
     } else if(this.selectedConnector.config[name].geoCol == undefined) {
@@ -188,7 +188,7 @@ export class DashboardComponent implements OnInit {
     if(this.selectedConnector.config[name] == undefined) {
 
     } else if(this.selectedConnector.config[name].idCol == undefined) {
-      this.idColumn = this.selectedConnector.config[name].idCol 
+      this.idColumn = this.selectedConnector.config[name].idCol
     }
     this.allColumnsExcluded = this.checkIfAllColumnExcluded();
   }
@@ -332,7 +332,7 @@ export class DashboardComponent implements OnInit {
                       </div>`;
       return;
     }
-    
+
     for(let i = 0; i < this.columnNames.length; i++) {
       if(this.selectedConnector.config[this.idTableSelected] == undefined) {
 
@@ -420,7 +420,7 @@ export class DashboardComponent implements OnInit {
       'collectionName': this.sqlForm.value.collectionId,
       'check': false
     };
-    
+
     var errorText = document.getElementById('sqlError');
     this.sqlService.executeSQL(json).then(
       async ()=>{
@@ -436,7 +436,7 @@ export class DashboardComponent implements OnInit {
                     this.reload();
       }
     ).catch((err)=>{
-      this.sqlNotSucess = true;      
+      this.sqlNotSucess = true;
       //Show error message
       errorText.innerHTML = `<div class="card card-custom">
                                 <div class="card-header" style="background-color: #F56565; color: white">SQL ERROR</div>
@@ -464,7 +464,7 @@ export class DashboardComponent implements OnInit {
       'collectionName': this.sqlForm.value.collectionId,
       'check': false
     };
-    
+
     var errorText = document.getElementById('sqlError');
     //Call the service
     this.sqlService.executeSQL(json).then(
@@ -480,7 +480,7 @@ export class DashboardComponent implements OnInit {
                     </div>`;
       }
     ).catch((err)=>{
-      this.sqlNotSucess = true;      
+      this.sqlNotSucess = true;
       //Show error message
       errorText.innerHTML = `<div class="card card-custom">
                                 <div class="card-header" style="background-color: #F56565; color: white">SQL TEST ERROR</div>
@@ -519,7 +519,7 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Exclude a column
-   * 
+   *
    * @param colName then name of the column that should be excluded
    */
   excludeColumn(colName: string) {
@@ -585,7 +585,7 @@ export class DashboardComponent implements OnInit {
         'table': this.idTableSelected,
         'column': this.idColumnSelected
       }
-      
+
     } else {
       setTo = true;
       json = {
@@ -594,7 +594,7 @@ export class DashboardComponent implements OnInit {
         'column': null
       }
     }
-    
+
     this.idColumn = this.idColumnSelected;
     var er = document.getElementById("infoField");
     this.featureService.setAsId(json).then(()=>{
@@ -637,7 +637,7 @@ export class DashboardComponent implements OnInit {
         'table': this.idTableSelected,
         'column': this.idColumnSelected
       }
-      
+
     } else {
       setTo = true;
       json = {
@@ -645,8 +645,8 @@ export class DashboardComponent implements OnInit {
         'table': this.idTableSelected,
         'column': null
       }
-      
-      
+
+
     }
     var er = document.getElementById("infoField");
     this.geoColumn = this.idColumnSelected;
@@ -741,7 +741,7 @@ export class DashboardComponent implements OnInit {
     this.addLinkSubmitted = true;
     if(this.addImportantLinkFrom.invalid) {
       return;
-    }        
+    }
     var er = document.getElementById("infoLinkField");
     for(let i = 0; i < this.importantLinks.length; i++) {
       if(this.addImportantLinkFrom.value.displayName == this.importantLinks[i].name) {
@@ -768,7 +768,7 @@ export class DashboardComponent implements OnInit {
         return;
       }
     }
-    
+
     var json = {
       'link': this.addImportantLinkFrom.value.addLink,
       'name': this.addImportantLinkFrom.value.displayName
@@ -847,7 +847,7 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Handle the delete event for an important link
-   * 
+   *
    * @param name the name of the important link that should be removed
    */
   removeImortantLink(name:string) {
@@ -904,11 +904,10 @@ export class DashboardComponent implements OnInit {
                     <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
                         <p>
                           Not removed
-                        </p>
-                      
+                        </p>`
+
     })
   }
- 
+
 
 }
- 
