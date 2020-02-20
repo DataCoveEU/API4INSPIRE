@@ -790,7 +790,7 @@ public class RESTController {
         if(name != null) {
             return new ResponseEntity<>(core.deleteSQL(name),HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("SQL name is null", HttpStatus.BAD_REQUEST);
         }
     }
 
