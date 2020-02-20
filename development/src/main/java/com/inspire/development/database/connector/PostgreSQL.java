@@ -912,4 +912,6 @@ public class PostgreSQL implements DBConnector {
             return null;
         }
     }
+
+    public boolean removeSQL(String name){return sqlString.remove(name) != null;}
 }

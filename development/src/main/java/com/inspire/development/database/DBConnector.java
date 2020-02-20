@@ -54,4 +54,6 @@ public interface DBConnector {
     void setColumnExclude(String table, String column, boolean exclude);
 
     void setTableExclude(String table, boolean exclude);
+
+    boolean removeSQL(String name);
 }
