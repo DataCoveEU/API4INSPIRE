@@ -787,4 +787,6 @@ public class SQLite implements DBConnector {
     public void setConnectorId(String id) {
         this.id = id;
     }
+
+    public boolean removeSQL(String name){return sqlString.remove(name) != null;}
 }
