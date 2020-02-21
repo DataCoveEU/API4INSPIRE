@@ -42,15 +42,17 @@
 </div>
 
 <br />
-<!--
-<div class="row card-deck">
-    <div class="card">
-        <div class="card-header">Important Links</div>
-        <div class="card-body">
-            <p class="card-text"></p>
-        </div>
+
+<div class="row" *ngIf="this.showLoading">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4" style="text-align: center;">
+        <img src="assets/img/loading.gif" width="150"/>
     </div>
-</div>-->
+    <div class="col-sm-4"></div>
+</div>
+
+<br />
+
 <div class="row" style="margin-bottom: 2%">
     <div class="col-sm-8">
         <div class="card" style="width: 100%">
@@ -73,7 +75,6 @@
                         <td>{{ thing.id }}</td>
                         <td style="text-align: center">
                             <input type="checkbox" (click)="onClick($event)" />
-                            <!-- [checked]="this.selectedConnector?.config[tablename]?.exclude" -->
                         </td>
                     </tr>
                 </tbody>

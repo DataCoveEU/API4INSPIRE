@@ -327,4 +327,13 @@ public class Core {
             }
         return f;
     }
+
+    public boolean deleteSQL(String name){
+        for(DBConnector db:config.getConnectors()){
+            if(db.removeSQL(name)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

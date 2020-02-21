@@ -784,6 +784,16 @@ public class RESTController {
         }
     }
 
+    @RequestMapping(value ="/api/deleteSQL", method=RequestMethod.POST)
+    public ResponseEntity<Object> deleteSQL(@RequestBody Map<String, ?> input) {
+        String name = (String) input.get("name");
+        if(name != null) {
+            return new ResponseEntity<>(core.deleteSQL(name),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("SQL name is null", HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @RequestMapping(value = "/api/checkConnection", method = RequestMethod.POST)
     public ResponseEntity<Object> checkConnection(@RequestBody Map<String, ?> input) {
         String id = (String) input.get("id");

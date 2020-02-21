@@ -152,6 +152,10 @@ public class PostgreSQL implements DBConnector {
         return sqlString;
     }
 
+    /**
+     * Get a random UUID
+     * @return random uuid
+     */
     private static String getUUID(){
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
@@ -159,7 +163,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Checks for the connectivity to the given Database File
-     *
      * @return null if successful else the error string
      */
     @Override
@@ -181,7 +184,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Deletes Feature Collection with given name
-     *
      * @param fc Feature Collection name
      */
     @Override
@@ -191,8 +193,7 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Executes given SQL String
-     *
-     * @param sql                   SQL String to be executed
+     * @param sql SQL String to be executed
      * @param featureCollectionName
      * @return Feature Collection from SQL query result, null if error occurred. Error is stored in
      * errorBuffer. See {@link PostgreSQL#getErrorBuffer()}.
@@ -215,7 +216,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Get FeatureCollection with given name
-     *
      * @param collectionName FeatureCollection name from inside database
      * @return FeatureCollection from given name. Returns null if collection doesnt exists.
      */
@@ -240,6 +240,10 @@ public class PostgreSQL implements DBConnector {
             }
     }
 
+    /**
+     * Update a connector with the parameters setted with the setter methods
+     * @return null if everything worked else the Error
+     */
     public String updateConnector(){
         Connection oldCon = c;
         Connection connection = null;
@@ -264,7 +268,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Returns all FeatureCollections for the Database
-     *
      * @return FeatureCollection Array, null if error occurred.
      */
     @JsonIgnore
@@ -398,6 +401,11 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    /**
+     * Set the column to be used for the geometry
+     * @param table table the column is contained in
+     * @param column column to be used
+     */
     public void setGeo(String table, String column) {
         if (config.containsKey(table)) {
             config.get(table).setGeoCol(column);
@@ -408,6 +416,11 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    /**
+     * Set the id column to be used in Features
+     * @param table table the id is contained in
+     * @param column column to be used
+     */
     public void setId(String table, String column) {
         if (config.containsKey(table)) {
             config.get(table).setIdCol(column);
@@ -419,6 +432,12 @@ public class PostgreSQL implements DBConnector {
     }
 
 
+    /**
+     * Exclude a column from the api
+     * @param table table the column is contained in
+     * @param column column to be excluded
+     * @param exclude true if it should be excluded else false
+     */
     public void setColumnExclude(String table, String column, boolean exclude) {
         if (config.containsKey(table)) {
             TableConfig conf = config.get(table);
@@ -430,6 +449,11 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    /**
+     * Exclude table from the api
+     * @param table table to be excluded
+     * @param exclude true if it should be excluded else false
+     */
     public void setTableExclude(String table, boolean exclude) {
         if (config.containsKey(table)) {
             config.get(table).setExclude(exclude);
@@ -460,17 +484,21 @@ public class PostgreSQL implements DBConnector {
 
 
     /**
-     * FK Pattern -> ogc_fk;PK_TABLE;PK_COLUMNNAME;KEY_VALUE
-     * @param alias
-     * @param withSpatial
-     * @param limit
-     * @param offset
-     * @param bbox
-     * @param filterParams
-     * @return
-     * @throws Exception
+     * Converts a featureCollectionId to a FeatureCollection object
+     * @param alias featureCollectionId from the API
+     * @param withSpatial true if spatial info shall be provided in the response
+     * @param limit limit on how many items shall be included in the response
+     * @param offset offset to the data in the database
+     * @param bbox array in the form of [xmin, ymin, xmax, ymax]. Only data with an intersecting boundingbox is included in the response
+     * @param filterParams Params to be filtered by. Null if nothing should be filtered by
+     * @return FeatureCollection with data specified by the params
+     * @throws Exception Thrown if any SQLException occurred
      */
     public FeatureCollection getFeatureCollectionByName(String alias, boolean withSpatial, int limit, int offset, double[] bbox, Map<String,String> filterParams) throws Exception {
+        if(c == null){
+            return null;
+        }
+
         TableConfig tc = getConfByAlias(alias);
         String queryName = alias;
         String geoCol;
@@ -582,7 +610,7 @@ public class PostgreSQL implements DBConnector {
                 log.debug("Getting Bounding Box for Table: " + queryName);
                 Statement stmt = c.createStatement();
                 //ST_SetSRID -> transforms Box to Polygon
-                ResultSet resultSet = SqlBBox(sql,filterParams,geoCol);
+                ResultSet resultSet = SqlBBox(sql,filterParams,bbox,queryName,geoCol);
 
                 if (resultSet.next()) {
                     String ewkb = resultSet.getString(1);
@@ -608,6 +636,16 @@ public class PostgreSQL implements DBConnector {
             return fs;
     }
 
+    /**
+     * Get the Resultset with the given filters
+     * @param sql sql to be executed
+     * @param filterParams Parameters to be filtered by
+     * @param bbox bbox to be used while filtering
+     * @param geoCol geometry column to be used
+     * @param table the table name
+     * @return ResultSet with columns matching the params
+     * @throws Exception
+     */
     public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table) throws Exception{
         ResultSet rs;
         if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
@@ -651,26 +689,58 @@ public class PostgreSQL implements DBConnector {
         return rs;
     }
 
-    public ResultSet SqlBBox(String sql, Map<String,String> filterParams, String geoCol) throws SQLException{
+    /**
+     * Get BBOX for the whole table with fiven filters
+     * @param sql SQL to be executed
+     * @param filterParams params to be filtered by
+     * @param geoCol geometry column name
+     * @return ResultSet with columns specified by filterparams
+     * @throws SQLException
+     */
+    public ResultSet SqlBBox(String sql, Map<String,String> filterParams, double[] bbox, String table, String geoCol) throws SQLException{
         ResultSet rs;
-        if(filterParams != null && filterParams.size() > 0){
-            sql = "SELECT * FROM (" + sql + ") as tabula where ";
-            for(Map.Entry<String,String> entry:filterParams.entrySet()){
-                sql = sql + entry.getKey() + "::varchar = ? and";
-            }
-            sql = sql.substring(0,sql.length()-4);
-            sql = "SELECT ST_SetSRID(ST_Extent("
-                    + geoCol
-                    + "), 4326) as table_extent FROM ("
-                    + sql
-                    + ") as tabulana";
-            PreparedStatement ps = c.prepareStatement(sql);
-            int counter = 1;
-            for(Map.Entry<String,String> entry:filterParams.entrySet()){
-                ps.setString(counter,entry.getValue());
-                counter++;
-            }
-            rs = ps.executeQuery();
+
+            if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
+                sql = "SELECT *, ST_Envelope(" + geoCol + ") as ogc_bbox FROM (" + sql + ") as tabula";
+
+                if(filterParams != null && filterParams.size() > 0) {
+                    sql += " where ";
+
+                    for (Map.Entry<String, String> entry : filterParams.entrySet()) {
+                        String col = getConfigByAlias(table, entry.getKey());
+                        col = col == null ? entry.getKey() : col;
+                        sql = sql + col + "::varchar = ? and ";
+                    }
+                }
+                if(bbox != null && geoCol != null) {
+                    sql += "ST_Intersects(ST_Envelope(" + geoCol + "),?)";
+                }else {
+                    if(filterParams != null && filterParams.size() > 0)
+                        sql = sql.substring(0, sql.length() - 4);
+                }
+
+                sql = "SELECT ST_SetSRID(ST_Extent("
+                        + geoCol
+                        + "), 4326) as table_extent FROM ("
+                        + sql
+                        + ") as tabulana";
+
+                PreparedStatement ps = c.prepareStatement(sql);
+                int counter = 1;
+
+                if(filterParams != null) {
+                    for (Map.Entry<String, String> entry : filterParams.entrySet()) {
+                        ps.setString(counter, entry.getValue());
+                        counter++;
+                    }
+                }
+
+                if(bbox != null && geoCol != null) {
+                    PGbox2d box = new org.postgis.PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
+                    ps.setObject(counter, box);
+                }
+
+                rs = ps.executeQuery();
         }else {
             sql = "SELECT ST_SetSRID(ST_Extent("
                     + geoCol
@@ -695,10 +765,9 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Checks if table has a GEOMETRY column
-     *
-     * @param table Table name to check
-     * @return true if GEOMETRY exists, else false
+     * Get the geometry column name of a table
+     * @param table Table name to get the column from
+     * @return name if one exists else null
      */
     public String getGeometry(String table) {
         try {
@@ -720,18 +789,13 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Converts Extended Well Known Binary to a Geometry Object
-     *
+     * Converts Geometry Object to a Geometry Object
      * @param geom Geometry Object
      * @return Geometry object if string is valid, else null
      */
     public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
         if (geom != null) {
             log.debug("Converting EWKB to Geometry");
-            double xmin = Integer.MAX_VALUE;
-            double xmax = Integer.MIN_VALUE;
-            double ymin = Integer.MAX_VALUE;
-            double ymax = Integer.MIN_VALUE;
 
             //Type is Polygon
             if (geom.getType() == 3) {
@@ -741,29 +805,12 @@ public class PostgreSQL implements DBConnector {
                 int x = 1;
                 org.postgis.Point p = geom.getFirstPoint();
                 do {
-                    if (p.getX() > xmax) {
-                        xmax = p.getX();
-                    }
-
-                    if (p.getX() < xmin) {
-                        xmin = p.getX();
-                    }
-
-                    if (p.getY() > ymax) {
-                        ymax = p.getY();
-                    }
-
-                    if (p.getY() < ymin) {
-                        ymin = p.getY();
-                    }
-
                     li.add(new Position(p.getX(), p.getY()));
                     p = geom.getPoint(x);
                     x++;
                 } while ((!p.equals(geom.getLastPoint())));
                 l.add(li);
                 Polygon p1 = new Polygon(l);
-                p1.setBbox(new double[]{xmin, ymin, xmax, ymax});
                 return p1;
             }
             //Type is Point
@@ -776,8 +823,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Get all errors of the database connector
-     *
+     * Get all errors of the database connection
      * @return Array with all error Messages
      */
     @JsonIgnore
@@ -785,13 +831,17 @@ public class PostgreSQL implements DBConnector {
         return errorBuffer;
     }
 
+    /**
+     * Remove an error
+     * @param uuid UUID to remove
+     * @return true if removed else false
+     */
     public boolean removeError(String uuid){
         return errorBuffer.remove(uuid) != null;
     }
 
     /**
      * Get Config
-     *
      * @return config
      */
     @JsonProperty
@@ -799,11 +849,19 @@ public class PostgreSQL implements DBConnector {
         return config;
     }
 
+    /**
+     * Hostname of the connector
+     * @return
+     */
     @JsonProperty
     public String getHostname() {
         return hostname;
     }
 
+    /**
+     * Set the hostname, not used till updateConnector was called
+     * @param hostname
+     */
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
@@ -835,6 +893,11 @@ public class PostgreSQL implements DBConnector {
         this.schema = schema;
     }
 
+    /**
+     * Get Primary Key for table
+     * @param table table name to get from
+     * @return the primary key name
+     */
     public String getPrimaryKey(String table) {
         log.debug("Get PrimaryKey for table: " + table);
         try {
@@ -849,4 +912,6 @@ public class PostgreSQL implements DBConnector {
             return null;
         }
     }
+
+    public boolean removeSQL(String name){return sqlString.remove(name) != null;}
 }
