@@ -28,7 +28,7 @@ RUN wget $TOMCAT_DOWNLOAD \
     && cd tc-$ACGSDI \
     && rm -r webapps && mkdir webapps \
     && mkdir /opt/log \
-    && mkdir /data && mkdir /data/ogcapisimple && mkdir /data/ogcapisimple/logs && mkdir /data/ogcapisimple/logs/tc
+    && mkdir /data && mkdir /data/ogcapisimple && mkdir /data/ogcapisimple/logs && mkdir /data/ogcapisimple/logs/tc && mkdir /data/ogcapisimple/logs/ogcapisimple
 
 # directories /data, /data/ogcapisimple and /data/ogcapisimple/tc-logs are meant for mounting docker volumes to be able to store
 # logs and other files
@@ -41,6 +41,7 @@ ADD web.xml /opt/tc-$ACGSDI/conf/web.xml
 ADD ogcapisimple.war /opt/tc-$ACGSDI/webapps/ogcapisimple.war
 
 #--------- Tomcat Service config start for OGC API Simple------------
+ENV log4j.saveDirectory=/data/ogcapisimple/logs/ogcapisimple
 ADD scripts /opt/scripts
 RUN chmod +x /opt/scripts/*.sh
 # scripts should contain all required script files for final Tomcat and OGC API Simple
