@@ -24,14 +24,14 @@ jobs:
       run: mvn --file ./pom.xml clean install 
     - name: Copy war
       run: cp development/target/ogcapisimple.war docker/ogcapisimple
+    - name: rm folder ${sys:log4j.saveDirectory}
+      run: rm -rf 'development/${sys:log4j.saveDirectory}'
     - name: Commit files
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add -A
         git commit -m "Add changes" -a
-    - name: rm folder ${sys:log4j.saveDirectory}
-      run: rm -rf 'development/${sys:log4j.saveDirectory}'
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
