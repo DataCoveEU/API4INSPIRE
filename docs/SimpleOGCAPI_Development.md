@@ -12,6 +12,7 @@ The development documentation:
 * [OGC API Examples](https://github.com/opengeospatial/ogcapi-features/blob/master/implementations.md)
 * [Admin design mockup](./Admin-Design.pdf)
 * [User design mockup](./User-Design.pdf) 
+* [Backend Docmentation](./Server.md)
 
 
 ## Run the application
@@ -29,4 +30,8 @@ After running this, the .war file is created
 
 ### How to run
 In /development/target there is a .war file. This war file can be deployed by a tomcat web server.
+
+## Login (default credentials)
+Username: admin
+Password: admin
 
