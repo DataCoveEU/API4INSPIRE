@@ -39,7 +39,6 @@
                             <input type="checkbox" id="{{ 'checkbox-' + tablename }}" class="excludeTable" [checked]="this.selectedConnector?.config[tablename]?.exclude" (click)="excludeTable(tablename)" />
                         </td>
                         <td>{{ this.selectedConnector?.config[tablename]?.alias }}</td>
-                        <td *ngIf="this.selectedConnector?.sqlString[tablename]">Delete</td>
                     </tr>
                 </tbody>
             </table>
@@ -76,7 +75,7 @@
     <div class="row" id="rename">
         <div class="col-sm-6" *ngIf="showRenameTable">
             <h5>Change table properties</h5>
-            <form [formGroup]="renameTableForm" (ngSubmit)="submitTable()">
+            <form [formGroup]="renameTableForm">
                 <label style="width: 100%">
                     <input type="text" formControlName="tableName" class="form-control" placeholder="New table name" />
                     <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
@@ -84,12 +83,20 @@
                     </div>
                 </label>
                 <br />
-                <button type="submit" id="subTableName" class="btn btn-success">Rename table</button>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <button type="submit" id="subTableName" style="width:100%" class="btn btn-success" (click)="submitTable()">Rename table</button>
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-danger" (click)="delSQL(this.idTableSelected)" style="width:100%" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]">Delete</button>
+                    </div>
+                    <div class="col-sm-6"></div>
+                </div>
             </form>
         </div>
         <div class="col-sm-6" *ngIf="showRenameCol">
             <h5>Change column properties</h5>
-            <form [formGroup]="renameColumnForm" (ngSubmit)="submitColumn()">
+            <form [formGroup]="renameColumnForm">
                 <label style="width: 100%">
                     <input type="text" formControlName="columnName" class="form-control" placeholder="New column name" />
                     <div *ngIf="columnNameSubmitted && renameColumnForm.controls.columnName.errors" class="error">
@@ -113,7 +120,7 @@
                         <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
                     </label>
                 </div>
-                <button type="submit" class="btn btn-success">Rename column</button>
+                <button type="submit" class="btn btn-success" (click)="submitColumn()">Rename column</button>
             </form>
         </div>
     </div>
