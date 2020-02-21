@@ -4,6 +4,7 @@
 *.iml
 *.ipr
 ./development/frontend/dist
+./development/${sys:log4j.saveDirectory}
 
 ### VS Code ###
 .vscode/
