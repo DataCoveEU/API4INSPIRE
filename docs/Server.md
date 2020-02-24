@@ -2,11 +2,11 @@
 
 ## Environment variables: ##
 
-- LOG
+- LOG_OGCAPISIMPLE
   - Used for specifying the log directory
-- SQLITE
+- SQLITE_OGCAPISIMPLE
   - Used for specifying the directory in which the sqlite files are located
-- PAGING_LIMIT
+- PAGING_LIMIT_OGCAPISIMPLE
   - Used to specify the paging limit used in the frontend map
 
   

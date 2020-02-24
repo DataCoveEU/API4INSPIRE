@@ -3,9 +3,6 @@ package com.inspire.development.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.inspire.development.collections.ImportantLinkList;
-import com.inspire.development.controller.RESTController;
-
-import javax.servlet.ServletContext;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
@@ -26,7 +23,7 @@ public class Config {
 
         logPath = path + "logs";
 
-        if(System.getenv("LOG") == null)
+        if(System.getenv("LOG_OGCAPISIMPLE") == null)
             System.setProperty("log4j",logPath);
 
         sqlitePath = path + "sqlite";
@@ -42,7 +39,7 @@ public class Config {
     public Config(@JsonProperty("logPath") String logPath, @JsonProperty("sqlitePath") String sqlitePath, @JsonProperty("connectors") DBConnectorList connectors, @JsonProperty("importantLinks") ImportantLinkList importantLinks,@JsonProperty("configPath") String configPath){
         this.logPath = logPath;
 
-        if(System.getenv("LOG") == null)
+        if(System.getenv("LOG_OGCAPISIMPLE") == null)
             System.setProperty("log4j",logPath);
 
         this.sqlitePath = sqlitePath;
@@ -56,21 +53,21 @@ public class Config {
     }
 
     public String getLogPath() {
-        if(System.getenv("LOG") != null){
-            return System.getenv("LOG");
+        if(System.getenv("LOG_OGCAPISIMPLE") != null){
+            return System.getenv("LOG_OGCAPISIMPLE");
         }
         return logPath;
     }
 
     public String getSqlitePath() {
-        if(System.getenv("SQLITE") != null){
-            return System.getenv("SQLITE");
+        if(System.getenv("SQLITE_OGCAPISIMPLE") != null){
+            return System.getenv("SQLITE_OGCAPISIMPLE");
         }
         return sqlitePath;
     }
 
     public void setLogPath(String logPath) {
-        System.setProperty("LOG",logPath);
+        System.setProperty("LOG_OGCAPISIMPLE",logPath);
         this.logPath = logPath;
     }
 
@@ -80,8 +77,8 @@ public class Config {
 
     @JsonIgnore
     public String getPagingLimit(){
-        if(System.getenv("PAGING_LIMIT") != null){
-            return System.getenv("PAGING_LIMIT");
+        if(System.getenv("PAGING_LIMIT_OGCAPISIMPLE") != null){
+            return System.getenv("PAGING_LIMIT_OGCAPISIMPLE");
         }
         return "10000";
     }
