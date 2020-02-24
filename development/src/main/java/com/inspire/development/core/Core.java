@@ -111,12 +111,15 @@ public class Core {
             @Override
             public void onFileCreate(File file) {
                 config.getConnectors().add(new SQLite(file.getPath(), file.getName()));
+                writeConfig(config.getConfigPath());
             }
 
             @Override
             public void onFileDelete(File file) {
                 deleteByPath(file.getPath());
+                writeConfig(config.getConfigPath());
             }
+
         });
 
         monitor = new FileAlterationMonitor(500, observer);
@@ -183,6 +186,7 @@ public class Core {
         for(ImportantLink link:config.getImportantLinks()){
             if(link.getName().equals(name)){
                 config.getImportantLinks().remove(link);
+                writeConfig(config.getConfigPath());
                 return true;
             }
         }
@@ -193,6 +197,7 @@ public class Core {
         for(DBConnector db:config.getConnectors()){
             if(db.getId().equals(id)){
                 config.getConnectors().remove(db);
+                writeConfig(config.getConfigPath());
                 return true;
             }
         }
@@ -206,6 +211,7 @@ public class Core {
                 SQLite sqLite = (SQLite)db;
                 if (sqLite.getHostname().equals(path)) {
                     config.getConnectors().remove(i);
+                    writeConfig(config.getConfigPath());
                     break;
                 }
             }
@@ -246,6 +252,7 @@ public class Core {
     public void addConnector(DBConnector d) {
         if (!checkIfConnectorExists(d.getId())) {
             config.getConnectors().add(d);
+            writeConfig(config.getConfigPath());
         }
     }
 
@@ -331,6 +338,7 @@ public class Core {
     public boolean deleteSQL(String name){
         for(DBConnector db:config.getConnectors()){
             if(db.removeSQL(name)){
+                writeConfig(config.getConfigPath());
                 return true;
             }
         }
