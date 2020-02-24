@@ -3,8 +3,13 @@ package com.inspire.development.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.inspire.development.collections.ImportantLinkList;
+import com.inspire.development.controller.RESTController;
 
+import javax.servlet.ServletContext;
+import java.awt.*;
 import java.io.File;
+import java.net.URL;
+import java.nio.file.Path;
 
 public class Config {
     DBConnectorList connectors;
@@ -14,13 +19,18 @@ public class Config {
     ImportantLinkList importantLinks;
 
     public Config(){
-        logPath = "./../ogcapisimple/sqlite";
+        //String path = RESTController.getServletContext().getRealPath("/WEB-INF");
 
-        if(System.getProperty("log4j.saveDirectory") == null)
-            System.setProperty("log4j.saveDirectory",logPath);
+        URL url = this.getClass().getClassLoader().getResource("../");
+        String path = url.getPath();
 
-        sqlitePath = "./../ogcapisimple/sqlite";
-        configPath = "./../ogcapisimple/config.json";
+        logPath = path + "logs";
+
+        if(System.getenv("LOG") == null)
+            System.setProperty("log4j",logPath);
+
+        sqlitePath = path + "sqlite";
+        configPath = path + "config.json";
         connectors = new DBConnectorList();
         importantLinks = new ImportantLinkList();
     }
@@ -32,8 +42,8 @@ public class Config {
     public Config(@JsonProperty("logPath") String logPath, @JsonProperty("sqlitePath") String sqlitePath, @JsonProperty("connectors") DBConnectorList connectors, @JsonProperty("importantLinks") ImportantLinkList importantLinks,@JsonProperty("configPath") String configPath){
         this.logPath = logPath;
 
-        if(System.getProperty("log4j.saveDirectory") == null)
-            System.setProperty("log4j.saveDirectory",logPath);
+        if(System.getenv("LOG") == null)
+            System.setProperty("log4j",logPath);
 
         this.sqlitePath = sqlitePath;
         this.configPath = configPath;
@@ -46,21 +56,21 @@ public class Config {
     }
 
     public String getLogPath() {
-        if(System.getProperty("log4j.saveDirectory") != null){
-            return System.getProperty("log4j.saveDirectory");
+        if(System.getenv("LOG") != null){
+            return System.getenv("LOG");
         }
         return logPath;
     }
 
     public String getSqlitePath() {
-        if(System.getProperty("sqlite.directory") != null){
-            return System.getProperty("sqlite.directory");
+        if(System.getenv("SQLITE") != null){
+            return System.getenv("SQLITE");
         }
         return sqlitePath;
     }
 
     public void setLogPath(String logPath) {
-        System.setProperty("log4j.saveDirectory",logPath);
+        System.setProperty("LOG",logPath);
         this.logPath = logPath;
     }
 
@@ -70,8 +80,8 @@ public class Config {
 
     @JsonIgnore
     public String getPagingLimit(){
-        if(System.getProperty("paging.limit") != null){
-            return System.getProperty("paging.limit");
+        if(System.getenv("PAGING_LIMIT") != null){
+            return System.getenv("PAGING_LIMIT");
         }
         return "10000";
     }

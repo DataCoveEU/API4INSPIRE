@@ -2,11 +2,11 @@
 
 ## Environment variables: ##
 
-- log4j.saveDirectory
+- LOG
   - Used for specifying the log directory
-- sqlite.directory
+- SQLITE
   - Used for specifying the directory in which the sqlite files are located
-- paging.limit
+- PAGING_LIMIT
   - Used to specify the paging limit used in the frontend map
 
   
