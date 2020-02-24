@@ -24,12 +24,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
+import javax.servlet.ServletContext;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import mil.nga.sf.geojson.Feature;
 import org.apache.catalina.ssi.ResponseIncludeWrapper;
 import org.spatialite.core.DB;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -49,6 +51,8 @@ public class RESTController {
 
     @Value("classpath:index.html")
     Resource indexFile;
+
+
 
 
     public RESTController() {
