@@ -21,6 +21,7 @@ export class ItemsComponent implements OnInit {
     });
     // load all the items
     this.items = await this.getItems();
+    console.log(this.items);
   }
 
   /**

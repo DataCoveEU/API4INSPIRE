@@ -72,7 +72,7 @@
                 <tbody>
                     <tr *ngFor="let thing of collections; let i = index;" class="tableRow">
                         <th scope="row">{{ i+1 }}</th>
-                        <td>{{ thing.id }}</td>
+                        <td>{{ thing?.id }}</td>
                         <td style="text-align: center">
                             <input type="checkbox" (click)="onClick($event)" />
                         </td>
