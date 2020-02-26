@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.servlet.ServletContext;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -103,7 +104,8 @@ public class RESTController {
                                    @RequestHeader(name="Host", required=false) final String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
         if(f.equals("application/json")) {
             Collections c = new Collections(Arrays.asList(core.getAll()));
-            c.getCollections().removeIf(Objects::isNull);
+           c.setCollections(c.getCollections().stream().collect(Collectors.toList()));
+           c.getCollections().removeIf(Objects::isNull);
             for (FeatureCollection fc : c.getCollections()) {
                 if (fc == null) {
 
@@ -768,6 +770,7 @@ public class RESTController {
             String name = (String) input.get("name");
             if(name != null) {
                 core.addLink(link, name);
+                core.writeConfig(core.getConfigPath());
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("Name is null", HttpStatus.BAD_REQUEST);
@@ -787,6 +790,7 @@ public class RESTController {
         String name = (String) input.get("name");
         if(name != null) {
             core.removeLink(name);
+            core.writeConfig(core.getConfigPath());
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Name is null", HttpStatus.BAD_REQUEST);
@@ -799,6 +803,7 @@ public class RESTController {
         String id = (String) input.get("id");
         if(id != null) {
             core.removeConnector(id);
+            core.writeConfig(core.getConfigPath());
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
@@ -809,7 +814,9 @@ public class RESTController {
     public ResponseEntity<Object> deleteSQL(@RequestBody Map<String, ?> input) {
         String name = (String) input.get("name");
         if(name != null) {
-            return new ResponseEntity<>(core.deleteSQL(name),HttpStatus.OK);
+            Object o = core.deleteSQL(name);
+            core.writeConfig(core.getConfigPath());
+            return new ResponseEntity<>(o,HttpStatus.OK);
         } else {
             return new ResponseEntity<>("SQL name is null", HttpStatus.BAD_REQUEST);
         }
