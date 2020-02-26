@@ -1,3 +1,10 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * @author Tobias Pressler
+ *
+ * Copyright (c) 2020 - Tobias Pressler
+ */
 package com.inspire.development.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,3 +1,10 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * @author Tobias Pressler
+ *
+ * Copyright (c) 2020 - Tobias Pressler
+ */
 package com.inspire.development.config;
 
 import com.inspire.development.database.DBConnector;
