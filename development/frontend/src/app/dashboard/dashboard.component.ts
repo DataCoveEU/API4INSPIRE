@@ -242,14 +242,7 @@ export class DashboardComponent implements OnInit {
     if(this.tableNames.includes(this.renameTableForm.value.tableName)) {
       var er = document.getElementById("infoField");
           er.style.marginTop = "2%";
-          er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                        <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                            <p>
-                                This name is already assigned to another table
-                            </p>
-                            </div>
-                    </div>`;
+          er.innerHTML = this.messages(true, "This name is already assigned to another table", "ERROR");
           return;
     }
 
@@ -267,14 +260,7 @@ export class DashboardComponent implements OnInit {
         } else if(con.config[tab[j]].alias == this.renameTableForm.value.tableName) {
           //Error Message
           er.style.marginTop = "2%";
-          er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                        <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                            <p>
-                                This name is already assigned to another table. Table: ${tab[j]}
-                            </p>
-                            </div>
-                    </div>`;
+          er.innerHTML = this.messages(true, `This name is already assigned to another table. Table: ${tab[j]}`, "ERROR");
           return;
         }
       }
@@ -284,27 +270,13 @@ export class DashboardComponent implements OnInit {
       async ()=>{
           //Info message
           er.style.marginTop = "2%";
-          er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>
-                                Table renamed successfull
-                            </p>
-                            </div>
-                    </div>`;
+          er.innerHTML = this.messages(false, "Table renamed successfully", "INFORMATION");
         this.reload();
       }
     ).catch(()=>{
       //Error Message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                        <p>
-                            Table not renamed
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(true, "Table not renamed", "ERROR");
     });
   }
 
@@ -329,13 +301,7 @@ export class DashboardComponent implements OnInit {
     if(this.columnNames.includes(this.renameColumnForm.value.columnName)) {
       //Error message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                            <p>This name is the original name of another column</p>
-                          </div>
-                        </div>
-                      </div>`;
+      er.innerHTML = this.messages(true, "This name is the original name of another column", "ERROR");
       return;
     }
 
@@ -349,13 +315,7 @@ export class DashboardComponent implements OnInit {
       } else if(this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias == this.renameColumnForm.value.columnName) {
         //Error message
         er.style.marginTop = "2%";
-        er.innerHTML = `<div class="card card-custom">
-                          <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                            <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                              <p>This name is already assigned to a column: ${this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias}</p>
-                            </div>
-                          </div>
-                        </div>`;
+        er.innerHTML = this.messages(true, `This name is already assigned to a column: ${this.selectedConnector.config[this.idTableSelected].map[this.columnNames[i]].alias}`, "ERROR");
         return;
       }
     }
@@ -365,25 +325,11 @@ export class DashboardComponent implements OnInit {
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
       //Info message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                        <p>
-                            Column renamed successfull
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(false, "Column renamed successfull", "INFORMATION");
     }).catch(()=>{
           //Error message
           er.style.marginTop = "2%";
-          er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                        <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                            <p>
-                                Column not renamed
-                            </p>
-                            </div>
-                    </div>`;
+          er.innerHTML = this.messages(true, "Column not renamed", "ERROR");
     });
 
   }
@@ -431,26 +377,13 @@ export class DashboardComponent implements OnInit {
     this.sqlService.executeSQL(json).then(
       async ()=>{
         //Show info message
-        errorText.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>
-                                SQL executed successfull
-                            </p>
-                            </div>
-                    </div>`;
+        errorText.innerHTML = this.messages(false, "SQL executed successfull", "INFORMATION");
                     this.reload();
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;
       //Show error message
-      errorText.innerHTML = `<div class="card card-custom">
-                                <div class="card-header" style="background-color: #F56565; color: white">SQL ERROR</div>
-                                  <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
-                                    <p>${err.error}</p>
-                                  </div>
-                                </div>
-                              </div>`;
+      errorText.innerHTML = this.messages(true, `${err.error}`, "SQL ERROR");
     });
 
   }
@@ -476,25 +409,12 @@ export class DashboardComponent implements OnInit {
     this.sqlService.executeSQL(json).then(
       async ()=>{
         //Show infor message
-        errorText.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #38B2AC; color: white">TEST INFORMATION</div>
-                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>
-                                SQL executed successfull
-                            </p>
-                            </div>
-                    </div>`;
+        errorText.innerHTML = this.messages(false, "SQL executed successfull", "TEST INFORMATION");
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;
       //Show error message
-      errorText.innerHTML = `<div class="card card-custom">
-                                <div class="card-header" style="background-color: #F56565; color: white">SQL TEST ERROR</div>
-                                  <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
-                                    <p>${err.error}</p>
-                                  </div>
-                                </div>
-                              </div>`;
+      errorText.innerHTML = this.messages(true, `${err.error}`, "SQL TEST ERROR");
     });
 
   }
@@ -536,26 +456,14 @@ export class DashboardComponent implements OnInit {
     if(colName == this.geoColumn) {
       //Show error message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                            <p>${colName} cant be excluded as it is the GEO Column</p>
-                          </div>
-                        </div>
-                      </div>`;
+      er.innerHTML = this.messages(true, `${colName} cant be excluded as it is the GEO Column`, "ERROR");
       return;
     }
 
     if(colName == this.idColumn) {
       //Show error message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                            <p>${colName} cant be excluded as it is the ID Column</p>
-                          </div>
-                        </div>
-                      </div>`;
+      er.innerHTML = this.messages(true, `${colName} cant be excluded as it is the ID Column`, "ERROR");
       return;
     }
     if(checked) {
@@ -606,25 +514,11 @@ export class DashboardComponent implements OnInit {
     this.featureService.setAsId(json).then(()=>{
       //Show info message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                        <p>
-                           ${this.idColumnSelected} is now the ID column
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the ID column`, "INFORMATION");
       }).catch((err)=>{
         //Show error message
         er.style.marginTop = "2%";
-        er.innerHTML = `<div class="card card-custom">
-                      <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                      <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                          <p>
-                              Not selected as ID column
-                          </p>
-                          </div>
-                  </div>`;
+        er.innerHTML = this.messages(true, "Not selected as ID column", "ERROR");
     });
   }
 
@@ -659,25 +553,11 @@ export class DashboardComponent implements OnInit {
     this.featureService.setAsGeometry(json).then(()=>{
       //Show info message if the service call was successfull
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                        <p>
-                           ${this.idColumnSelected} is now the GEO column
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION");
     }).catch(()=>{
       //Show an error message if the call wasnt successfull
         er.style.marginTop = "2%";
-        er.innerHTML = `<div class="card card-custom">
-                      <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                      <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                          <p>
-                              Not selected as GEO column
-                          </p>
-                          </div>
-                  </div>`;
+        er.innerHTML = this.messages(true, "Not selected as GEO column", "ERROR");
     });
   }
 
@@ -753,24 +633,12 @@ export class DashboardComponent implements OnInit {
       if(this.addImportantLinkFrom.value.displayName == this.importantLinks[i].name) {
         //Show error message
         er.style.marginTop = "2%";
-        er.innerHTML = `<div class="card card-custom">
-                          <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                            <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                              <p>A link with this name already exists</p>
-                            </div>
-                          </div>
-                        </div>`;
+        er.innerHTML = this.messages(true, "A link with this name already exists", "ERROR");
         return;
       } else if (this.addImportantLinkFrom.value.addLink == this.importantLinks[i].link) {
         //Show error message
         er.style.marginTop = "2%";
-        er.innerHTML = `<div class="card card-custom">
-                          <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                            <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                              <p>This link already exists</p>
-                            </div>
-                          </div>
-                        </div>`;
+        er.innerHTML = this.messages(true, "This link already exists", "ERROR");
         return;
       }
     }
@@ -783,26 +651,13 @@ export class DashboardComponent implements OnInit {
     this.homeSerivce.addLink(json).then( async ()=>{
       //Show info message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                          <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>Added as important link</p>
-                          </div>
-                        </div>
-                      </div>`;
+      er.innerHTML = this.messages(false, "Added as important link", "INFORMATION")
       this.importantLinks = await this.homeSerivce.getLinks();
 
     }).catch((err)=>{
       //Show error message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                          <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                        <p>
-                            Not added as important link
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(true, "Not added as important link", "ERROR");
     });
   }
 
@@ -864,26 +719,12 @@ export class DashboardComponent implements OnInit {
     this.homeSerivce.removeLink(json).then(async ()=>{
       //Show info message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                        <p>
-                        Imortant link successfully removed
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(false, "Important link successfully removed", "INFORMATION");
           this.importantLinks = await this.homeSerivce.getLinks();
     }, (err)=>{
       //Show the error message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                        <p>
-                            Link not removed
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(true, "Link not removed", "ERROR");
     });
   }
 
@@ -894,25 +735,35 @@ export class DashboardComponent implements OnInit {
     var er = document.getElementById("infoField");
     this.conService.deleteSQL(json).then(()=>{
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                    <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                        <p>
-                        Successfully removed
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(false, "Successfully removed", "INFORMATION");
       this.reload();
     }, (err)=>{
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                    <div class="card-body" style="background-color: #FFF5F5; color: #355376">
-                        <p>
-                          Not removed
-                        </p>`
-
+      er.innerHTML = this.messages(true, "Not removed", "ERROR");
     })
+  }
+
+
+  messages(isError:boolean, text: string, title: string):string {
+    var erg = "";
+    if(isError) {
+      erg =  `<div class="card card-custom">
+                <div class="card-header" style="background-color: #F56565; color: white">${title}</div>
+                  <div class="card-body" style="background-color: #FFF5F5; color: #355376">
+                    <p>${text}</p>
+                  </div>
+                </div>
+              </div>`;
+    } else {
+      erg =  `<div class="card card-custom">
+                <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                  <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                    <p>${text}</p>
+                  </div>
+                </div>
+              </div>`;
+    }
+    return erg;
   }
 
 

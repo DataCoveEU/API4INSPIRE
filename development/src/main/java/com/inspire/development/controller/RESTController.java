@@ -104,7 +104,7 @@ public class RESTController {
                                    @RequestHeader(name="Host", required=false) final String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
         if(f.equals("application/json")) {
             Collections c = new Collections(Arrays.asList(core.getAll()));
-           c.setCollections(c.getCollections().stream().collect(Collectors.toList()));
+            c.setCollections(c.getCollections().stream().collect(Collectors.toList()));
            c.getCollections().removeIf(Objects::isNull);
             for (FeatureCollection fc : c.getCollections()) {
                 if (fc == null) {
