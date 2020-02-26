@@ -901,7 +901,7 @@ export class DashboardComponent implements OnInit {
       er.style.marginTop = "2%";
       er.innerHTML = `<div class="card card-custom">
                     <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
+                    <div class="card-body" style="background-color: #FFF5F5; color: #355376">
                         <p>
                           Not removed
                         </p>`
