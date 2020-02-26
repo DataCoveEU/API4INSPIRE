@@ -24,12 +24,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
+import javax.servlet.ServletContext;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import mil.nga.sf.geojson.Feature;
 import org.apache.catalina.ssi.ResponseIncludeWrapper;
 import org.spatialite.core.DB;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -49,6 +51,8 @@ public class RESTController {
 
     @Value("classpath:index.html")
     Resource indexFile;
+
+
 
 
     public RESTController() {
@@ -369,6 +373,7 @@ public class RESTController {
 
                             String error = postgreSQL.updateConnector();
                             if(error == null){
+                                core.writeConfig(core.getConfigPath());
                                 return new ResponseEntity<>(HttpStatus.OK);
                             }else{
                                 return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
@@ -390,6 +395,7 @@ public class RESTController {
                             if (db instanceof SQLite) {
                                 SQLite sqLite = (SQLite) db;
                                 sqLite.setConnectorId(id);
+                                core.writeConfig(core.getConfigPath());
                                 return new ResponseEntity<>(HttpStatus.OK);
                             } else {
                                 return new ResponseEntity<>("given connector is not an sqlite connector", HttpStatus.BAD_REQUEST);
@@ -474,7 +480,9 @@ public class RESTController {
                     if (db != null) {
                         boolean check = (Boolean) input.get("check");
                         try {
-                            return new ResponseEntity<>(db.execute(sql, collectionName, check), HttpStatus.OK);
+                            FeatureCollection fc = db.execute(sql,collectionName,check);
+                            core.writeConfig(core.getConfigPath());
+                            return new ResponseEntity<>(fc, HttpStatus.OK);
                         }catch (Exception e){
                             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
                         }
@@ -509,6 +517,7 @@ public class RESTController {
                     DBConnector db = core.getConnectorById(id);
                     if (db != null) {
                         db.renameTable(orgName, alias);
+                        core.writeConfig(core.getConfigPath());
                         return new ResponseEntity<>("OK", HttpStatus.OK);
                     } else {
                         return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
@@ -543,6 +552,7 @@ public class RESTController {
                         String alias = (String) input.get("alias");
                         if (alias != null) {
                             db.renameProp(table, orgName, alias);
+                            core.writeConfig(core.getConfigPath());
                             return new ResponseEntity<>("OK", HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>("Alias is missing", HttpStatus.BAD_REQUEST);
@@ -592,6 +602,7 @@ public class RESTController {
                 DBConnector db = core.getConnectorById(id);
                 if (db != null) {
                     db.setGeo(table, column);
+                    core.writeConfig(core.getConfigPath());
                 } else {
                     return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
                 }
@@ -614,6 +625,7 @@ public class RESTController {
                 DBConnector db = core.getConnectorById(id);
                     if (db != null) {
                         db.setId(table, column);
+                        core.writeConfig(core.getConfigPath());
                     } else {
                         return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
                     }
@@ -639,6 +651,7 @@ public class RESTController {
           if(exclude != null) {
             boolean excludeVal = (Boolean) exclude;
             db.setTableExclude(table, excludeVal);
+            core.writeConfig(core.getConfigPath());
             return new ResponseEntity<>(HttpStatus.OK);
           } else {
             return new ResponseEntity<>("Exclude value is null", HttpStatus.BAD_REQUEST);
@@ -668,6 +681,7 @@ public class RESTController {
             if(exclude != null) {
               boolean excludeVal = (Boolean) exclude;
               db.setColumnExclude(table, column, excludeVal);
+              core.writeConfig(core.getConfigPath());
               return new ResponseEntity<>(HttpStatus.OK);
             } else {
               return new ResponseEntity<>("Exclude value is null", HttpStatus.BAD_REQUEST);
@@ -699,6 +713,7 @@ public class RESTController {
                     for(int i = 0; i < db.getAllTables().size(); i++) {
                         db.setTableExclude(db.getAllTables().get(i), exclude);
                     }
+                    core.writeConfig(core.getConfigPath());
                     return new ResponseEntity<>(HttpStatus.OK);
                 } else {
                     return new ResponseEntity<>("Exclued Value is null", HttpStatus.BAD_REQUEST);
@@ -725,6 +740,7 @@ public class RESTController {
                         for(int i = 0; i < db.getColumns(table).size(); i++) {
                             db.setColumnExclude(table, db.getColumns(table).get(i), exclude);
                         }
+                        core.writeConfig(core.getConfigPath());
                         return new ResponseEntity<>(HttpStatus.OK);
                     } else {
                         return new ResponseEntity<>("Exclude value is null", HttpStatus.BAD_REQUEST);
