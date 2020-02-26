@@ -18,4 +18,8 @@ public class Collections {
     public List<Link> getLinks() {
         return links;
     }
+
+    public void setCollections(List<FeatureCollection> c){
+        this.collections = c;
+    }
 }
