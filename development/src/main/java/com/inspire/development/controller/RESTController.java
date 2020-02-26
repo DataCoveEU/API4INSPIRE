@@ -20,10 +20,7 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import javax.servlet.ServletContext;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -99,9 +96,10 @@ public class RESTController {
                                    @RequestHeader(name="Host", required=false) final String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
         if(f.equals("application/json")) {
             Collections c = new Collections(Arrays.asList(core.getAll()));
+            c.getCollections().removeIf(Objects::isNull);
             for (FeatureCollection fc : c.getCollections()) {
                 if (fc == null) {
-                    c.getCollections().remove(fc);
+
                 } else {
                     //Add required links
                     fc.getLinks()
