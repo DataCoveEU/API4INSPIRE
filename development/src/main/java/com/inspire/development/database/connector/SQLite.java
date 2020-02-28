@@ -582,7 +582,7 @@ public class SQLite implements DBConnector {
                         if (gm.getSrid() == 0) {
                             log.warn("SRID is 0, assuming that the format used is 4326! Collection: " + alias);
                         }
-                        if (gm.getSrid() != 4326) {
+                        if (gm.getSrid() != 4326 && gm.getSrid() != 0) {
                             log.warn("SRID for collection: " + alias + " is not set to 4326!");
                         } else {
                             mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
