@@ -151,8 +151,8 @@ public class RESTController {
         String[] links = {
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
-                //"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html", ==> Parameter to choose html no implemented yet
-                "http://www.opengis.net/spec/ogcapi-features-1/1.0/con  f/geojson"};
+                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html",
+                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"};
         return new ConformanceDeclaration(links);
     }
 
