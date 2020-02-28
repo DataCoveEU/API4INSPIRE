@@ -694,8 +694,11 @@ public class PostgreSQL implements DBConnector {
 
             rs = ps.executeQuery();
         } else {
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1,0);
+            ps.setInt(2,0);
             //Executing sql
-            rs = c.createStatement().executeQuery(sql);
+            rs = ps.executeQuery();
         }
         return rs;
     }

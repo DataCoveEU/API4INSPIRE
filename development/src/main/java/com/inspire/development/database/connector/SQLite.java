@@ -227,7 +227,7 @@ public class SQLite implements DBConnector {
                 try {
                     fc.add(getFeatureCollectionByName(config.get(table) != null ? config.get(table).getAlias() : table, true, 0, 0, null, null));
                 }catch (Throwable t){
-                    //DO NOTHING
+                    t.printStackTrace();
                 }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
@@ -500,12 +500,7 @@ public class SQLite implements DBConnector {
             ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
             //Creating featureCollection with given name
             FeatureCollection fs = new FeatureCollection(alias);
-            //Create offset
-            for (int i = 0; i < offset; i++) {
-                rs.next();
-            }
-
-            while (rs.next() && (fs.getFeatures().size() < limit || limit == -1)) {
+            while (rs.next()) {
                 try {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
@@ -702,17 +697,20 @@ public class SQLite implements DBConnector {
 
             rs = ps.executeQuery();
         }else {
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1,0);
+            ps.setInt(2,0);
             //Executing sql
-            rs = c.createStatement().executeQuery(sql);
+            rs = ps.executeQuery();
         }
         return rs;
     }
 
     public ResultSet SqlBBox(String sql, Map<String,String> filterParams, double[] bbox, String table, String geoCol) throws SQLException{
         ResultSet rs;
-        sql = "SELECT ST_SetSRID(ST_Extent("
+        sql ="SELECT AsEWKB(Extent("
                 + geoCol
-                + "), 4326) as table_extent FROM ("
+                + ")) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
         //Executing sql
