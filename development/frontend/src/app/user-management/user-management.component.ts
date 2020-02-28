@@ -1,3 +1,8 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * Copyright (c) 2020 - Lukas Gäbler
+ */
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
@@ -22,7 +27,6 @@ export class UserManagementComponent implements OnInit {
       newPwd: ['', Validators.required],
       reNewPwd: ['', Validators.required]
     });
-
   }
 
   /**

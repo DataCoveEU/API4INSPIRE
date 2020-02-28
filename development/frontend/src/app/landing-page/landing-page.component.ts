@@ -1,3 +1,8 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * Copyright (c) 2020 - Lukas Gäbler
+ */
 import { Component, OnInit } from '@angular/core';
 import { HomeService } from '../home.service';
 declare var ol: any;
@@ -179,7 +184,7 @@ export class LandingPageComponent implements OnInit {
     })
     this.map.addControl(this.zoomToExtent);
     this.map.render();
-  }else{
+  } else {
     this.map.removeControl(this.zoomToExtent);
     this.zoomToExtent = new ZoomToExtent()
     this.map.addControl(this.zoomToExtent);

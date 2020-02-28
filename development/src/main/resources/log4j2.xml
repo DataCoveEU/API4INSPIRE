@@ -4,13 +4,13 @@
         <Console name="LogToConsole" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <File name="LogToFile" fileName="/$${env:LOG}/ogcapisimple.log">
+        <File name="LogToFile" fileName="/${env:LOG_OGCAPISIMPLE:-/data/ogcapisimple/logs/ogcapisimple}/ogcapisimple.log">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
         </File>
     </Appenders>
-    <Loggers>
+    <Loggers>s
         <Logger name="com.inspire.development.database.DBConnector" level="debug" additivity="false">
             <AppenderRef ref="LogToFile"/>
             <AppenderRef ref="LogToConsole"/>

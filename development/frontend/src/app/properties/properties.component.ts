@@ -1,3 +1,8 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * Copyright (c) 2020 - Lukas Gäbler
+ */
 import { Component, OnInit, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR } from '@angular/core';
 
 import * as $ from 'jquery';
@@ -81,9 +86,7 @@ export class PropertiesComponent implements OnInit {
 
 
     //Load all connectors
-    this.connectors = await this.con.getConnector();
-    this.connectors.push({"id":"Lukas", "class": "PostgreSQL"})
-    
+    this.connectors = await this.con.getConnector();    
 
     var sel = document.getElementById('connector') as HTMLSelectElement;
     this.selectedConnector = this.connectors[0];
@@ -243,25 +246,11 @@ export class PropertiesComponent implements OnInit {
     this.conService.deleteConnector({'id': this.selectedConnector.id}).then(()=>{
       //Show infor message
       er.style.marginTop = "2%";
-          er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>
-                                Connection deleted
-                            </p>
-                            </div>
-                    </div>`;
+          er.innerHTML = this.messages(false, "Connection deleted", "INFORMATION");
     }).catch((err)=>{
       //Show error message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                        <p>
-                            Connection not deleted
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(true, "Connection not deleted", "ERROR");
     });
 
   }
@@ -295,24 +284,34 @@ export class PropertiesComponent implements OnInit {
     this.conService.checkConnection(json).then(()=>{
       //Return info message
       er.style.marginTop = "2%";
-          er.innerHTML = `<div class="card card-custom">
-                        <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
-                        <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>Test was successfull</p>
-                            </div>`
+          er.innerHTML = this.messages(false, "Test was successfull", "INFORMATION");
     }).catch((err) =>{
       //Return error message
       er.style.marginTop = "2%";
-      er.innerHTML = `<div class="card card-custom">
-                    <div class="card-header" style="background-color: #F56565; color: white">ERROR</div>
-                    <div class="card-body" style="background-color: #FFF5F5; color: ##355376">
-                        <p>
-                            Test was not successfull
-                        </p>
-                        </div>
-                </div>`;
+      er.innerHTML = this.messages(true, "Test was not successfull", "ERROR");
     }) 
   }
 
+  messages(isError:boolean, text: string, title: string):string {
+    var erg = "";
+    if(isError) {
+      erg =  `<div class="card card-custom">
+                <div class="card-header" style="background-color: #F56565; color: white">${title}</div>
+                  <div class="card-body" style="background-color: #FFF5F5; color: #355376">
+                    <p>${text}</p>
+                  </div>
+                </div>
+              </div>`;
+    } else {
+      erg =  `<div class="card card-custom">
+                <div class="card-header" style="background-color: #38B2AC; color: white">INFORMATION</div>
+                  <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
+                    <p>${text}</p>
+                  </div>
+                </div>
+              </div>`;
+    }
+    return erg;
+  }
 
 }
