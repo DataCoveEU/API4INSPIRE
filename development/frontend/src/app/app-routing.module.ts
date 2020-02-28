@@ -11,7 +11,6 @@ import { ErrorComponent } from './error/error.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PropertiesComponent } from './properties/properties.component';
 import { AddConnectorComponent } from './add-connector/add-connector.component';
-import { ImprintComponent } from './imprint/imprint.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { CollectionsComponent } from './collections/collections.component';
 import { ItemsComponent } from './items/items.component';
