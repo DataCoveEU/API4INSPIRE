@@ -506,68 +506,72 @@ public class SQLite implements DBConnector {
             }
 
             while (rs.next() && (fs.getFeatures().size() < limit || limit == -1)) {
-                Feature f = new Feature();
-                HashMap<String, Object> prop = new HashMap<>();
-                ResultSetMetaData md = rs.getMetaData();
-                for (int x = 1; x <= md.getColumnCount(); x++) {
-                    String colName = md.getColumnName(x);
-                    if (colName.equals(idCol)) {
-                        //ID
-                        f.setId(rs.getString(x));
-                        log.debug("ID set");
-                    } else {
-                        if(colName.equals("ogc_bbox")){
-                            String ewkb = rs.getString(x);
-                            if(ewkb != null) {
-                                Geometry geom = PGgeometry.geomFromString(ewkb);
-                                if (geom != null) {
-                                    org.postgis.Point fp = geom.getFirstPoint();
-                                    org.postgis.Point lp = geom.getLastPoint();
-                                    f.setBbox(new double[]{fp.x,fp.y,lp.x,lp.y});
-                                }
-                            }
-                        }else {
-                            if(colName.equals("ogc_ewkb")){
+                try {
+                    Feature f = new Feature();
+                    HashMap<String, Object> prop = new HashMap<>();
+                    ResultSetMetaData md = rs.getMetaData();
+                    for (int x = 1; x <= md.getColumnCount(); x++) {
+                        String colName = md.getColumnName(x);
+                        if (colName.equals(idCol)) {
+                            //ID
+                            f.setId(rs.getString(x));
+                            log.debug("ID set");
+                        } else {
+                            if (colName.equals("ogc_bbox")) {
                                 String ewkb = rs.getString(x);
-                                if(ewkb != null) {
+                                if (ewkb != null) {
                                     Geometry geom = PGgeometry.geomFromString(ewkb);
                                     if (geom != null) {
-                                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom);
-                                        if(geo != null){
-                                            f.setGeometry(geo);
-                                        }
+                                        org.postgis.Point fp = geom.getFirstPoint();
+                                        org.postgis.Point lp = geom.getLastPoint();
+                                        f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
                                     }
                                 }
-                            }else {
-                                //Normal Feature
-                                if (!colName.equals(geoCol)) {
-                                    String col = md.getColumnName(x);
-
-                                    Object o = rs.getObject(x);
-                                    //Check if there is a config for that table and if it has a column rename
-                                    if (tc != null) {
-                                        ColumnConfig columnConfig = tc.getMap().get(col);
-                                        if(columnConfig == null){
-                                            prop.put(colName, o);
-                                        }else {
-                                            if (!columnConfig.isExclude()) {
-                                                if (columnConfig.getAlias() == null) {
-                                                    prop.put(colName, o);
-                                                } else {
-                                                    prop.put(columnConfig.getAlias(), o);
-                                                }
+                            } else {
+                                if (colName.equals("ogc_ewkb")) {
+                                    String ewkb = rs.getString(x);
+                                    if (ewkb != null) {
+                                        Geometry geom = PGgeometry.geomFromString(ewkb);
+                                        if (geom != null) {
+                                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom);
+                                            if (geo != null) {
+                                                f.setGeometry(geo);
                                             }
                                         }
-                                    } else {
-                                        prop.put(colName, o);
+                                    }
+                                } else {
+                                    //Normal Feature
+                                    if (!colName.equals(geoCol)) {
+                                        String col = md.getColumnName(x);
+
+                                        Object o = rs.getObject(x);
+                                        //Check if there is a config for that table and if it has a column rename
+                                        if (tc != null) {
+                                            ColumnConfig columnConfig = tc.getMap().get(col);
+                                            if (columnConfig == null) {
+                                                prop.put(colName, o);
+                                            } else {
+                                                if (!columnConfig.isExclude()) {
+                                                    if (columnConfig.getAlias() == null) {
+                                                        prop.put(colName, o);
+                                                    } else {
+                                                        prop.put(columnConfig.getAlias(), o);
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            prop.put(colName, o);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    f.setProperties(prop);
+                    fs.addFeature(f);
+                }catch (Exception e){
+                    log.error("Error occurred while converting sqlite table to feature collection.  Table: " + queryName);
                 }
-                f.setProperties(prop);
-                fs.addFeature(f);
             }
 
             if (geoCol != null) {
