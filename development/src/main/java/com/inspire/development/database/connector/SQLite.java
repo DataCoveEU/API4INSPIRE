@@ -500,12 +500,9 @@ public class SQLite implements DBConnector {
         ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
         //Creating featureCollection with given name
         FeatureCollection fs = new FeatureCollection(alias);
-        //Create offset
-        for (int i = 0; i < offset; i++) {
-            rs.next();
-        }
 
-        while (rs.next() && (fs.getFeatures().size() < limit || limit == -1)) {
+
+        while (rs.next()) {
             try {
                 Feature f = new Feature();
                 HashMap<String, Object> prop = new HashMap<>();
