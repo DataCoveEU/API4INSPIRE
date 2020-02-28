@@ -554,29 +554,30 @@ public class PostgreSQL implements DBConnector {
                 rs.next();
             }
             while (rs.next()) {
-                Feature f = new Feature();
-                HashMap<String, Object> prop = new HashMap<>();
-                ResultSetMetaData md = rs.getMetaData();
-                for (int x = 1; x <= md.getColumnCount(); x++) {
-                    String colName = md.getColumnName(x);
-                    if(colName.equals("ogc_bbox")){
-                        org.postgis.PGgeometry box = (org.postgis.PGgeometry) rs.getObject(x);
-                        if(box != null) {
-                            Point fp = box.getGeometry().getFirstPoint();
-                            Point lp = box.getGeometry().getLastPoint();
-                            f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
-                        }
-                    }else{
-                        if (colName.equals(idCol)) {
-                        //ID
-                        f.setId(rs.getString(x));
+                try {
+                    Feature f = new Feature();
+                    HashMap<String, Object> prop = new HashMap<>();
+                    ResultSetMetaData md = rs.getMetaData();
+                    for (int x = 1; x <= md.getColumnCount(); x++) {
+                        String colName = md.getColumnName(x);
+                        if (colName.equals("ogc_bbox")) {
+                            org.postgis.PGgeometry box = (org.postgis.PGgeometry) rs.getObject(x);
+                            if (box != null) {
+                                Point fp = box.getGeometry().getFirstPoint();
+                                Point lp = box.getGeometry().getLastPoint();
+                                f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
+                            }
                         } else {
+                            if (colName.equals(idCol)) {
+                                //ID
+                                f.setId(rs.getString(x));
+                            } else {
                                 //Normal Feature
                                 if (!colName.equals(geoCol)) {
                                     String col = md.getColumnName(x);
 
                                     Object o = rs.getObject(x);
-                                    if(fk.containsKey(colName)){
+                                    if (fk.containsKey(colName)) {
                                         o = "ogc_fk;" + fk.get(colName) + ";" + o;
                                     }
                                     if (o instanceof PGgeometry && geoCol == null && isView) {
@@ -586,13 +587,13 @@ public class PostgreSQL implements DBConnector {
                                     } else {
                                         if (tc != null) {
                                             ColumnConfig columnConfig = tc.getMap().get(col);
-                                            if(columnConfig == null){
+                                            if (columnConfig == null) {
                                                 prop.put(colName, o);
-                                            }else{
-                                                if(!columnConfig.isExclude()){
-                                                    if(columnConfig.getAlias() == null){
+                                            } else {
+                                                if (!columnConfig.isExclude()) {
+                                                    if (columnConfig.getAlias() == null) {
                                                         prop.put(colName, o);
-                                                    }else{
+                                                    } else {
                                                         prop.put(columnConfig.getAlias(), o);
                                                     }
                                                 }
@@ -601,18 +602,21 @@ public class PostgreSQL implements DBConnector {
                                             prop.put(colName, o);
                                         }
                                     }
-                                }else{
+                                } else {
                                     PGgeometry geom = (PGgeometry) rs.getObject(x);
-                                    if(geom != null) {
+                                    if (geom != null) {
                                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom.getGeometry());
                                         f.setGeometry(geo);
                                     }
                                 }
+                            }
                         }
                     }
+                    f.setProperties(prop);
+                    fs.addFeature(f);
+                }catch (Exception e){
+                    log.error("An error occurred while converting feature collection, table" + queryName);
                 }
-                f.setProperties(prop);
-                fs.addFeature(f);
             }
 
             if (geoCol != null && withSpatial) {
@@ -628,7 +632,7 @@ public class PostgreSQL implements DBConnector {
                         if (gm.getSrid() == 0) {
                             log.warn("SRID is 0, assuming that the format used is 4326! Collection: " + alias);
                         }
-                        if (gm.getSrid() != 4326) {
+                        if (gm.getSrid() != 4326 || gm.getSrid() != 0) {
                             log.warn("SRID for collection: " + alias + " is not set to 4326!");
                         } else {
                             mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);

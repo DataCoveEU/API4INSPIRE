@@ -493,9 +493,11 @@ public class SQLite implements DBConnector {
             sql = sql != null ? sql : "SELECT * FROM " + queryName;
         }
 
+        sql+=" LIMIT ? OFFSET ?";
+
 
             log.debug("Converting table: " + queryName + " to featureCollection");
-            ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName);
+            ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
             //Creating featureCollection with given name
             FeatureCollection fs = new FeatureCollection(alias);
             //Create offset
@@ -644,14 +646,16 @@ public class SQLite implements DBConnector {
         return null;
     }
 
-    public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table) throws SQLException{
+    public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table, int limit ,int offset) throws SQLException{
         ResultSet rs;
         if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
             sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox FROM (" + sql + ") as tabula";
 
-            if(filterParams != null && filterParams.size() > 0) {
+            if(bbox != null || (filterParams != null && filterParams.size() > 0))
                 sql += " where ";
 
+
+            if(filterParams != null && filterParams.size() > 0) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
                     String col = getConfigByAlias(table, entry.getKey());
                     col = col == null ? entry.getKey() : col;
@@ -669,6 +673,16 @@ public class SQLite implements DBConnector {
             PreparedStatement ps = c.prepareStatement(sql);
 
             int counter = 1;
+
+            if(counter == -1){
+                //Should be ALL
+                ps.setInt(counter++,limit);
+            }else{
+                ps.setInt(counter++,limit);
+            }
+
+            ps.setInt(counter++,offset);
+
             if(filterParams != null) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
                     ps.setString(counter, entry.getValue());
@@ -692,60 +706,18 @@ public class SQLite implements DBConnector {
 
     public ResultSet SqlBBox(String sql, Map<String,String> filterParams, double[] bbox, String table, String geoCol) throws SQLException{
         ResultSet rs;
-        if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
-            sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox FROM (" + sql + ") as tabula";
+        sql = "SELECT ST_SetSRID(ST_Extent("
+                + geoCol
+                + "), 4326) as table_extent FROM ("
+                + sql
+                + ") as tabulana";
+        //Executing sql
+        PreparedStatement ps = c.prepareStatement(sql);
 
-            if(filterParams != null && filterParams.size() > 0) {
-                sql += " where ";
+        ps.setInt(1,0);
+        ps.setInt(2,0);
 
-                for (Map.Entry<String, String> entry : filterParams.entrySet()) {
-                    String col = getConfigByAlias(table, entry.getKey());
-                    col = col == null ? entry.getKey() : col;
-                    sql = sql + col + " = ? and ";
-                }
-            }
-
-            if(bbox != null && geoCol != null) {
-                sql += "Intersects(Envelope(" + geoCol + "),GeomFromEWKB(?))";
-            }else {
-                if(filterParams != null && filterParams.size() > 0)
-                    sql = sql.substring(0, sql.length() - 4);
-            }
-
-            sql = "SELECT AsEWKB(Extent("
-                    + geoCol
-                    + ")) as table_extent FROM ("
-                    + sql
-                    + ") as tabulana";
-
-            PreparedStatement ps = c.prepareStatement(sql);
-
-            int counter = 1;
-            if(filterParams != null) {
-                for (Map.Entry<String, String> entry : filterParams.entrySet()) {
-                    ps.setString(counter, entry.getValue());
-                    counter++;
-                }
-            }
-
-
-            if(bbox != null && geoCol != null) {
-                PGbox2d box = new org.postgis.PGbox2d(new org.postgis.Point(bbox[0], bbox[1]), new org.postgis.Point(bbox[2], bbox[3]));
-                ps.setString(counter, box.toString());
-            }
-
-
-
-            rs = ps.executeQuery();
-        }else {
-            sql = "SELECT AsEWKB(Extent("
-                    + geoCol
-                    + ")) as table_extent FROM ("
-                    + sql
-                    + ") as tabulana";
-            //Executing sql
-            rs = c.createStatement().executeQuery(sql);
-        }
+        rs = ps.executeQuery();
         return rs;
     }
 
