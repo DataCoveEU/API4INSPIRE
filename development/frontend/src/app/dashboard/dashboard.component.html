@@ -82,7 +82,7 @@
             <h5>Assign collection name</h5>
             <form [formGroup]="renameTableForm">
                 <label style="width: 100%">
-                    <input type="text" formControlName="tableName" class="form-control" placeholder="New table name" />
+                    <input type="text" formControlName="tableName" class="form-control" placeholder="New collection name" />
                     <div *ngIf="tableNameSubmitted && renameTableForm.controls.tableName.errors" class="error">
                         <div *ngIf="renameTableForm.controls.tableName.errors.required">A new table name is required</div>
                     </div>
@@ -90,7 +90,7 @@
                 <br />
                 <div class="row">
                     <div class="col-sm-3">
-                        <button type="submit" id="subTableName" style="width:100%" class="btn btn-success" (click)="submitTable()">Asssign name</button>
+                        <button type="submit" id="subTableName" style="width:100%" class="btn btn-success" (click)="submitTable()">Asssign collection name</button>
                     </div>
                     <div class="col-sm-3">
                         <button class="btn btn-danger" (click)="delSQL(this.idTableSelected)" style="width:100%" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]">Delete</button>
@@ -100,12 +100,12 @@
             </form>
         </div>
         <div class="col-sm-6" *ngIf="showRenameCol">
-            <h5>Assign property name</h5>
+            <h5>New property name</h5>
             <form [formGroup]="renameColumnForm">
                 <label style="width: 100%">
                     <input type="text" formControlName="columnName" class="form-control" placeholder="New column name" />
                     <div *ngIf="columnNameSubmitted && renameColumnForm.controls.columnName.errors" class="error">
-                        <div *ngIf="renameColumnForm.controls.columnName.errors.required">A new column name is required</div>
+                        <div *ngIf="renameColumnForm.controls.columnName.errors.required">A property name is required</div>
                     </div>
                 </label>
                 <br />

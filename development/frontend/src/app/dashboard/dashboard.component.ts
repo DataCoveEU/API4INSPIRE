@@ -35,33 +35,43 @@ export class DashboardComponent implements OnInit {
   //The important links from the config file
   importantLinks: any = ["Lukas", "Tobias", "Kathi", "Klaus"];
 
+  //The columns will be shown if a table is selected
   showCols: boolean = false;
+  //The form to assign a collection name will be shown if a table is selected
   showRenameTable: boolean = false;
+  //The form to assign a property name will be shown if a column is selected
   showRenameCol: boolean = false;
 
+  //Check if a table is selected
   tableSelect: boolean = false;
+  //The id of the selected table
   idTableSelected: string = "";
 
+  //Check if a column is selected
   columnSelected: boolean = false;
+  //The id of the selectd column
   idColumnSelected: string = "";
 
+  //The form to assign a collection name
   renameTableForm: FormGroup;
   tableNameSubmitted: boolean = false;
 
+  //The form to assign a property name
   renameColumnForm: FormGroup;
   columnNameSubmitted: boolean = false;
 
+  //The form to execute a sql query
   sqlForm: FormGroup;
   sqlSubmitted: boolean = false;
 
+  //The form to add an important link
   addImportantLinkFrom: FormGroup;
   addLinkSubmitted: boolean = false;
 
+  //Check if the sql query was executed successfully or not
   sqlNotSucess: boolean = false;
 
-  checkedTable:boolean = false;
-  checkedColumn: boolean = false;
-
+  //Show the error field or not show it
   errorField: boolean = false;
 
   geoColumn: string = "";

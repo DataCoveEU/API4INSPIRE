@@ -184,7 +184,7 @@ export class LandingPageComponent implements OnInit {
     })
     this.map.addControl(this.zoomToExtent);
     this.map.render();
-  }else{
+  } else {
     this.map.removeControl(this.zoomToExtent);
     this.zoomToExtent = new ZoomToExtent()
     this.map.addControl(this.zoomToExtent);
