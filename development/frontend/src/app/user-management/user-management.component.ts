@@ -27,7 +27,6 @@ export class UserManagementComponent implements OnInit {
       newPwd: ['', Validators.required],
       reNewPwd: ['', Validators.required]
     });
-
   }
 
   /**
