@@ -1,3 +1,8 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * Copyright (c) 2020 - Lukas Gäbler
+ */
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -21,6 +26,7 @@ export class ItemsComponent implements OnInit {
     });
     // load all the items
     this.items = await this.getItems();
+    console.log(this.items);
   }
 
   /**

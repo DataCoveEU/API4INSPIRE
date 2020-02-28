@@ -1,3 +1,8 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * Copyright (c) 2020 - Lukas Gäbler
+ */
 import { Component, OnInit, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR } from '@angular/core';
 
 import * as $ from 'jquery';
