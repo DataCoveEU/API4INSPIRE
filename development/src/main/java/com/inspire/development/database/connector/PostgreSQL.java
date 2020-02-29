@@ -46,7 +46,6 @@ public class PostgreSQL implements DBConnector {
     private Connection c;
     @JsonProperty("id")
     private String id;
-    private ArrayList<String> tableNames; // Stores table names that contain a GEOMETRY column
     @JsonProperty("config")
     private HashMap<String, TableConfig> config;
 
@@ -58,15 +57,12 @@ public class PostgreSQL implements DBConnector {
         this.port = port;
         this.database = database;
         this.schema = schema;
-        tableNames = new ArrayList<>();
         config = new HashMap<>();
         this.username = username;
         this.password = password;
         this.sqlString = new HashMap<>();
 
         Connection connection = null;
-        // create a database connection
-        //jdbc:postgresql://host:port/database
         Properties prop = new Properties();
         prop.setProperty("user", username);
         prop.setProperty("password", password);
@@ -79,7 +75,7 @@ public class PostgreSQL implements DBConnector {
             log.info("Postgres Connector created for path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.put(getUUID(), e.getMessage());
-            log.error("Error creating connector. Error: " + e.getMessage());
+            log.error("Error creating connector. Error: ", e);
         }
     }
 
@@ -98,7 +94,6 @@ public class PostgreSQL implements DBConnector {
         this.schema = schema;
         this.username = username;
         this.password = password;
-        tableNames = new ArrayList<>();
         if (sqlString != null) {
             this.sqlString = sqlString;
         } else {
@@ -120,7 +115,7 @@ public class PostgreSQL implements DBConnector {
             log.info("Postgres Connector created from config for path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.put(getUUID(), e.getMessage());
-            log.error("Error creating connector. Error: " + e.getMessage());
+            log.error("Error creating connector. Error: ", e);
         }
     }
 
@@ -199,7 +194,6 @@ public class PostgreSQL implements DBConnector {
     @JsonIgnore
     @Override
     public FeatureCollection execute(String sql, String featureCollectionName, boolean check) throws Exception {
-        try {
             c.createStatement().executeQuery(sql);
             //SQL Executed
             sqlString.put(featureCollectionName, sql);
@@ -207,9 +201,6 @@ public class PostgreSQL implements DBConnector {
             if (check)
                 sqlString.remove(featureCollectionName);
             return fc;
-        } catch (SQLException e) {
-            throw e;
-        }
     }
 
     /**
@@ -235,6 +226,7 @@ public class PostgreSQL implements DBConnector {
         try {
             return getFeatureCollectionByName(collectionName, withSpatial, limit, offset, bbox, filterParams);
         } catch (Exception e) {
+            log.error("Error occurred while getting FeatureCollection " + collectionName + ". Error: ", e);
             return null;
         }
     }
@@ -282,8 +274,8 @@ public class PostgreSQL implements DBConnector {
                 log.debug("Table: " + table);
                 try {
                     fc.add(getFeatureCollectionByName(config.get(table) != null ? config.get(table).getAlias() : table, true, 0, 0, null, null));
-                } catch (Throwable t) {
-                    //DO NOTHING
+                } catch (Exception e) {
+                    log.error("An error occurred converting table " + table + ". Exception: ", e);
                 }
             }
         }
@@ -334,7 +326,7 @@ public class PostgreSQL implements DBConnector {
                 out.add(entry.getKey());
             return out;
         } catch (SQLException e) {
-            log.warn("Failde to get all tables. Error: " + e.getMessage());
+            log.error("Failed to get all tables. Error: ", e);
             return null;
         }
     }
@@ -346,7 +338,7 @@ public class PostgreSQL implements DBConnector {
      * @return ArrayList with all names. Null if an error occurred.
      */
     public ArrayList<String> getColumns(String table) {
-        log.debug("Getting all Collumns for table: " + table);
+        log.debug("Getting all Columns for table: " + table);
         ArrayList<String> result = new ArrayList<>();
         try {
             if (sqlString.containsKey(table)) {
@@ -357,7 +349,6 @@ public class PostgreSQL implements DBConnector {
             } else {
                 DatabaseMetaData md = c.getMetaData();
                 ResultSet rset = md.getColumns(null, null, table, null);
-
                 while (rset.next()) {
                     result.add(rset.getString(4));
                 }
@@ -535,17 +526,21 @@ public class PostgreSQL implements DBConnector {
         //Executing sql
         ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol, queryName, limit, offset);
 
-        ResultSet foreignKeys = c.getMetaData().getImportedKeys(null, null, queryName);
-
         HashMap<String, String> fk = new HashMap<>();
 
-        if (foreignKeys.next()) {
-            //Key in current table
-            String pkTableName = foreignKeys.getString("PKTABLE_NAME");
-            String pkColumnName = foreignKeys.getString("PKCOLUMN_NAME");
-            //Table to link to
-            String fkColumnName = foreignKeys.getString("FKCOLUMN_NAME");
-            fk.put(fkColumnName, (pkTableName + ";" + pkColumnName));
+        try{
+            ResultSet foreignKeys = c.getMetaData().getImportedKeys(null, schema, queryName);
+
+            if (foreignKeys.next()) {
+                //Key in current table
+                String pkTableName = foreignKeys.getString("PKTABLE_NAME");
+                String pkColumnName = foreignKeys.getString("PKCOLUMN_NAME");
+                //Table to link to
+                String fkColumnName = foreignKeys.getString("FKCOLUMN_NAME");
+                fk.put(fkColumnName, (pkTableName + ";" + pkColumnName));
+            }
+        }catch (SQLException e){
+            log.warn("Error getting foreignn keys in table: "+ queryName);
         }
         //Creating featureCollection with given name
         FeatureCollection fs = new FeatureCollection(alias);
