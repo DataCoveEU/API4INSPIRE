@@ -32,10 +32,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Core {
-    static Logger log = LogManager.getLogger(Core.class.getName());
-    Config config;
-    FileAlterationObserver observer;
-    FileAlterationMonitor monitor;
+    private static Logger log = LogManager.getLogger(Core.class.getName());
+    private Config config;
+    private FileAlterationObserver observer;
+    private FileAlterationMonitor monitor;
 
     public Core() {
         config = new Config();

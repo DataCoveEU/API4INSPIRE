@@ -5,6 +5,7 @@
  *
  * Copyright (c) 2020 - Tobias Pressler
  */
+
 package com.inspire.development.database.connector;
 
 import com.fasterxml.jackson.annotation.*;
@@ -129,31 +130,51 @@ public class PostgreSQL implements DBConnector {
         return uuid.toString();
     }
 
+    /**
+     * Get used username for database connection
+     * @return username
+     */
     @JsonProperty
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Set username
+     * @param username username to be used
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * Get used password for database connection
+     * @return password
+     */
     @JsonProperty
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Set password
+     * @param password password to be used
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Get mapped sql views
+     * @return FeatureCollection name and sql statement
+     */
+    @JsonProperty
     public HashMap<String, String> getSqlString() {
         return sqlString;
     }
 
     /**
      * Checks for the connectivity to the given Database File
-     *
      * @return null if successful else the error string
      */
     @Override
@@ -175,7 +196,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Deletes Feature Collection with given name
-     *
      * @param fc Feature Collection name
      */
     @Override
@@ -185,11 +205,9 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Executes given SQL String
-     *
-     * @param sql                   SQL String to be executed
-     * @param featureCollectionName
-     * @return Feature Collection from SQL query result, null if error occurred. Error is stored in
-     * errorBuffer. See {@link PostgreSQL#getErrorBuffer()}.
+     * @param sql SQL String to be executed
+     * @param featureCollectionName name to be used
+     * @return Feature Collection from SQL query result, null if error occurred.
      */
     @JsonIgnore
     @Override
@@ -205,9 +223,8 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Get FeatureCollection with given name
-     *
-     * @param collectionName FeatureCollection name from inside database
-     * @return FeatureCollection from given name. Returns null if collection doesnt exists.
+     * @param collectionName FeatureCollection name
+     * @return FeatureCollection from given name. Returns null if collection doesnt exists or error occurred.
      */
     @JsonIgnore
     @Override
@@ -259,8 +276,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Returns all FeatureCollections for the Database
-     *
+     * Returns all FeatureCollections for the database
      * @return FeatureCollection Array, null if error occurred.
      */
     @JsonIgnore
@@ -284,7 +300,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Saves FeatureCollection in database
-     *
      * @param fc FeatureCollection to be stored
      */
     @Override
@@ -294,7 +309,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Update FeatureCollection in database
-     *
      * @param fc fc to be updated
      */
     @Override
@@ -302,6 +316,10 @@ public class PostgreSQL implements DBConnector {
         //Not used
     }
 
+    /**
+     * Get id of database connection
+     * @return id
+     */
     @JsonProperty
     public String getId() {
         return id;
@@ -309,7 +327,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Gets all tables from connector
-     *
      * @return ArrayList with table names
      */
     @JsonIgnore
@@ -497,6 +514,10 @@ public class PostgreSQL implements DBConnector {
             return null;
         }
 
+        if(c.isClosed()){
+            updateConnector();
+        }
+
         TableConfig tc = getConfByAlias(alias);
         String queryName = alias;
         String geoCol;
@@ -543,7 +564,7 @@ public class PostgreSQL implements DBConnector {
             log.warn("Error getting foreignn keys in table: "+ queryName);
         }
         //Creating featureCollection with given name
-        FeatureCollection fs = new FeatureCollection(alias);
+        FeatureCollection fs = new FeatureCollection(alias, withSpatial);
 
         while (rs.next()) {
             try {
@@ -603,8 +624,6 @@ public class PostgreSQL implements DBConnector {
 
         if (geoCol != null && withSpatial) {
             log.debug("Getting Bounding Box for Table: " + queryName);
-            Statement stmt = c.createStatement();
-            //ST_SetSRID -> transforms Box to Polygon
             ResultSet resultSet = SqlBBox(sql, geoCol);
 
             if (resultSet.next()) {
@@ -614,16 +633,17 @@ public class PostgreSQL implements DBConnector {
                     if (gm.getSrid() == 0) {
                         log.warn("SRID is 0, assuming that the format used is 4326! Collection: " + alias);
                     }
-                    if (gm.getSrid() != 4326 || gm.getSrid() != 0) {
+                    if (gm.getSrid() != 4326 && gm.getSrid() != 0) {
                         log.warn("SRID for collection: " + alias + " is not set to 4326!");
                     } else {
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
-                        if (geo != null) {
-                            double[] bounding = geo.getBbox();
-                            if (bounding != null) {
-                                fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
-                            }
-                        }
+                        ArrayList<Double> bb = new ArrayList<>();
+                        Point min = gm.getFirstPoint();
+                        Point max = gm.getPoint(2);
+                        bb.add(min.getX());
+                        bb.add(min.getY());
+                        bb.add(max.getX());
+                        bb.add(max.getY());
+                        fs.setBB(bb);
                     }
                 }
             }
@@ -683,7 +703,7 @@ public class PostgreSQL implements DBConnector {
             }
 
             if (bbox != null && geoCol != null) {
-                PGbox2d box = new org.postgis.PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
+                PGbox2d box = new PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
                 ps.setObject(counter, box);
             }
 
@@ -713,11 +733,12 @@ public class PostgreSQL implements DBConnector {
                 + "), 4326) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
+        sql = sql.replaceFirst("\\?", "ALL");
         //Executing sql
         PreparedStatement ps = c.prepareStatement(sql);
 
+        //OFFSET
         ps.setInt(1, 0);
-        ps.setInt(2, 0);
 
         rs = ps.executeQuery();
         return rs;

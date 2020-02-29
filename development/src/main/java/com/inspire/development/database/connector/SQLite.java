@@ -466,6 +466,10 @@ public class SQLite implements DBConnector {
             return null;
         }
 
+        if(c.isClosed()){
+            updateConnector();
+        }
+
         TableConfig tc = getConfByAlias(alias);
         String queryName = alias;
         String geoCol;
@@ -499,7 +503,7 @@ public class SQLite implements DBConnector {
             log.debug("Converting table: " + queryName + " to featureCollection");
             ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
             //Creating featureCollection with given name
-            FeatureCollection fs = new FeatureCollection(alias);
+            FeatureCollection fs = new FeatureCollection(alias, withSpatial);
             while (rs.next()) {
                 try {
                     Feature f = new Feature();
@@ -571,10 +575,7 @@ public class SQLite implements DBConnector {
 
             if (geoCol != null) {
                 log.debug("Getting Bounding Box for Table: " + queryName);
-                Statement stmt = c.createStatement();
-                //ST_SetSRID -> transforms Box to Polygon
-
-                ResultSet resultSet = SqlBBox(sql,filterParams,bbox, queryName,geoCol);
+                ResultSet resultSet = SqlBBox(sql,geoCol);
 
                 if (resultSet.next()) {
                     String ewkb = resultSet.getString(1);
@@ -586,13 +587,14 @@ public class SQLite implements DBConnector {
                         if (gm.getSrid() != 4326 && gm.getSrid() != 0) {
                             log.warn("SRID for collection: " + alias + " is not set to 4326!");
                         } else {
-                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
-                            if (geo != null) {
-                                double[] bounding = geo.getBbox();
-                                if (bounding != null && withSpatial) {
-                                    fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
-                                }
-                            }
+                            ArrayList<Double> bb = new ArrayList<>();
+                            org.postgis.Point min = gm.getFirstPoint();
+                            org.postgis.Point max = gm.getPoint(2);
+                            bb.add(min.getX());
+                            bb.add(min.getY());
+                            bb.add(max.getX());
+                            bb.add(max.getY());
+                            fs.setBB(bb);
                         }
                     }
                 }
@@ -706,18 +708,17 @@ public class SQLite implements DBConnector {
         return rs;
     }
 
-    public ResultSet SqlBBox(String sql, Map<String,String> filterParams, double[] bbox, String table, String geoCol) throws SQLException{
+    public ResultSet SqlBBox(String sql, String geoCol) throws SQLException{
         ResultSet rs;
         sql ="SELECT AsEWKB(Extent("
                 + geoCol
                 + ")) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
+        sql = sql.replaceFirst("\\?", "ALL");
         //Executing sql
         PreparedStatement ps = c.prepareStatement(sql);
-
         ps.setInt(1,0);
-        ps.setInt(2,0);
 
         rs = ps.executeQuery();
         return rs;

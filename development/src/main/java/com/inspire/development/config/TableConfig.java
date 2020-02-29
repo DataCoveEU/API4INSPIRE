@@ -13,12 +13,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 
 public class TableConfig {
-    String alias;
-    String table;
-    String geoCol;
-    String idCol;
-    boolean exclude;
-    HashMap<String, ColumnConfig> map;
+    private String alias;
+    private String table;
+    private String geoCol;
+    private String idCol;
+    private boolean exclude;
+    private HashMap<String, ColumnConfig> map;
 
     public TableConfig(String table, String alias) {
         this.alias = alias;

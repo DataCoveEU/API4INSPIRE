@@ -23,6 +23,10 @@ public interface DBConnector {
     String password = "";
     String username = "";
 
+    /**
+     * Check connection
+     * @return null if connection is good else the error
+     */
     String checkConnection();
 
     void delete(String fc);

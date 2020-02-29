@@ -15,12 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
-    HashMap<String, HashMap<String, ArrayList<List<Double>>>> extent = new HashMap<>();
+    private HashMap<String, HashMap<String, ArrayList<List<Double>>>> extent = new HashMap<>();
     private String id;
+    private boolean withSpatial = false;
     private ArrayList<Link> links;
 
-    public FeatureCollection(String id) {
+    public FeatureCollection(String id, boolean withSpatial) {
         this.id = id;
+        this.withSpatial = withSpatial;
         links = new ArrayList<>();
     }
 
@@ -42,6 +44,11 @@ public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
         ArrayList<List<Double>> a = new ArrayList<>(Arrays.asList(bb));
         m.put("bbox", a);
         extent.put("spatial", m);
+    }
+
+    @Override
+    public String getType() {
+        return withSpatial ? null : "FeatureCollection";
     }
 
 }
