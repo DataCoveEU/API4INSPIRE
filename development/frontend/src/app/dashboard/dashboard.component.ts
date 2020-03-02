@@ -134,7 +134,17 @@ export class DashboardComponent implements OnInit {
       this.selectedConnector = this.connectors[select.selectedIndex];
 
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+      var change = document.getElementById(this.idTableSelected);
+      change.style.backgroundColor = "white";
+      change.style.color = "black";
       this.tableSelect = false;
+      this.idTableSelected = "";
+      this.idColumnSelected = "";
+      this.columnSelected = false;
+      this.columnNames = [];
+      this.showCols = false;
+      this.showRenameCol = false;
+      this.showRenameTable = false;
     }
 
     //Check if all the tables are excluded
@@ -281,14 +291,26 @@ export class DashboardComponent implements OnInit {
           //Info message
           er.style.marginTop = "2%";
           er.innerHTML = this.messages(false, "Table renamed successfully", "INFORMATION");
-        this.reload();
+          //var drop = document.getElementById("selectField") as HTMLSelectElement;
+          //var selcon = drop.selectedIndex;
+          //this.reload();
+          //drop.selectedIndex = selcon;
+          this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+
       }
     ).catch(()=>{
       //Error Message
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Table not renamed", "ERROR");
     });
+   /* console.log("ja moinsen")
+    var drop = document.getElementById("selectField") as HTMLSelectElement;
+    var id = this.connectors.findIndex(this.findConnector)
+    console.log(id);
+    drop.selectedIndex = id;*/
+
   }
+
 
   /**
    * Handle the click event when the new column name is submitted
@@ -348,12 +370,19 @@ export class DashboardComponent implements OnInit {
    * Reload the connectors and tables
    */
   async reload() {
+    var drop = document.getElementById("selectField") as HTMLSelectElement;
     this.connectors = await this.conService.getConnector();
-
+   /*var sel = this.selectedConnector;
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
+    
+    this.selectedConnector = sel;
+    alert(this.selectedConnector)
+    var id = this.connectors.findIndex(this.findConnector(this.selectedConnector))
+    alert(id);
+    drop.selectedIndex = id;
 
-    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}*/
 
   }
 
