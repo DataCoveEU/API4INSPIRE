@@ -52,10 +52,18 @@ public class Config {
     }
 
 
+    /**
+     * Get a list of all connections
+     * @return list
+     */
     public DBConnectorList getConnectors() {
         return connectors;
     }
 
+    /**
+     * Get current log path
+     * @return log path
+     */
     public String getLogPath() {
         if(System.getenv("LOG_OGCAPISIMPLE") != null){
             return System.getenv("LOG_OGCAPISIMPLE");
@@ -63,6 +71,10 @@ public class Config {
         return logPath;
     }
 
+    /**
+     * Get path of sqlite folder
+     * @return sqlite folder
+     */
     public String getSqlitePath() {
         if(System.getenv("SQLITE_OGCAPISIMPLE") != null){
             return System.getenv("SQLITE_OGCAPISIMPLE");
@@ -70,6 +82,10 @@ public class Config {
         return sqlitePath;
     }
 
+    /**
+     * Get Paging Limit
+     * @return paging limit
+     */
     @JsonIgnore
     public String getPagingLimit(){
         if(System.getenv("PAGING_LIMIT_OGCAPISIMPLE") != null){
@@ -78,6 +94,10 @@ public class Config {
         return "10000";
     }
 
+    /**
+     * Get config path
+     * @return config path
+     */
     public String getConfigPath() {
         return configPath;
     }

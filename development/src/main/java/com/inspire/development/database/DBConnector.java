@@ -29,30 +29,81 @@ public interface DBConnector {
      */
     String checkConnection();
 
+    /**
+     * Delete feature collection from db
+     * @param fc feature collection to be deleted
+     */
     void delete(String fc);
 
-    HashMap<String,String> getErrorBuffer();
-
-    boolean removeError(String UUID);
-
+    /**
+     * Executes given SQL String
+     * @param sql SQL String to be executed
+     * @param fcName name to be used
+     * @param check true if featureCollection should be kept
+     * @return Feature Collection from SQL query result, null if error occurred.
+     */
     FeatureCollection execute(String sql, String fcName, boolean check) throws Exception;
 
+    /**
+     * Get FeatureCollection with given name
+     * @param collectionName FeatureCollection name
+     * @param withSpatial true if spatial information should be included
+     * @param limit size of feature array
+     * @param offset offset to dataset beginning
+     * @param bbox bounding box to be filtered by
+     * @param filterParams parameters to be filtered by
+     * @return FeatureCollection from given name. Returns null if collection doesnt exists or error occurred.
+     */
     FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset,
                           double[] bbox, Map<String,String> filterParams);
 
+    /**
+     * Get all FeatureCollections from database that are not excluded
+     * @return
+     */
     FeatureCollection[] getAll();
 
+    /**
+     * Save featureCollection in db
+     * @param fc featureCollection to be stored
+     */
     void save(FeatureCollection fc);
 
+    /**
+     * Update FeatureCollection
+     * @param fc featureCollection to be updated
+     */
     void update(FeatureCollection fc);
 
+    /**
+     * Get id of db connection
+     * @return id
+     */
     String getId();
 
+    /**
+     * Get all tables and views
+     * @return list
+     */
     ArrayList<String> getAllTables();
 
+    /**
+     * Get all columns of table
+     * @param table db table name or view name
+     * @return list
+     */
     ArrayList<String> getColumns(String table);
 
+    /**
+     * Rename table to new name
+     * @param table table to be renamed
+     * @param tableAlias new name
+     */
     void renameTable(String table, String tableAlias);
+
+    public ArrayList<String> getAllPrimaryKey(String table);
+
+    public ArrayList<String> getAllGeometry(String table);
 
     void renameProp(String table, String feature, String featureAlias);
 

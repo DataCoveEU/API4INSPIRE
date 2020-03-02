@@ -62,8 +62,7 @@ public class SQLite implements DBConnector {
      * Craete DBConnector for SQLite Database
      *
      * @param path Path to the SQLite File
-     * @return true if it worked false if error occurred. Error is stored in errorBuffer. See {@link
-     * SQLite#getErrorBuffer()}.
+     * @return true if it worked false if error occurred.
      */
     public SQLite(String path, String id) {
         this.id = id;
@@ -89,6 +88,10 @@ public class SQLite implements DBConnector {
             Statement stat = c.createStatement();
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
+
+            for(String table:getAllTables())
+                setTableExclude(table,true);
+
             log.info("Created SQL Connector with id: " + id);
         } catch (SQLException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
@@ -124,6 +127,10 @@ public class SQLite implements DBConnector {
             Statement stat = c.createStatement();
             stat.execute("SELECT InitSpatialMetaData()");
             stat.close();
+
+            for(String table:getAllTables())
+                setTableExclude(table,true);
+
             log.info("Created SQL Connector with path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
             log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
@@ -449,6 +456,27 @@ public class SQLite implements DBConnector {
         }
     }
 
+    public ArrayList<String> getAllGeometry(String table) {
+        ArrayList<String> names = new ArrayList<>();
+        log.debug("Get geometry for table: " + table);
+        try {
+            PreparedStatement ps = c.prepareStatement(
+                    "select f_geometry_column from geometry_columns where f_table_name = ?");
+            ps.setString(1, table);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                names.add(rs.getString(1).toUpperCase());
+            }
+        } catch (SQLException e) {
+            log.warn("Error occurred while getting geometry for table: "
+                    + table
+                    + ". Error: "
+                    + e.getMessage());
+            return null;
+        }
+        return names;
+    }
+
 
     /**
      * Converts a featureCollectionId to a FeatureCollection object
@@ -618,6 +646,23 @@ public class SQLite implements DBConnector {
         }
     }
 
+    public ArrayList<String> getAllPrimaryKey(String table) {
+        ArrayList<String> names = new ArrayList<>();
+        log.debug("Get PrimaryKey for table: " + table);
+        try {
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rs = md.getPrimaryKeys(null, null, table);
+            if (rs.next()) {
+                names.add(rs.getString(4).toUpperCase());
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+        return names;
+    }
+
     public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
 
         //Type is Polygon
@@ -737,20 +782,8 @@ public class SQLite implements DBConnector {
         return null;
     }
 
-    /**
-     * Get all errors of the database connector
-     *
-     * @return Array with all error Messages
-     */
-    @JsonIgnore
-    public HashMap<String, String> getErrorBuffer() {
-        return errorBuffer;
-    }
 
-    @Override
-    public boolean removeError(String UUID) {
-        return errorBuffer.remove(UUID) != null;
-    }
+
 
     @JsonProperty
     public HashMap<String, TableConfig> getConfig() {

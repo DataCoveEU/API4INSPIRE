@@ -735,6 +735,37 @@ public class RESTController {
         return error != null ? new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR) : new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/getGeo", method = RequestMethod.POST)
+    public ResponseEntity<Object> getGeo(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if (id == null) return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+
+        DBConnector db = core.getConnectorById(id);
+        if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+
+        String table = (String) input.get("table");
+        if (table == null) return new ResponseEntity<>("Table name is null", HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(db.getAllGeometry(table),HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/getId", method = RequestMethod.POST)
+    public ResponseEntity<Object> getId(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if (id == null) return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+
+        DBConnector db = core.getConnectorById(id);
+        if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+
+        String table = (String) input.get("table");
+        if (table == null) return new ResponseEntity<>("Table name is null", HttpStatus.BAD_REQUEST);
+
+        Object exclude = input.get("exclude");
+        if (exclude == null) return new ResponseEntity<>("Exclude value is null", HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(db.getAllPrimaryKey(table),HttpStatus.OK);
+    }
+
     @RequestMapping("/getPagingLimit")
     public String checkConnection() {
         return core.getPagingLimit();

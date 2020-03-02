@@ -73,6 +73,9 @@ public class PostgreSQL implements DBConnector {
                     DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database,
                             prop);
             c = connection;
+
+            for(String table:getAllTables())
+                setTableExclude(table,true);
             log.info("Postgres Connector created for path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.put(getUUID(), e.getMessage());
@@ -113,6 +116,10 @@ public class PostgreSQL implements DBConnector {
                     DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database,
                             prop);
             c = connection;
+
+            for(String table:getAllTables())
+                setTableExclude(table,true);
+
             log.info("Postgres Connector created from config for path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
             errorBuffer.put(getUUID(), e.getMessage());
@@ -780,6 +787,25 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    public ArrayList<String> getAllGeometry(String table) {
+        ArrayList<String> names = new ArrayList<>();
+        try {
+            log.debug("Getting geometry columns for table: " + table);
+            PreparedStatement ps = c.prepareStatement(
+                    "select f_geometry_column from geometry_columns where f_table_schema = ? and f_table_name = ?");
+            ps.setString(1, schema);
+            ps.setString(2, table);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                names.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            log.warn("Error getting Geometry for table: " + table);
+            return null;
+        }
+        return names;
+    }
+
     /**
      * Converts Geometry Object to a Geometry Object
      *
@@ -910,6 +936,21 @@ public class PostgreSQL implements DBConnector {
         } catch (SQLException e) {
             return null;
         }
+    }
+
+    public ArrayList<String> getAllPrimaryKey(String table) {
+        ArrayList<String> names = new ArrayList<>();
+        log.debug("Get PrimaryKey for table: " + table);
+        try {
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rs = md.getPrimaryKeys(null, schema, table);
+            while (rs.next()) {
+                names.add(rs.getString(4).toLowerCase());
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+        return names;
     }
 
     public boolean removeSQL(String name) {
