@@ -760,12 +760,9 @@ public class SQLite implements DBConnector {
                 + ")) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
-        sql = sql.replaceFirst("\\?", "ALL");
+        sql = sql.replace("LIMIT ? OFFSET ?", "");
         //Executing sql
-        PreparedStatement ps = c.prepareStatement(sql);
-        ps.setInt(1,0);
-
-        rs = ps.executeQuery();
+        rs = c.createStatement().executeQuery(sql);
         return rs;
     }
 
