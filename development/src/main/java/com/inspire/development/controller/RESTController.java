@@ -760,9 +760,6 @@ public class RESTController {
         String table = (String) input.get("table");
         if (table == null) return new ResponseEntity<>("Table name is null", HttpStatus.BAD_REQUEST);
 
-        Object exclude = input.get("exclude");
-        if (exclude == null) return new ResponseEntity<>("Exclude value is null", HttpStatus.BAD_REQUEST);
-
         return new ResponseEntity<>(db.getAllPrimaryKey(table),HttpStatus.OK);
     }
 

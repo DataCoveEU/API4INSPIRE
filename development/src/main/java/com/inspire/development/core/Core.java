@@ -96,9 +96,7 @@ public class Core {
         return config.getImportantLinks();
     }
 
-    public void setLogDirectory(String dir){
-        config.setLogPath(dir);
-    }
+
 
     public void setSqlitePath(String path){
         try {
@@ -135,7 +133,6 @@ public class Core {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        config.setSqlitePath(path);
 
         File[] listOfFiles = new File(config.getSqlitePath()).listFiles();
         if(listOfFiles != null) {
@@ -150,23 +147,7 @@ public class Core {
         }
         writeConfig(config.getConfigPath());
     }
-
-    public HashMap<String, String> getErrors(){
-        HashMap<String,String> errors = new HashMap<>();
-        for(DBConnector db:config.getConnectors()){
-            errors.putAll(db.getErrorBuffer());
-        }
-        return errors;
-    }
-
-    public boolean removeError(String UUID){
-        for(DBConnector db:config.getConnectors()){
-            if(db.removeError(UUID)){
-                return true;
-            }
-        }
-        return false;
-    }
+    
 
     public static Config parseConfig(String path) {
         log.info("Parsing config");
