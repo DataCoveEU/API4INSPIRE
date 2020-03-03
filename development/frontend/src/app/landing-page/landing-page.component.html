@@ -75,12 +75,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let thing of collections; let i = index;" class="tableRow">
-                        <th scope="row">{{ i+1 }}</th>
-                        <td style="word-wrap: break-word">{{ thing?.id }}</td>
-                        <td style="text-align: center">
-                            <input type="checkbox" (click)="onClick($event)" />
-                        </td>
+                    <tr *ngFor="let thing of collections; let i = index" class="tableRow">
+                        <ng-template [ngIf]="thing?.extent">
+                            <th scope="row">{{ i+1 }}</th>
+                            <td style="word-wrap: break-word">{{ thing?.id }}</td>
+                            <td style="text-align: center">
+                                <input type="checkbox" (click)="onClick($event)" />
+                            </td>
+                        </ng-template>
                     </tr>
                 </tbody>
             </table>
