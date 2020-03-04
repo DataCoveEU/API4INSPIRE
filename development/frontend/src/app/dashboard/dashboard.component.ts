@@ -31,6 +31,7 @@ export class DashboardComponent implements OnInit {
 
   //The connector which is selected
   selectedConnector: any;
+  indexSelectedConnector:any;
 
   //The important links from the config file
   importantLinks: any = ["Lukas", "Tobias", "Kathi", "Klaus"];
@@ -124,6 +125,7 @@ export class DashboardComponent implements OnInit {
     index == -1 ? index = 0 : index = index
 
     this.selectedConnector = this.connectors[index];
+    this.indexSelectedConnector = 0;
     //Load the table names from the selected connector
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
@@ -132,11 +134,14 @@ export class DashboardComponent implements OnInit {
     select.onchange = async (event: any)=>{
       var select = document.getElementById("selectField") as HTMLSelectElement;
       this.selectedConnector = this.connectors[select.selectedIndex];
+      this.indexSelectedConnector = select.selectedIndex;
 
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
       var change = document.getElementById(this.idTableSelected);
-      change.style.backgroundColor = "white";
-      change.style.color = "black";
+      if(change != null) {
+        change.style.backgroundColor = "white";
+        change.style.color = "black";
+      }
       this.tableSelect = false;
       this.idTableSelected = "";
       this.idColumnSelected = "";
@@ -145,6 +150,8 @@ export class DashboardComponent implements OnInit {
       this.showCols = false;
       this.showRenameCol = false;
       this.showRenameTable = false;
+
+      this.allTablesExcluded = this.areAllTableExcludedCheckbox();
     }
 
     //Check if all the tables are excluded
@@ -247,6 +254,7 @@ export class DashboardComponent implements OnInit {
    * Handle the click event when the new table name is submitted
    */
   async submitTable() {
+    console.log(this.connectors);
     this.tableNameSubmitted = true;
     if(this.renameTableForm.invalid) {
       return;
@@ -291,26 +299,26 @@ export class DashboardComponent implements OnInit {
           //Info message
           er.style.marginTop = "2%";
           er.innerHTML = this.messages(false, "Table renamed successfully", "INFORMATION");
-          //var drop = document.getElementById("selectField") as HTMLSelectElement;
-          //var selcon = drop.selectedIndex;
-          //this.reload();
-          //drop.selectedIndex = selcon;
-          this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+          var indx = this.indexSelectedConnector;
+          await this.reloadWithOutChange();
+          var select = document.getElementById("selectField") as HTMLSelectElement;
+          select.value = indx;
 
       }
     ).catch(()=>{
       //Error Message
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Table not renamed", "ERROR");
-    });
-   /* console.log("ja moinsen")
-    var drop = document.getElementById("selectField") as HTMLSelectElement;
-    var id = this.connectors.findIndex(this.findConnector)
-    console.log(id);
-    drop.selectedIndex = id;*/
+    })
 
   }
 
+  async reloadWithOutChange() {
+    var indx = this.indexSelectedConnector;
+    this.connectors = await this.conService.getConnector();
+    this.selectedConnector = this.connectors[indx];
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+  }
 
   /**
    * Handle the click event when the new column name is submitted
@@ -353,7 +361,10 @@ export class DashboardComponent implements OnInit {
     }
     var er = document.getElementById("infoField");
     this.conService.renameColumn(json).then(async()=>{
-      this.reload();
+      var indx = this.indexSelectedConnector;
+      await this.reloadWithOutChange();
+      var select = document.getElementById("selectField") as HTMLSelectElement;
+      select.value = indx;
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
       //Info message
       er.style.marginTop = "2%";
@@ -366,23 +377,16 @@ export class DashboardComponent implements OnInit {
 
   }
 
-  /**
+ /**
    * Reload the connectors and tables
    */
   async reload() {
-    var drop = document.getElementById("selectField") as HTMLSelectElement;
     this.connectors = await this.conService.getConnector();
-   /*var sel = this.selectedConnector;
+
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
-    
-    this.selectedConnector = sel;
-    alert(this.selectedConnector)
-    var id = this.connectors.findIndex(this.findConnector(this.selectedConnector))
-    alert(id);
-    drop.selectedIndex = id;
 
-    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}*/
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
   }
 
