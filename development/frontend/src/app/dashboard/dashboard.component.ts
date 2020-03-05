@@ -31,6 +31,7 @@ export class DashboardComponent implements OnInit {
 
   //The connector which is selected
   selectedConnector: any;
+  indexSelectedConnector:any;
 
   //The important links from the config file
   importantLinks: any = ["Lukas", "Tobias", "Kathi", "Klaus"];
@@ -124,6 +125,7 @@ export class DashboardComponent implements OnInit {
     index == -1 ? index = 0 : index = index
 
     this.selectedConnector = this.connectors[index];
+    this.indexSelectedConnector = 0;
     //Load the table names from the selected connector
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
 
@@ -132,11 +134,14 @@ export class DashboardComponent implements OnInit {
     select.onchange = async (event: any)=>{
       var select = document.getElementById("selectField") as HTMLSelectElement;
       this.selectedConnector = this.connectors[select.selectedIndex];
+      this.indexSelectedConnector = select.selectedIndex;
 
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
       var change = document.getElementById(this.idTableSelected);
-      change.style.backgroundColor = "white";
-      change.style.color = "black";
+      if(change != null) {
+        change.style.backgroundColor = "white";
+        change.style.color = "black";
+      }
       this.tableSelect = false;
       this.idTableSelected = "";
       this.idColumnSelected = "";
@@ -145,6 +150,8 @@ export class DashboardComponent implements OnInit {
       this.showCols = false;
       this.showRenameCol = false;
       this.showRenameTable = false;
+
+      this.allTablesExcluded = this.areAllTableExcludedCheckbox();
     }
 
     //Check if all the tables are excluded
@@ -247,6 +254,7 @@ export class DashboardComponent implements OnInit {
    * Handle the click event when the new table name is submitted
    */
   async submitTable() {
+    console.log(this.connectors);
     this.tableNameSubmitted = true;
     if(this.renameTableForm.invalid) {
       return;
@@ -266,7 +274,7 @@ export class DashboardComponent implements OnInit {
           return;
     }
 
-    //The unique names have to be in all the databases
+    //The unique names have to be on all of the databases
     for(let i = 0;  i < this.connectors.length; i++) {
       var con = this.connectors[i];
       var tab = await this.conService.getTables({'id': con.id });
@@ -291,26 +299,26 @@ export class DashboardComponent implements OnInit {
           //Info message
           er.style.marginTop = "2%";
           er.innerHTML = this.messages(false, "Table renamed successfully", "INFORMATION");
-          //var drop = document.getElementById("selectField") as HTMLSelectElement;
-          //var selcon = drop.selectedIndex;
-          //this.reload();
-          //drop.selectedIndex = selcon;
-          this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+          var indx = this.indexSelectedConnector;
+          await this.reloadWithOutChange();
+          var select = document.getElementById("selectField") as HTMLSelectElement;
+          select.value = indx;
 
       }
     ).catch(()=>{
       //Error Message
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Table not renamed", "ERROR");
-    });
-   /* console.log("ja moinsen")
-    var drop = document.getElementById("selectField") as HTMLSelectElement;
-    var id = this.connectors.findIndex(this.findConnector)
-    console.log(id);
-    drop.selectedIndex = id;*/
+    })
 
   }
 
+  async reloadWithOutChange() {
+    var indx = this.indexSelectedConnector;
+    this.connectors = await this.conService.getConnector();
+    this.selectedConnector = this.connectors[indx];
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+  }
 
   /**
    * Handle the click event when the new column name is submitted
@@ -353,7 +361,10 @@ export class DashboardComponent implements OnInit {
     }
     var er = document.getElementById("infoField");
     this.conService.renameColumn(json).then(async()=>{
-      this.reload();
+      var indx = this.indexSelectedConnector;
+      await this.reloadWithOutChange();
+      var select = document.getElementById("selectField") as HTMLSelectElement;
+      select.value = indx;
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
       //Info message
       er.style.marginTop = "2%";
@@ -366,23 +377,16 @@ export class DashboardComponent implements OnInit {
 
   }
 
-  /**
+ /**
    * Reload the connectors and tables
    */
   async reload() {
-    var drop = document.getElementById("selectField") as HTMLSelectElement;
     this.connectors = await this.conService.getConnector();
-   /*var sel = this.selectedConnector;
+
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
 
-    this.selectedConnector = sel;
-    alert(this.selectedConnector)
-    var id = this.connectors.findIndex(this.findConnector(this.selectedConnector))
-    alert(id);
-    drop.selectedIndex = id;
-
-    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}*/
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
   }
 
@@ -590,11 +594,11 @@ export class DashboardComponent implements OnInit {
     var er = document.getElementById("infoField");
     this.geoColumn = this.idColumnSelected;
     this.featureService.setAsGeometry(json).then(()=>{
-      //Show info message if the service call was successful
+      //Show info message if the service call was successfull
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION");
     }).catch(()=>{
-      //Show an error message if the call wasn't successful
+      //Show an error message if the call wasnt successfull
         er.style.marginTop = "2%";
         er.innerHTML = this.messages(true, "Not selected as GEO column", "ERROR");
     });
@@ -617,7 +621,7 @@ export class DashboardComponent implements OnInit {
       this.allTablesExcluded = true;
     } else {
       // After clicking the checkbox is not checked
-      // so all the tables will be included
+      // so all of the tables will be included
       exclude = false;
       for(var i = 0; i < tables.length; i++) {
         tables[i].checked = false;
@@ -758,7 +762,7 @@ export class DashboardComponent implements OnInit {
     this.homeSerivce.removeLink(json).then(async ()=>{
       //Show info message
       er.style.marginTop = "2%";
-      er.innerHTML = this.messages(false, "The important link was successfully removed", "INFORMATION");
+      er.innerHTML = this.messages(false, "Important link successfully removed", "INFORMATION");
           this.importantLinks = await this.homeSerivce.getLinks();
     }, (err)=>{
       //Show the error message
@@ -805,5 +809,5 @@ export class DashboardComponent implements OnInit {
     return erg;
   }
 
-
+  
 }
