@@ -266,7 +266,7 @@ export class DashboardComponent implements OnInit {
           return;
     }
 
-    //The unique names have to be on all of the databases
+    //The unique names have to be in all the databases
     for(let i = 0;  i < this.connectors.length; i++) {
       var con = this.connectors[i];
       var tab = await this.conService.getTables({'id': con.id });
@@ -375,7 +375,7 @@ export class DashboardComponent implements OnInit {
    /*var sel = this.selectedConnector;
     var select = document.getElementById("selectField") as HTMLSelectElement;
     this.selectedConnector = this.connectors[select.selectedIndex]
-    
+
     this.selectedConnector = sel;
     alert(this.selectedConnector)
     var id = this.connectors.findIndex(this.findConnector(this.selectedConnector))
@@ -590,11 +590,11 @@ export class DashboardComponent implements OnInit {
     var er = document.getElementById("infoField");
     this.geoColumn = this.idColumnSelected;
     this.featureService.setAsGeometry(json).then(()=>{
-      //Show info message if the service call was successfull
+      //Show info message if the service call was successful
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION");
     }).catch(()=>{
-      //Show an error message if the call wasnt successfull
+      //Show an error message if the call wasn't successful
         er.style.marginTop = "2%";
         er.innerHTML = this.messages(true, "Not selected as GEO column", "ERROR");
     });
@@ -617,7 +617,7 @@ export class DashboardComponent implements OnInit {
       this.allTablesExcluded = true;
     } else {
       // After clicking the checkbox is not checked
-      // so all of the tables will be included
+      // so all the tables will be included
       exclude = false;
       for(var i = 0; i < tables.length; i++) {
         tables[i].checked = false;
@@ -758,7 +758,7 @@ export class DashboardComponent implements OnInit {
     this.homeSerivce.removeLink(json).then(async ()=>{
       //Show info message
       er.style.marginTop = "2%";
-      er.innerHTML = this.messages(false, "Important link successfully removed", "INFORMATION");
+      er.innerHTML = this.messages(false, "The important link was successfully removed", "INFORMATION");
           this.importantLinks = await this.homeSerivce.getLinks();
     }, (err)=>{
       //Show the error message

@@ -7,14 +7,11 @@
  */
 package com.inspire.development.database.connector;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.config.ColumnConfig;
 import com.inspire.development.config.TableConfig;
+import com.inspire.development.config.Views;
 import com.inspire.development.database.DBConnector;
 
 import java.io.File;
@@ -27,8 +24,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 import mil.nga.sf.geojson.Feature;
 import mil.nga.sf.geojson.Point;
@@ -47,26 +42,22 @@ import org.postgis.PGgeometry;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class SQLite implements DBConnector {
     static Logger log = LogManager.getLogger(SQLite.class.getName());
-    private HashMap<String,String> errorBuffer;
-    @JsonProperty("path")
+    @JsonView(Views.Public.class)
     private String hostname;
     private Connection c;
-    @JsonProperty("id")
+    @JsonView(Views.Public.class)
     private String id;
-    @JsonProperty("config")
     private HashMap<String, TableConfig> config;
     private HashMap<String, String> sqlString; // Table name, SQL String
-    private String zwHostname;
 
     /**
-     * Craete DBConnector for SQLite Database
-     *
-     * @param path Path to the SQLite File
-     * @return true if it worked false if error occurred.
+     * Create sqlite connection
+     * @param path sqlite file path
+     * @param id connection id
      */
-    public SQLite(String path, String id) {
+    @JsonCreator
+    public SQLite(@JsonProperty("path")String path,@JsonProperty("id")String id) {
         this.id = id;
-        errorBuffer = new HashMap<>();
         hostname = path;
         config = new HashMap<>();
         sqlString = new HashMap<>();
@@ -92,65 +83,22 @@ public class SQLite implements DBConnector {
             for(String table:getAllTables())
                 setTableExclude(table,true);
 
-            log.info("Created SQL Connector with id: " + id);
+            log.info("Created SQL Connector with the id: " + id);
         } catch (SQLException e) {
-            log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
+            log.error("Error creating connector with the id: " + id + ". Error: " + e.getMessage());
             e.printStackTrace();
-            errorBuffer.put(getUUID(),e.getMessage());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    @JsonCreator
-    public SQLite(@JsonProperty("path") String path, @JsonProperty("id") String id,
-                  @JsonProperty("config") HashMap<String, TableConfig> config,
-                  @JsonProperty("sqlString") HashMap<String, String> sqlString) {
-        this.config = config;
-        this.id = id;
-        errorBuffer = new HashMap<>();
-        hostname = path;
-        this.sqlString = sqlString;
-
-        Connection connection = null;
-        try {
-            Class.forName("org.spatialite.JDBC");
-            // create a database connection
-            //Enable spatialite
-            Properties prop = new Properties();
-            prop.setProperty("enable_shared_cache", "true");
-            prop.setProperty("enable_load_extension", "true");
-            prop.setProperty("enable_spatialite", "true");
-            connection = DriverManager.getConnection("jdbc:spatialite:" + hostname, prop);
-            c = connection;
-            //Enable spatialite for tables
-            Statement stat = c.createStatement();
-            stat.execute("SELECT InitSpatialMetaData()");
-            stat.close();
-
-            for(String table:getAllTables())
-                setTableExclude(table,true);
-
-            log.info("Created SQL Connector with path: " + hostname);
-        } catch (SQLException | ClassNotFoundException e) {
-            log.error("Error creating connector with id: " + id + ". Error: " + e.getMessage());
-            errorBuffer.put(getUUID(),e.getMessage());
-        }
-    }
 
     public HashMap<String, String> getSqlString() {
         return sqlString;
     }
 
-    private static String getUUID(){
-        UUID uuid = UUID.randomUUID();
-        return uuid.toString();
-    }
-
     /**
-     * Checks for the connectivity to the given Database File
-     *
-     * @return null if successful else the error string
+     * {@inheritDoc}
      */
     @Override
     public String checkConnection() {
@@ -163,15 +111,13 @@ public class SQLite implements DBConnector {
                 return "Connection to " + hostname + " is closed";
             }
         } catch (SQLException e) {
-            log.error("Error checking Connection for connector: " + id);
+            log.error("Error checking Connection for the connector: " + id);
             return e.getMessage();
         }
     }
 
     /**
-     * Deletes Feature Collection with given name
-     *
-     * @param fc Feature Collection name
+     * {@inheritDoc}
      */
     @Override
     public void delete(String fc) {
@@ -179,16 +125,11 @@ public class SQLite implements DBConnector {
     }
 
     /**
-     * Executes given SQL String
-     *
-     * @param sql SQL String to be executed
-     * @param featureCollectionName
-     * @return Feature Collection from SQL query result, null if error occurred. Error is stored in
-     * errorBuffer. See {@link PostgreSQL#getErrorBuffer()}.
+     * {@inheritDoc}
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) throws Exception{
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check){
         try {
             c.createStatement().executeQuery(sql);
             //SQL Executed
@@ -197,16 +138,13 @@ public class SQLite implements DBConnector {
             if(check)
                 sqlString.remove(featureCollectionName);
             return fc;
-        } catch (SQLException e) {
-            throw e;
+        } catch (Exception e) {
+            return null;
         }
     }
 
     /**
-     * Get FeatureCollection with given name
-     *
-     * @param collectionName FeatureCollection name from inside database
-     * @return FeatureCollection from given name. Returns null if collection doesnt exists.
+     * {@inheritDoc}
      */
     @JsonIgnore
     @Override
@@ -220,8 +158,7 @@ public class SQLite implements DBConnector {
     }
 
     /**
-     * Returns all FeatureCollections for the Database
-     * @return FeatureCollection Array, null if error occurred.
+     * {@inheritDoc}
      */
     @JsonIgnore
     @Override
@@ -243,9 +180,7 @@ public class SQLite implements DBConnector {
 
 
     /**
-     * Saves FeatureCollection in database
-     *
-     * @param fc FeatureCollection to be stored
+     * {@inheritDoc}
      */
     @Override
     public void save(FeatureCollection fc) {
@@ -253,24 +188,23 @@ public class SQLite implements DBConnector {
     }
 
     /**
-     * Update FeatureCollection in database
-     *
-     * @param fc fc to be updated
+     * {@inheritDoc}
      */
     @Override
     public void update(FeatureCollection fc) {
         //Not used
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @JsonProperty
     public String getId() {
         return id;
     }
 
     /**
-     * Gets all tables from connector
-     *
-     * @return ArrayList with table names
+     * {@inheritDoc}
      */
     @JsonIgnore
     public ArrayList<String> getAllTables() {
@@ -294,6 +228,9 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ArrayList<String> getColumns(String table) {
         ArrayList<String> result = new ArrayList<>();
         try {
@@ -316,6 +253,9 @@ public class SQLite implements DBConnector {
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void renameTable(String table, String tableAlias) {
         log.info("Renaming table: " + table + " to: " + tableAlias);
         if (config.containsKey(table)) {
@@ -327,11 +267,7 @@ public class SQLite implements DBConnector {
     }
 
     /**
-     * Rename propertie of a table
-     *
-     * @param table        table the feature is conatained in
-     * @param feature      feature to be renamed
-     * @param featureAlias alias to be used
+     * {@inheritDoc}
      */
     public void renameProp(String table, String feature, String featureAlias) {
         log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
@@ -345,6 +281,9 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setGeo(String table, String column) {
         if (config.containsKey(table)) {
             config.get(table).setGeoCol(column);
@@ -355,6 +294,9 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setId(String table, String column) {
         if (config.containsKey(table)) {
             config.get(table).setIdCol(column);
@@ -365,6 +307,9 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String updateConnector() {
         Connection oldCon = c;
         try {
@@ -375,7 +320,7 @@ public class SQLite implements DBConnector {
                 prop.setProperty("enable_shared_cache", "true");
                 prop.setProperty("enable_load_extension", "true");
                 prop.setProperty("enable_spatialite", "true");
-                Connection connection = DriverManager.getConnection("jdbc:spatialite:" + zwHostname, prop);
+                Connection connection = DriverManager.getConnection("jdbc:spatialite:" + hostname, prop);
                 c = connection;
                 return null;
             } else {
@@ -389,6 +334,9 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setColumnExclude(String table, String column, boolean exclude) {
         if (config.containsKey(table)) {
             TableConfig conf = config.get(table);
@@ -400,6 +348,9 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setTableExclude(String table, boolean exclude) {
         if (config.containsKey(table)) {
             config.get(table).setExclude(exclude);
@@ -411,10 +362,9 @@ public class SQLite implements DBConnector {
     }
 
     /**
-     * Gets table name of alias
-     *
+     * Gets table config by alias
      * @param alias Table alias
-     * @return real table name
+     * @return table config if exists eles null
      */
     public TableConfig getConfByAlias(String alias) {
         log.debug("Getting config by alias for alias: " + alias);
@@ -433,10 +383,10 @@ public class SQLite implements DBConnector {
      * Checks if table has a GEOMETRY column
      *
      * @param table Table name to check
-     * @return true if GEOMETRY exists, else false
+     * @return the geometry column name if one exists else null
      */
     public String getGeometry(String table) {
-        log.debug("Get geometry for table: " + table);
+        log.debug("Get geometry for the table: " + table);
         try {
             PreparedStatement ps = c.prepareStatement(
                     "select f_geometry_column from geometry_columns where f_table_name = ?");
@@ -448,7 +398,7 @@ public class SQLite implements DBConnector {
                 return null;
             }
         } catch (SQLException e) {
-            log.warn("Error occurred while getting geometry for table: "
+            log.warn("Error occurred while getting geometry for the table: "
                     + table
                     + ". Error: "
                     + e.getMessage());
@@ -456,9 +406,12 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ArrayList<String> getAllGeometry(String table) {
         ArrayList<String> names = new ArrayList<>();
-        log.debug("Get geometry for table: " + table);
+        log.debug("Get geometry for the table: " + table);
         try {
             PreparedStatement ps = c.prepareStatement(
                     "select f_geometry_column from geometry_columns where f_table_name = ?");
@@ -468,7 +421,7 @@ public class SQLite implements DBConnector {
                 names.add(rs.getString(1).toUpperCase());
             }
         } catch (SQLException e) {
-            log.warn("Error occurred while getting geometry for table: "
+            log.warn("Error occurred while getting geometry for the table: "
                     + table
                     + ". Error: "
                     + e.getMessage());
@@ -487,7 +440,7 @@ public class SQLite implements DBConnector {
      * @param bbox array in the form of [xmin, ymin, xmax, ymax]. Only data with an intersecting boundingbox is included in the response
      * @param filterParams Params to be filtered by. Null if nothing should be filtered by
      * @return FeatureCollection with data specified by the params
-     * @throws Exception Thrown if any SQLException occurred
+     * @throws Exception Thrown if any SQLException occurred.
      */
     public FeatureCollection getFeatureCollectionByName(String alias, boolean withSpatial, int limit, int offset, double[] bbox, Map<String,String> filterParams) throws Exception {
         if(c == null){
@@ -610,7 +563,7 @@ public class SQLite implements DBConnector {
                     if (ewkb != null) {
                         Geometry gm = PGgeometry.geomFromString(ewkb);
                         if (gm.getSrid() == 0) {
-                            log.warn("SRID is 0, assuming that the format used is 4326! Collection: " + alias);
+                            log.warn("SRID is 0, assuming the format used is 4326! Collection: " + alias);
                         }
                         if (gm.getSrid() != 4326 && gm.getSrid() != 0) {
                             log.warn("SRID for collection: " + alias + " is not set to 4326!");
@@ -631,8 +584,13 @@ public class SQLite implements DBConnector {
     }
 
 
+    /**
+     * Get primary key from table
+     * @param table table name in db
+     * @return the primary key column name
+     */
     public String getPrimaryKey(String table) {
-        log.debug("Get PrimaryKey for table: " + table);
+        log.debug("Get PrimaryKey for the table: " + table);
         try {
             DatabaseMetaData md = c.getMetaData();
             ResultSet rs = md.getPrimaryKeys(null, null, table);
@@ -646,9 +604,12 @@ public class SQLite implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ArrayList<String> getAllPrimaryKey(String table) {
         ArrayList<String> names = new ArrayList<>();
-        log.debug("Get PrimaryKey for table: " + table);
+        log.debug("Get PrimaryKey for the table: " + table);
         try {
             DatabaseMetaData md = c.getMetaData();
             ResultSet rs = md.getPrimaryKeys(null, null, table);
@@ -663,6 +624,11 @@ public class SQLite implements DBConnector {
         return names;
     }
 
+    /**
+     * Converts Geometry Object to a Geometry Object
+     * @param geom Geometry Object
+     * @return Geometry object if string is valid, else null
+     */
     public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
 
         //Type is Polygon
@@ -692,6 +658,18 @@ public class SQLite implements DBConnector {
         return null;
     }
 
+    /**
+     * Get the Resultset with the given filters
+     * @param sql          sql to be executed
+     * @param filterParams Parameters to be filtered by
+     * @param bbox         bbox to be used while filtering
+     * @param geoCol       geometry column to be used
+     * @param table        the table name
+     * @param limit         limit to be used
+     * @param offset        offset to start data
+     * @return ResultSet with columns matching the params
+     * @throws Exception an error occurred while executing sql
+     */
     public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table, int limit ,int offset) throws SQLException{
         ResultSet rs;
         if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
@@ -703,7 +681,7 @@ public class SQLite implements DBConnector {
 
             if(filterParams != null && filterParams.size() > 0) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
-                    String col = getConfigByAlias(table, entry.getKey());
+                    String col = getColumnByAlias(table, entry.getKey());
                     col = col == null ? entry.getKey() : col;
                     sql = sql + col + " = ? and ";
                 }
@@ -753,6 +731,13 @@ public class SQLite implements DBConnector {
         return rs;
     }
 
+    /**
+     * Get BBOX for the whole table with given filters
+     * @param sql    SQL to be executed
+     * @param geoCol geometry column name
+     * @return ResultSet with columns specified by filterparams
+     * @throws SQLException if an error occurred while executing sql
+     */
     public ResultSet SqlBBox(String sql, String geoCol) throws SQLException{
         ResultSet rs;
         sql ="SELECT AsEWKB(Extent("
@@ -766,9 +751,13 @@ public class SQLite implements DBConnector {
         return rs;
     }
 
-
-
-    private String getConfigByAlias(String table, String alias){
+    /**
+     * Get column name by alias
+     * @param table table name in db
+     * @param alias column alias
+     * @return column name from db if config exists else null
+     */
+    private String getColumnByAlias(String table, String alias){
         TableConfig tc =  config.get(table);
         if(tc == null) return null;
         for(Map.Entry<String,ColumnConfig> entry : tc.getMap().entrySet()){
@@ -779,26 +768,51 @@ public class SQLite implements DBConnector {
         return null;
     }
 
-
-
-
-    @JsonProperty
+    /**
+     * Get config for connection
+     * @return config
+     */
     public HashMap<String, TableConfig> getConfig() {
         return config;
     }
 
+    @Override
+    public void setConfig(HashMap<String, TableConfig> c) {
+        this.config = c;
+    }
+
+    @Override
+    public void setSqlString(HashMap<String, String> sqlString) {
+        this.sqlString = sqlString;
+    }
+
+    /**
+     * Get path of sqlite file
+     * @return sqlite file path
+     */
     @JsonProperty
     public String getHostname() {
         return hostname;
     }
 
+    /**
+     * Set sqlite path
+     * @param path sqlite file path
+     */
     public void setPath(String path) {
-        this.zwHostname = path;
+        this.hostname = path;
     }
 
+    /**
+     * Set connection id
+     * @param id connection id
+     */
     public void setConnectorId(String id) {
         this.id = id;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeSQL(String name){return sqlString.remove(name) != null;}
 }
