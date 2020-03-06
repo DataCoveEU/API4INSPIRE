@@ -1,8 +1,22 @@
 /*
- * Created on Wed Feb 26 2020
- *
- * Copyright (c) 2020 - Lukas Gäbler
- */
+    The OGC API Simple provides enviromental data
+    Created on Wed Feb 26 2020
+    Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 
 import { Component, OnInit } from '@angular/core';
 
@@ -75,6 +89,12 @@ export class DashboardComponent implements OnInit {
   //Show the error field or not show it
   errorField: boolean = false;
 
+  canBeUsedAsGeoColumn: boolean = false;
+  canBeUsedAsIdColumn: boolean = false;
+
+  availableAsGeoColumn: any = [];
+  availableAsIdColumn: any = [];
+
   geoColumn: string = "";
   idColumn: string = "";
 
@@ -128,7 +148,7 @@ export class DashboardComponent implements OnInit {
     this.indexSelectedConnector = 0;
     //Load the table names from the selected connector
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-
+    
 
     //Event when another conneector in the dropdown is selected
     select.onchange = async (event: any)=>{
@@ -209,6 +229,8 @@ export class DashboardComponent implements OnInit {
     this.showCols = true;
 
     this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
+    this.availableAsGeoColumn = await this.conService.getGeoColumns({'id': this.selectedConnector.id, 'table':''+name});
+    this.availableAsIdColumn = await this.conService.getIdColumns({'id': this.selectedConnector.id, 'table':''+name});
 
     if(this.selectedConnector.config[name] == undefined) {
 
@@ -232,6 +254,18 @@ export class DashboardComponent implements OnInit {
    * @param name the name or id of the table row that has been clicked
    */
   onClickColumn(name: string) {
+    if(this.availableAsGeoColumn.includes(name)) {
+      this.canBeUsedAsGeoColumn = true;
+    } else {
+      this.canBeUsedAsGeoColumn = false;
+    }
+
+    if(this.availableAsIdColumn.includes(name)){
+      this.canBeUsedAsIdColumn = true;
+    } else {
+      this.canBeUsedAsIdColumn = false;
+    }
+
     // If a "columnname row" is already selected
     // it has to be deselected
     if(this.columnSelected) {
@@ -254,7 +288,6 @@ export class DashboardComponent implements OnInit {
    * Handle the click event when the new table name is submitted
    */
   async submitTable() {
-    console.log(this.connectors);
     this.tableNameSubmitted = true;
     if(this.renameTableForm.invalid) {
       return;
