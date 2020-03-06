@@ -7,15 +7,12 @@
  */
 package com.inspire.development.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inspire.development.collections.Collections;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.collections.FeatureWithLinks;
 import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
-import com.inspire.development.config.Views;
-import com.inspire.development.conformance.ConformanceDeclaration;
 import com.inspire.development.core.Core;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.PostgreSQL;
@@ -37,6 +34,24 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+
+
+class ConformanceDeclaration {
+
+    private String[] conformsTo;
+
+    /**
+     * Helper class for the conformance declaration
+     * @param conformsTo array of links
+     */
+    public ConformanceDeclaration(String[] conformsTo) {
+        this.conformsTo = conformsTo;
+    }
+
+    public String[] getConformsTo() {
+        return this.conformsTo;
+    }
+}
 
 @RestController
 public class RESTController {

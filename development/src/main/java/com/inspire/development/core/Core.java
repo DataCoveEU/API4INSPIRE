@@ -12,9 +12,6 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.collections.FeatureWithLinks;
 import com.inspire.development.collections.ImportantLinkList;
@@ -31,11 +28,8 @@ import mil.nga.sf.geojson.Feature;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static java.util.stream.Collectors.toList;
 
 class ConfigMap extends HashMap<String, ConfigSql>{
 
@@ -143,12 +137,21 @@ public class Core {
     }
 
 
-
+    /**
+     * Add a new important link
+     * @param link link to be used
+     * @param name name to be displayed by
+     */
     public void addLink(String link, String name){
         config.getImportantLinks().add(new ImportantLink(link,name));
         writeConfig(config.getConfigPath(), config.getConnectionPath());
     }
 
+    /**
+     * Remove a important link
+     * @param name link name
+     * @return true if removed. Else if not found
+     */
     public boolean removeLink(String name){
         for(ImportantLink link:config.getImportantLinks()){
             if(link.getName().equals(name)){
@@ -160,6 +163,11 @@ public class Core {
         return false;
     }
 
+    /**
+     * Remove a connector by the id
+     * @param id connector id
+     * @return true if found. Else false.
+     */
     public boolean removeConnector(String id){
         for(DBConnector db:config.getConnectors()){
             if(db.getId().equals(id)){
@@ -171,6 +179,10 @@ public class Core {
         return false;
     }
 
+    /**
+     * Delete sqlite by the path. Used for the folder listener.
+     * @param path
+     */
     private void deleteByPath(String path) {
         for (int i = 0; i < config.getConnectors().size(); i++) {
             DBConnector db = config.getConnectors().get(i);
@@ -185,6 +197,11 @@ public class Core {
         }
     }
 
+    /**
+     * Check if a connection exists
+     * @param id id to be checked by
+     * @return true if exists else false.
+     */
     private boolean checkIfConnectorExists(String id) {
         for (DBConnector db : config.getConnectors()) {
             if (db.getId().equals(id)) {
@@ -195,6 +212,11 @@ public class Core {
     }
 
 
+    /**
+     * Write the config to file
+     * @param configPath config path
+     * @param connectionPath connection path
+     */
     public void writeConfig(String configPath, String connectionPath) {
         log.info("Writing config to file");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -219,12 +241,19 @@ public class Core {
         }
     }
 
+    /**
+     * Get all stored connectors.
+     * @return list of all connections
+     */
     public DBConnectorList getConnectors() {
         return config.getConnectors();
     }
 
 
-
+    /**
+     * Add a new connector
+     * @param d connector to be added
+     */
     public void addConnector(DBConnector d) {
         if (!checkIfConnectorExists(d.getId())) {
             config.getConnectors().add(d);
@@ -232,8 +261,11 @@ public class Core {
         }
     }
 
+    /**
+     * Get all FeatureCollections from all tables
+     * @return Array containing all FeatureCollections
+     */
     public FeatureCollection[] getAll() {
-        String hostname = InetAddress.getLoopbackAddress().getHostName();
         ArrayList<FeatureCollection> fsl = new ArrayList<>();
         for (DBConnector db : config.getConnectors()) {
             FeatureCollection[] fca = db.getAll();
@@ -242,6 +274,13 @@ public class Core {
         return fsl.toArray(new FeatureCollection[fsl.size()]);
     }
 
+    /**
+     * Get a feature from a specified connection
+     * @param collection collection name the feature is located in
+     * @param feature feature name
+     * @param host hostname to be used in the links
+     * @return Feature
+     */
     public FeatureWithLinks getFeature(String collection, String feature, String host) {
         log.info("Getting feature: " + feature + " from collection: " + collection);
         FeatureCollection fs = get(collection, false, -1, 0, null, null, host);
@@ -259,6 +298,17 @@ public class Core {
         return null;
     }
 
+    /**
+     * Get items from a specified FeatureCollection with filter parameters
+     * @param featureCollection name
+     * @param withSpatial true if an extent property should be included.
+     * @param limit response item limit
+     * @param offset offset to the first result
+     * @param bbox if set the FeatureCollections only contains geometries which intersect the given bbox
+     * @param filterParams custom parameters to be filtered by
+     * @param host host to be used for the foreign key links.
+     * @return FeatureCollection
+     */
     public FeatureCollection get(String featureCollection, boolean withSpatial, int limit, int offset,
                                  double[] bbox, Map<String,String> filterParams, String host) {
         log.info("Getting Collection: " + featureCollection);
@@ -272,6 +322,11 @@ public class Core {
         return null;
     }
 
+    /**
+     * Get a connection by its id
+     * @param id connection id
+     * @return DBConnector with the specified id, null if no connection was found
+     */
     public DBConnector getConnectorById(String id) {
         for (DBConnector db : config.getConnectors()) {
             if (db.getId().equals(id)) {
@@ -281,15 +336,29 @@ public class Core {
         return null;
     }
 
+    /**
+     * Get the specified paging limit. Used for the landing page map
+     * @return number formatted as a string
+     */
     public String getPagingLimit(){
         return config.getPagingLimit();
     }
 
+    /**
+     * Get the specified config path
+     * @return config path
+     */
     public String getConfigPath(){
         return config.getConfigPath();
     }
 
-    public List<Feature> replaceFkFromList(List<Feature> features, String host){
+    /**
+     * Replace all foreign keys in a list of items
+     * @param features feature list
+     * @param host hostname to be used while replacing
+     * @return the given features list but with all foreign keys replaced
+     */
+    private List<Feature> replaceFkFromList(List<Feature> features, String host){
         ArrayList<Feature> out = new ArrayList<>();
         for(Feature f:features) {
             out.add(replaceFk(f, host));
@@ -297,7 +366,13 @@ public class Core {
         return out;
     }
 
-    public Feature replaceFk(Feature f, String host){
+    /**
+     * Replace all foreign keys in the given Feature
+     * @param f Feature to be used
+     * @param host hostname the links should be set to
+     * @return Feature with all foreign keys replaced
+     */
+    private Feature replaceFk(Feature f, String host){
             Map<String,Object> props = f.getProperties();
             for (Map.Entry<String, Object> entry : props.entrySet()) {
                 if (entry.getValue() instanceof String) {
@@ -311,6 +386,11 @@ public class Core {
         return f;
     }
 
+    /**
+     * Delete an sql view by its name
+     * @param name name
+     * @return true if one could be deleted. False if not found.
+     */
     public boolean deleteSQL(String name){
         for(DBConnector db:config.getConnectors()){
             if(db.removeSQL(name)){
@@ -321,6 +401,10 @@ public class Core {
         return false;
     }
 
+    /**
+     * Get the connection save path
+     * @return path
+     */
     public String getConnectionPath(){
         return config.getConnectionPath();
     }

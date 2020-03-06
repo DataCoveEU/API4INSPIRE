@@ -10,6 +10,9 @@ package com.inspire.development.collections;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Returned to the /collections method
+ */
 public class Collections {
     List<FeatureCollection> collections;
     List<Link> links = new ArrayList<>();

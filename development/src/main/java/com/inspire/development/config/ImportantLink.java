@@ -13,6 +13,11 @@ public class ImportantLink {
     private String link;
     private String name;
 
+    /**
+     * Create a new ImportantLink
+     * @param link link to be used
+     * @param name name the link should be showed
+     */
     public ImportantLink(@JsonProperty("link") String link, @JsonProperty("name") String name){
         this.link = link;
         this.name = name;

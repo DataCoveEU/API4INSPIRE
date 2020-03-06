@@ -10,7 +10,12 @@ package com.inspire.development.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.inspire.development.collections.ImportantLinkList;
+import com.inspire.development.database.DBConnector;
+
 import java.net.URL;
+import java.util.ArrayList;
+
+
 
 public class Config {
     private DBConnectorList connectors;
@@ -20,6 +25,9 @@ public class Config {
     private ImportantLinkList importantLinks;
     private String connectionPath;
 
+    /**
+     * Create a new config instance
+     */
     public Config(){
         URL url = this.getClass().getClassLoader().getResource("../");
 
