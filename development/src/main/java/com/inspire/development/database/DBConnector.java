@@ -19,9 +19,11 @@
  */
 package com.inspire.development.database;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inspire.development.collections.FeatureCollection;
+import com.inspire.development.config.TableConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,10 +32,6 @@ import java.util.Map;
 @JsonTypeName("dbconnector")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface DBConnector {
-    String database = "";
-    String hostname = "";
-    String password = "";
-    String username = "";
 
     /**
      * Check connection
@@ -54,7 +52,7 @@ public interface DBConnector {
      * @param check true if featureCollection should be kept
      * @return Feature Collection from SQL query result, null if error occurred.
      */
-    FeatureCollection execute(String sql, String fcName, boolean check) throws Exception;
+    FeatureCollection execute(String sql, String fcName, boolean check);
 
     /**
      * Get FeatureCollection with given name
@@ -64,14 +62,14 @@ public interface DBConnector {
      * @param offset offset to dataset beginning
      * @param bbox bounding box to be filtered by
      * @param filterParams parameters to be filtered by
-     * @return FeatureCollection from given name. Returns null if collection doesnt exists or error occurred.
+     * @return FeatureCollection from given name. Returns null if collection doesn't exist or error occurred.
      */
     FeatureCollection get(String collectionName, boolean withSpatial, int limit, int offset,
                           double[] bbox, Map<String,String> filterParams);
 
     /**
      * Get all FeatureCollections from database that are not excluded
-     * @return
+     * @return array with all FeatureCollections
      */
     FeatureCollection[] getAll();
 
@@ -107,27 +105,89 @@ public interface DBConnector {
     ArrayList<String> getColumns(String table);
 
     /**
-     * Rename table to new name
+     * Rename a table to new name
      * @param table table to be renamed
      * @param tableAlias new name
      */
     void renameTable(String table, String tableAlias);
 
-    public ArrayList<String> getAllPrimaryKey(String table);
+    /**
+     * Get all primary keys from a table
+     * @param table table name in db
+     * @return ArrayList containing all columns that are marked as primary keys in the db
+     */
+    ArrayList<String> getAllPrimaryKey(String table);
 
-    public ArrayList<String> getAllGeometry(String table);
+    /**
+     * Get all geometry columns from a table
+     * @param table table name in db
+     * @return ArrayList containing all columns that contain geometries
+     */
+    ArrayList<String> getAllGeometry(String table);
 
+    /**
+     * Rename property in api. Only set virtually so no changes are written to db.
+     * @param table table name from db
+     * @param feature feature name to be renamed
+     * @param featureAlias feature name to be used in api
+     */
     void renameProp(String table, String feature, String featureAlias);
 
+    /**
+     * Set geometry column to be used in the api
+     * @param table table name from db
+     * @param column column to be used
+     */
     void setGeo(String table, String column);
 
+    /**
+     * Set id column to be used in the api
+     * @param table table name from db
+     * @param column column to be used
+     */
     void setId(String table, String column);
 
+    /**
+     * Update connector with new properties
+     * @return null if successfully. A string if an error occurred.
+     */
     String updateConnector();
 
+    /**
+     * Set column to be excluded in api
+     * @param table table name in db
+     * @param column column name in db
+     * @param exclude true if excluded. False if column shall be included.
+     */
     void setColumnExclude(String table, String column, boolean exclude);
 
+    /**
+     * Set table to be excluded in the api
+     * @param table table name in db
+     * @param exclude true if excluded. False if column shall be included.
+     */
     void setTableExclude(String table, boolean exclude);
 
+    /**
+     * Remove sql view by the name.
+     * @param name sql view name
+     * @return true if view could be deleted. False not found.
+     */
     boolean removeSQL(String name);
+
+    /**
+     * Get sql view config
+     * @return Key as collection name. Value the sql string.
+     */
+    HashMap<String, String> getSqlString();
+
+    /**
+     * Get configuration
+     * @return config
+     */
+    HashMap<String, TableConfig> getConfig();
+
+    void setConfig(HashMap<String, TableConfig> c);
+
+    void setSqlString(HashMap<String, String> sqlString);
 }

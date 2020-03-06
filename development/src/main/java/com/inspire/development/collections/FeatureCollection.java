@@ -32,6 +32,7 @@ public class FeatureCollection extends mil.nga.sf.geojson.FeatureCollection {
     private boolean withSpatial = false;
     private ArrayList<Link> links;
 
+
     public FeatureCollection(String id, boolean withSpatial) {
         this.id = id;
         this.withSpatial = withSpatial;

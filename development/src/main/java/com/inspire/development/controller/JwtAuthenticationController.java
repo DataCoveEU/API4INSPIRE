@@ -47,6 +47,12 @@ public class JwtAuthenticationController {
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
+    /**
+     * Used for authenticating a user
+     * @param authenticationRequest the request
+     * @return ResponseEntity with the generated JWT Token
+     * @throws Exception if an error occurred while authenticating
+     */
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
             throws Exception {
@@ -57,6 +63,12 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
+    /**
+     * Authenticate a user by a username and password
+     * @param username username
+     * @param password password
+     * @throws Exception if an error occurred while authenticating
+     */
     private void authenticate(String username, String password) throws Exception {
         try {
             authenticationManager.authenticate(

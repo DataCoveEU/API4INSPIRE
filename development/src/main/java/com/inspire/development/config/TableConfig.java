@@ -24,6 +24,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashMap;
 
+/**
+ * Used for configuring a table
+ */
 public class TableConfig {
     private String alias;
     private String table;
@@ -32,6 +35,11 @@ public class TableConfig {
     private boolean exclude;
     private HashMap<String, ColumnConfig> map;
 
+    /**
+     * Create a new table config
+     * @param table original table name
+     * @param alias table alias to be used
+     */
     public TableConfig(String table, String alias) {
         this.alias = alias;
         this.table = table;

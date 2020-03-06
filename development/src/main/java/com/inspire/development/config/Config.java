@@ -22,7 +22,12 @@ package com.inspire.development.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.inspire.development.collections.ImportantLinkList;
+import com.inspire.development.database.DBConnector;
+
 import java.net.URL;
+import java.util.ArrayList;
+
+
 
 public class Config {
     private DBConnectorList connectors;
@@ -30,7 +35,11 @@ public class Config {
     private String sqlitePath;
     private String configPath;
     private ImportantLinkList importantLinks;
+    private String connectionPath;
 
+    /**
+     * Create a new config instance
+     */
     public Config(){
         URL url = this.getClass().getClassLoader().getResource("../");
 
@@ -39,6 +48,8 @@ public class Config {
         logPath = path + "logs";
 
         sqlitePath = path + "sqlite";
+
+        connectionPath = path + "connections.json";
 
         configPath = System.getenv("CONFIG_OGCAPISIMPLE") != null ? System.getenv("CONFIG_OGCAPISIMPLE") : path + "config.json";
 
@@ -70,6 +81,10 @@ public class Config {
      */
     public DBConnectorList getConnectors() {
         return connectors;
+    }
+
+    public String getConnectionPath() {
+        return connectionPath;
     }
 
     /**

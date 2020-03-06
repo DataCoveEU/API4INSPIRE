@@ -25,6 +25,11 @@ public class ColumnConfig {
     private String alias;
     private boolean exclude;
 
+    /**
+     * Create a new Column Config
+     * @param alias the alias to be used for a column
+     * @param exclude true if the column should be excluded
+     */
     public ColumnConfig(@JsonProperty("alias") String alias,
                         @JsonProperty("exclude") boolean exclude) {
         this.alias = alias;

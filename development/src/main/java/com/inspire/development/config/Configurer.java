@@ -31,6 +31,10 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 @Configuration
 public class Configurer implements WebMvcConfigurer {
 
+    /**
+     * Resource handler used for serving the angular files
+     * @param registry registry
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**/*")
