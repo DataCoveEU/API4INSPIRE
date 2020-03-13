@@ -93,7 +93,9 @@ export class LandingPageComponent implements OnInit {
   //Add the layer-switch button
   this.map.addControl(layerSwitcher);
   //init and add the "zoom to extend button"
-  this.zoomToExtent = new ZoomToExtent();
+  this.zoomToExtent = new ZoomToExtent({
+    extent: [972685.0715,5820901.8490,1956582.4996,6293588.4319]
+  });
   this.map.addControl(this.zoomToExtent);
 
   }
@@ -186,7 +188,9 @@ export class LandingPageComponent implements OnInit {
     this.map.render();
   } else {
     this.map.removeControl(this.zoomToExtent);
-    this.zoomToExtent = new ZoomToExtent()
+    this.zoomToExtent = new ZoomToExtent({
+      extent: [972685.0715,5820901.8490,1956582.4996,6293588.4319]
+    })
     this.map.addControl(this.zoomToExtent);
     this.map.render();
   }
