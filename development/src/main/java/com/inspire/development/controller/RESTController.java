@@ -1,9 +1,21 @@
 /*
+ * The OGC API Simple provides enviromental data
  * Created on Wed Feb 26 2020
- *
  * @author Tobias Pressler
- *
  * Copyright (c) 2020 - Tobias Pressler
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published
+ *  by the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
  */
 package com.inspire.development.controller;
 
@@ -13,7 +25,6 @@ import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.collections.FeatureWithLinks;
 import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
-import com.inspire.development.conformance.ConformanceDeclaration;
 import com.inspire.development.core.Core;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.PostgreSQL;
@@ -35,6 +46,24 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+
+
+class ConformanceDeclaration {
+
+    private String[] conformsTo;
+
+    /**
+     * Helper class for the conformance declaration
+     * @param conformsTo array of links
+     */
+    public ConformanceDeclaration(String[] conformsTo) {
+        this.conformsTo = conformsTo;
+    }
+
+    public String[] getConformsTo() {
+        return this.conformsTo;
+    }
+}
 
 @RestController
 public class RESTController {
@@ -135,7 +164,6 @@ public class RESTController {
 
     /**
      * Gets the conformance declaration
-     *
      * @return the json file which contains the conformance declaration
      */
     @GetMapping("/conformance")
@@ -150,7 +178,7 @@ public class RESTController {
 
     /**
      * Gets a special feature collection from the database
-     *
+     * @param host host header
      * @param id the id of the feature Collection
      * @return the collection with the id
      */
@@ -179,7 +207,12 @@ public class RESTController {
 
     /**
      * Gets the items of a special feature collection
-     *
+     * @param limit request param limit
+     * @param bbox request param bbox
+     * @param offset request param offset
+     * @param f request param content type
+     * @param filterParams additional request parameters
+     * @param host host header
      * @param id the id of the feature Collection
      * @return all of the items of the matching feature collection
      */
@@ -242,7 +275,7 @@ public class RESTController {
 
     /**
      * Gets the items of a special item (=feature) from a special feature collection
-     *
+     * @param host host header
      * @param collectionId the id of the feature Collection
      * @param featureId    the id of the item (=feature)
      * @return a special item (=feature) from a collection
@@ -261,7 +294,7 @@ public class RESTController {
             f.getLinks()
                     .add(new Link(
                             "http://" + host + "/ogcapisimple/collections/" + f.collection,
-                            "collection", "application/json", "the collection the feature is contained in"));
+                            "collection", "application/json", "the collection the feature is located in"));
             return new ResponseEntity<>(f, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -275,7 +308,6 @@ public class RESTController {
 
     /**
      * Adds a new Database Connector
-     *
      * @param input see APIDoc
      * @return false if error occurred else false
      */
@@ -301,7 +333,7 @@ public class RESTController {
                 if (error == null) {
                     if (!test) {
                         core.addConnector(s);
-                        core.writeConfig(core.getConfigPath());
+                        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                     }
                     return new ResponseEntity<>("OK", HttpStatus.OK);
                 } else {
@@ -329,6 +361,7 @@ public class RESTController {
      * @param input See APIDoc
      * @return false if error occurred else true
      */
+
     @RequestMapping(value = "/api/setConnectorProps", method = RequestMethod.POST)
     public ResponseEntity<Object> changeConnectorProperties(@RequestBody Map<String, ?> input) {
         try {
@@ -365,7 +398,7 @@ public class RESTController {
 
                             String error = postgreSQL.updateConnector();
                             if (error == null) {
-                                core.writeConfig(core.getConfigPath());
+                                core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                                 return new ResponseEntity<>(HttpStatus.OK);
                             } else {
                                 return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -375,22 +408,18 @@ public class RESTController {
                 }
                 if (classe.equals("sqlite")) {
                     //Index of connector to be changed
-                    String path = (String) input.get("path");
                     String orgId = (String) input.get("orgid");
                     String id = (String) input.get("id");
-                    if (path != null) {
-                        core.setSqlitePath(path);
-                    }
                     if (orgId != null && id != null) {
                         DBConnector db = core.getConnectorById(orgId);
                         if (db != null) {
                             if (db instanceof SQLite) {
                                 SQLite sqLite = (SQLite) db;
                                 sqLite.setConnectorId(id);
-                                core.writeConfig(core.getConfigPath());
+                                core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                                 return new ResponseEntity<>(HttpStatus.OK);
                             } else {
-                                return new ResponseEntity<>("given connector is not an sqlite connector", HttpStatus.BAD_REQUEST);
+                                return new ResponseEntity<>("Given connector is not a sqlite connector", HttpStatus.BAD_REQUEST);
                             }
                         } else {
                             return new ResponseEntity<>("Connector not found", HttpStatus.BAD_REQUEST);
@@ -408,7 +437,7 @@ public class RESTController {
     }
 
     /**
-     * Gets tables based on the Connector id
+     * Get tables based on the Connector id
      *
      * @param input Connector id
      * @return Array with all Names
@@ -429,7 +458,7 @@ public class RESTController {
     }
 
     /**
-     * Gets features based on the Connector id and featureCollection id
+     * Get features based on the Connector id and featureCollection id
      *
      * @param input Connector id
      * @return Array with all Names
@@ -473,7 +502,7 @@ public class RESTController {
                         boolean check = (Boolean) input.get("check");
                         try {
                             FeatureCollection fc = db.execute(sql, collectionName, check);
-                            core.writeConfig(core.getConfigPath());
+                            core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                             return new ResponseEntity<>(fc, HttpStatus.OK);
                         } catch (Exception e) {
                             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -509,7 +538,7 @@ public class RESTController {
                     DBConnector db = core.getConnectorById(id);
                     if (db != null) {
                         db.renameTable(orgName, alias);
-                        core.writeConfig(core.getConfigPath());
+                        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                         return new ResponseEntity<>("OK", HttpStatus.OK);
                     } else {
                         return new ResponseEntity<>("Connector id not existing", HttpStatus.BAD_REQUEST);
@@ -545,15 +574,14 @@ public class RESTController {
         if (alias == null) return new ResponseEntity<>("Alias is missing", HttpStatus.BAD_REQUEST);
 
         db.renameProp(table, orgName, alias);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
     /**
      * Change admin Password hashed to a file
-     *
      * @param input password to be saved
-     * @return
+     * @return sett APIDoc
      */
     @RequestMapping(value = "/api/changePwd", method = RequestMethod.POST)
     public ResponseEntity<Object> changePassword(@RequestBody Map<String, ?> input) {
@@ -571,34 +599,34 @@ public class RESTController {
     @RequestMapping(value = "/api/setGeo", method = RequestMethod.POST)
     public ResponseEntity<Object> setGeo(@RequestBody Map<String, ?> input) {
         String id = (String) input.get("id");
-        if (id == null) return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        if (id == null) return new ResponseEntity<>("Database Connector id missing", HttpStatus.BAD_REQUEST);
 
         String table = (String) input.get("table");
         if (table == null) return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
 
         String column = (String) input.get("column");
         DBConnector db = core.getConnectorById(id);
-        if (db == null) return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
+        if (db == null) return new ResponseEntity<>("No connector found for the id: " + id, HttpStatus.BAD_REQUEST);
 
         db.setGeo(table, column);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return null;
     }
 
     @RequestMapping(value = "/api/setId", method = RequestMethod.POST)
     public ResponseEntity<Object> setId(@RequestBody Map<String, ?> input) {
         String id = (String) input.get("id");
-        if (id == null) return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        if (id == null) return new ResponseEntity<>("Database Connector id missing", HttpStatus.BAD_REQUEST);
 
         String table = (String) input.get("table");
         if (table == null) return new ResponseEntity<>("Database Table missing", HttpStatus.BAD_REQUEST);
 
         String column = (String) input.get("column");
         DBConnector db = core.getConnectorById(id);
-        if (db == null) return new ResponseEntity<>("No connector found for id: " + id, HttpStatus.BAD_REQUEST);
+        if (db == null) return new ResponseEntity<>("No connector found for the id: " + id, HttpStatus.BAD_REQUEST);
 
         db.setId(table, column);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return null;
     }
 
@@ -618,7 +646,7 @@ public class RESTController {
 
         boolean excludeVal = (Boolean) exclude;
         db.setTableExclude(table, excludeVal);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -641,7 +669,7 @@ public class RESTController {
 
         boolean excludeVal = (Boolean) exclude;
         db.setColumnExclude(table, column, excludeVal);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
@@ -658,7 +686,7 @@ public class RESTController {
         boolean exclude = (Boolean) exl;
         for (int i = 0; i < db.getAllTables().size(); i++)
             db.setTableExclude(db.getAllTables().get(i), exclude);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -675,7 +703,7 @@ public class RESTController {
         boolean exclude = (Boolean) exc;
         for (int i = 0; i < db.getColumns(table).size(); i++)
             db.setColumnExclude(table, db.getColumns(table).get(i), exclude);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -686,7 +714,7 @@ public class RESTController {
         String name = (String) input.get("name");
         if (name == null) return new ResponseEntity<>("Name is null", HttpStatus.BAD_REQUEST);
         core.addLink(link, name);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
@@ -702,7 +730,7 @@ public class RESTController {
         if (name == null) return new ResponseEntity<>("Name is null", HttpStatus.BAD_REQUEST);
 
         core.removeLink(name);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -712,7 +740,7 @@ public class RESTController {
         String id = (String) input.get("id");
         if (id == null) return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
             core.removeConnector(id);
-            core.writeConfig(core.getConfigPath());
+            core.writeConfig(core.getConfigPath(), core.getConnectionPath());
             return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -721,18 +749,46 @@ public class RESTController {
         String name = (String) input.get("name");
         if (name == null) return new ResponseEntity<>("SQL name is null", HttpStatus.BAD_REQUEST);
         Object o = core.deleteSQL(name);
-        core.writeConfig(core.getConfigPath());
+        core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(o, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/checkConnection", method = RequestMethod.POST)
     public ResponseEntity<Object> checkConnection(@RequestBody Map<String, ?> input) {
         String id = (String) input.get("id");
-        if (id == null) return new ResponseEntity<>("Database Connector Id missing", HttpStatus.BAD_REQUEST);
+        if (id == null) return new ResponseEntity<>("Database Connector id missing", HttpStatus.BAD_REQUEST);
         DBConnector db = core.getConnectorById(id);
         if (db == null) return new ResponseEntity<>("Connection not found", HttpStatus.BAD_REQUEST);
         String error = db.checkConnection();
         return error != null ? new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR) : new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/getGeo", method = RequestMethod.POST)
+    public ResponseEntity<Object> getGeo(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if (id == null) return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+
+        DBConnector db = core.getConnectorById(id);
+        if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+
+        String table = (String) input.get("table");
+        if (table == null) return new ResponseEntity<>("Table name is null", HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(db.getAllGeometry(table),HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/getId", method = RequestMethod.POST)
+    public ResponseEntity<Object> getId(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if (id == null) return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+
+        DBConnector db = core.getConnectorById(id);
+        if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+
+        String table = (String) input.get("table");
+        if (table == null) return new ResponseEntity<>("Table name is null", HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(db.getAllPrimaryKey(table),HttpStatus.OK);
     }
 
     @RequestMapping("/getPagingLimit")

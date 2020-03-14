@@ -1,14 +1,27 @@
 <!--
+    The OGC API Simple provides enviromental data
     Created on Wed Feb 26 2020
-
     Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
 <app-nav></app-nav>
 <div id="content">
     <div class="row">
         <div class="col-sm-3">
             <select class="form-control" id="selectField">
-                <option *ngFor="let connector of connectors">{{ connector.id }}</option>
+                <option *ngFor="let connector of connectors; let i = index;" [attr.value]=i>{{ connector.id }}</option>
             </select>
         </div>
         <div class="col-sm-3">
@@ -66,7 +79,10 @@
                 <tbody *ngIf="showCols">
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                         <th scope="row">{{ i+1 }}</th>
-                        <td>{{ colname }}</td>
+                        <td>{{ colname }} 
+                            <i class="material-icons" *ngIf="availableAsIdColumn.includes(colname)" [ngClass]="{'notUsed' : colname != idColumn}">vpn_key</i>
+                            <i class="material-icons" *ngIf="availableAsGeoColumn.includes(colname)" [ngClass]="{'notUsed' : colname != geoColumn}">public</i>
+                        </td>
                         <td style="text-align: center">
                             <input class="excludeColumn" id="{{ 'checkbox-' + colname }}" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
                         </td>
@@ -79,7 +95,7 @@
 
     <div class="row" id="rename">
         <div class="col-sm-6" *ngIf="showRenameTable">
-            <h5>Assign collection name</h5>
+            <h5>New collection name</h5>
             <form [formGroup]="renameTableForm">
                 <label style="width: 100%">
                     <input type="text" formControlName="tableName" class="form-control" placeholder="New collection name" />
@@ -109,7 +125,7 @@
                     </div>
                 </label>
                 <br />
-                <div class="checkbox">
+                <div class="checkbox" *ngIf="canBeUsedAsGeoColumn">
                     <label *ngIf="this.geoColumn == this.idColumnSelected">
                         <input type="checkbox" checked value="" (click)="useAsGeometry()" id="useAsGeometry" />&emsp;Use as geometry
                     </label>
@@ -117,7 +133,7 @@
                         <input type="checkbox" value="" (click)="useAsGeometry()" id="useAsGeometry" />&emsp;Use as geometry
                     </label>
                 </div>
-                <div class="checkbox">
+                <div class="checkbox" *ngIf="canBeUsedAsIdColumn">
                     <label *ngIf="this.idColumn == this.idColumnSelected">
                         <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
                     </label>

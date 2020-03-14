@@ -1,16 +1,30 @@
 /*
+ * The OGC API Simple provides enviromental data
  * Created on Wed Feb 26 2020
- *
  * @author Tobias Pressler
- *
  * Copyright (c) 2020 - Tobias Pressler
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published
+ *  by the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
  */
+
 package com.inspire.development.database.connector;
 
 import com.fasterxml.jackson.annotation.*;
 import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.config.ColumnConfig;
 import com.inspire.development.config.TableConfig;
+import com.inspire.development.config.Views;
 import com.inspire.development.database.DBConnector;
 import mil.nga.sf.geojson.Feature;
 import mil.nga.sf.geojson.Polygon;
@@ -21,11 +35,12 @@ import org.postgis.Geometry;
 import org.postgis.PGbox2d;
 import org.postgis.PGgeometry;
 import org.postgis.Point;
+import org.springframework.web.servlet.View;
 
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
+
+
 
 /**
  * DBConnector for a PostgreSQL database
@@ -34,25 +49,38 @@ import java.util.stream.DoubleStream;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class PostgreSQL implements DBConnector {
     static Logger log = LogManager.getLogger(PostgreSQL.class.getName());
-    private HashMap<String, String> errorBuffer;
-    @JsonProperty("hostname")
+    @JsonView(Views.Public.class)
     private String hostname;
+    @JsonView(Views.Public.class)
     private String database;
+    @JsonView(Views.Public.class)
     private int port;
+    @JsonView(Views.Public.class)
     private String schema;
+    @JsonView(Views.Public.class)
     private String username;
+    @JsonView(Views.Public.class)
     private String password;
+
     private HashMap<String, String> sqlString; // Table name, SQL String
     private Connection c;
-    @JsonProperty("id")
+    @JsonView(Views.Public.class)
     private String id;
-    @JsonProperty("config")
     private HashMap<String, TableConfig> config;
 
+    /**
+     * Create a new PostgeSQL connection
+     * @param hostname hostname
+     * @param port port
+     * @param database database name
+     * @param schema schema name
+     * @param id connection id
+     * @param username username
+     * @param password password
+     */
     public PostgreSQL(String hostname, int port, String database, String schema, String id,
                       String username, String password) {
         this.id = id;
-        errorBuffer = new HashMap<>();
         this.hostname = hostname;
         this.port = port;
         this.database = database;
@@ -72,33 +100,29 @@ public class PostgreSQL implements DBConnector {
                     DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database,
                             prop);
             c = connection;
-            log.info("Postgres Connector created for path: " + hostname);
+
+            for(String table:getAllTables())
+                setTableExclude(table,true);
+            log.info("Postgres Connector created for the path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
-            errorBuffer.put(getUUID(), e.getMessage());
             log.error("Error creating connector. Error: ", e);
         }
     }
 
     @JsonCreator
-    public PostgreSQL(@JsonProperty("hostname") String hostname, @JsonProperty("id") String id,
-                      @JsonProperty("config") HashMap<String, TableConfig> config, @JsonProperty("port") int port,
+    public PostgreSQL(@JsonProperty("hostname") String hostname, @JsonProperty("id") String id, @JsonProperty("port") int port,
                       @JsonProperty("schema") String schema, @JsonProperty("database") String database,
-                      @JsonProperty("username") String username, @JsonProperty("password") String password,
-                      @JsonProperty("sqlString") HashMap<String, String> sqlString) {
-        this.config = config;
+                      @JsonProperty("username") String username, @JsonProperty("password") String password) {
         this.id = id;
-        errorBuffer = new HashMap<>();
         this.hostname = hostname;
         this.port = port;
         this.database = database;
         this.schema = schema;
         this.username = username;
         this.password = password;
-        if (sqlString != null) {
-            this.sqlString = sqlString;
-        } else {
-            this.sqlString = new HashMap<>();
-        }
+        this.sqlString = new HashMap<>();
+        this.config = new HashMap<>();
+
 
         Connection connection = null;
         // create a database connection
@@ -112,49 +136,60 @@ public class PostgreSQL implements DBConnector {
                     DriverManager.getConnection("jdbc:postgresql://" + hostname + ":" + port + "/" + database,
                             prop);
             c = connection;
-            log.info("Postgres Connector created from config for path: " + hostname);
+
+            for(String table:getAllTables())
+                setTableExclude(table,true);
+
+            log.info("Postgres Connector created from config for the path: " + hostname);
         } catch (SQLException | ClassNotFoundException e) {
-            errorBuffer.put(getUUID(), e.getMessage());
             log.error("Error creating connector. Error: ", e);
         }
     }
 
     /**
-     * Get a random UUID
-     *
-     * @return random uuid
+     * Get used username for database connection
+     * @return username
      */
-    private static String getUUID() {
-        UUID uuid = UUID.randomUUID();
-        return uuid.toString();
-    }
-
     @JsonProperty
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Set username
+     * @param username username to be used
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * Get used password for database connection
+     * @return password
+     */
     @JsonProperty
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Set password
+     * @param password password to be used
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Get mapped sql views
+     * @return FeatureCollection name and sql statement
+     */
     public HashMap<String, String> getSqlString() {
         return sqlString;
     }
 
     /**
-     * Checks for the connectivity to the given Database File
-     *
-     * @return null if successful else the error string
+     * {@inheritDoc}
      */
     @Override
     public String checkConnection() {
@@ -168,15 +203,13 @@ public class PostgreSQL implements DBConnector {
                 return "Connection to " + hostname + " is closed";
             }
         } catch (SQLException e) {
-            log.warn("Error checking connection for connector: " + hostname);
+            log.warn("Error checking connection for the connector: " + hostname);
             return e.getMessage();
         }
     }
 
     /**
-     * Deletes Feature Collection with given name
-     *
-     * @param fc Feature Collection name
+     * {@inheritDoc}
      */
     @Override
     public void delete(String fc) {
@@ -184,16 +217,12 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Executes given SQL String
-     *
-     * @param sql                   SQL String to be executed
-     * @param featureCollectionName
-     * @return Feature Collection from SQL query result, null if error occurred. Error is stored in
-     * errorBuffer. See {@link PostgreSQL#getErrorBuffer()}.
+     * {@inheritDoc}
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) throws Exception {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check){
+        try {
             c.createStatement().executeQuery(sql);
             //SQL Executed
             sqlString.put(featureCollectionName, sql);
@@ -201,13 +230,13 @@ public class PostgreSQL implements DBConnector {
             if (check)
                 sqlString.remove(featureCollectionName);
             return fc;
+        }catch (Exception e){
+            return null;
+        }
     }
 
     /**
-     * Get FeatureCollection with given name
-     *
-     * @param collectionName FeatureCollection name from inside database
-     * @return FeatureCollection from given name. Returns null if collection doesnt exists.
+     * {@inheritDoc}
      */
     @JsonIgnore
     @Override
@@ -232,9 +261,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Update a connector with the parameters setted with the setter methods
-     *
-     * @return null if everything worked else the Error
+     * {@inheritDoc}
      */
     public String updateConnector() {
         Connection oldCon = c;
@@ -252,16 +279,13 @@ public class PostgreSQL implements DBConnector {
             c = connection;
             return null;
         } catch (SQLException | ClassNotFoundException e) {
-            errorBuffer.put(getUUID(), e.getMessage());
             c = oldCon;
             return e.getMessage();
         }
     }
 
     /**
-     * Returns all FeatureCollections for the Database
-     *
-     * @return FeatureCollection Array, null if error occurred.
+     * {@inheritDoc}
      */
     @JsonIgnore
     @Override
@@ -283,9 +307,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Saves FeatureCollection in database
-     *
-     * @param fc FeatureCollection to be stored
+     * {@inheritDoc}
      */
     @Override
     public void save(FeatureCollection fc) {
@@ -293,25 +315,26 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Update FeatureCollection in database
-     *
-     * @param fc fc to be updated
+     * {@inheritDoc}
      */
     @Override
     public void update(FeatureCollection fc) {
         //Not used
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @JsonProperty
     public String getId() {
         return id;
     }
 
     /**
-     * Gets all tables from connector
-     *
-     * @return ArrayList with table names
+     * {@inheritDoc}
      */
+    @Override
     @JsonIgnore
     public ArrayList<String> getAllTables() {
         try {
@@ -332,13 +355,11 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Get all columns from a Table
-     *
-     * @param table Original Table name
-     * @return ArrayList with all names. Null if an error occurred.
+     * {@inheritDoc}
      */
+   @Override
     public ArrayList<String> getColumns(String table) {
-        log.debug("Getting all Columns for table: " + table);
+        log.debug("Getting all Columns for the table: " + table);
         ArrayList<String> result = new ArrayList<>();
         try {
             if (sqlString.containsKey(table)) {
@@ -360,11 +381,9 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Rename a FeatureCollection id
-     *
-     * @param table      Original ID
-     * @param tableAlias Alias name to be used
+     * {@inheritDoc}
      */
+    @Override
     public void renameTable(String table, String tableAlias) {
         if (config.containsKey(table)) {
             config.get(table).setAlias(tableAlias);
@@ -375,12 +394,9 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Rename a Feature
-     *
-     * @param table        Table of Feature
-     * @param feature      Feature original name
-     * @param featureAlias Feature alias name
+     * {@inheritDoc}
      */
+    @Override
     public void renameProp(String table, String feature, String featureAlias) {
         log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
         if (config.containsKey(table)) {
@@ -394,11 +410,9 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Set the column to be used for the geometry
-     *
-     * @param table  table the column is contained in
-     * @param column column to be used
+     * {@inheritDoc}
      */
+    @Override
     public void setGeo(String table, String column) {
         if (config.containsKey(table)) {
             config.get(table).setGeoCol(column);
@@ -410,11 +424,9 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Set the id column to be used in Features
-     *
-     * @param table  table the id is contained in
-     * @param column column to be used
+     * {@inheritDoc}
      */
+   @Override
     public void setId(String table, String column) {
         if (config.containsKey(table)) {
             config.get(table).setIdCol(column);
@@ -427,12 +439,9 @@ public class PostgreSQL implements DBConnector {
 
 
     /**
-     * Exclude a column from the api
-     *
-     * @param table   table the column is contained in
-     * @param column  column to be excluded
-     * @param exclude true if it should be excluded else false
+     * {@inheritDoc}
      */
+   @Override
     public void setColumnExclude(String table, String column, boolean exclude) {
         if (config.containsKey(table)) {
             TableConfig conf = config.get(table);
@@ -445,11 +454,9 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Exclude table from the api
-     *
-     * @param table   table to be excluded
-     * @param exclude true if it should be excluded else false
+     * {@inheritDoc}
      */
+    @Override
     public void setTableExclude(String table, boolean exclude) {
         if (config.containsKey(table)) {
             config.get(table).setExclude(exclude);
@@ -461,13 +468,12 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Gets table name of alias
-     *
+     * Gets table config by alias
      * @param alias Table alias
-     * @return real table name
+     * @return TableConfig
      */
     public TableConfig getConfByAlias(String alias) {
-        log.debug("Getting table by alias: " + alias);
+        log.debug("Getting the table by alias: " + alias);
         Iterator it = config.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
@@ -482,7 +488,6 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Converts a featureCollectionId to a FeatureCollection object
-     *
      * @param alias        featureCollectionId from the API
      * @param withSpatial  true if spatial info shall be provided in the response
      * @param limit        limit on how many items shall be included in the response
@@ -490,11 +495,15 @@ public class PostgreSQL implements DBConnector {
      * @param bbox         array in the form of [xmin, ymin, xmax, ymax]. Only data with an intersecting boundingbox is included in the response
      * @param filterParams Params to be filtered by. Null if nothing should be filtered by
      * @return FeatureCollection with data specified by the params
-     * @throws Exception Thrown if any SQLException occurred
+     * @throws Exception Thrown if any SQLException occurred.
      */
     public FeatureCollection getFeatureCollectionByName(String alias, boolean withSpatial, int limit, int offset, double[] bbox, Map<String, String> filterParams) throws Exception {
         if (c == null) {
             return null;
+        }
+
+        if(c.isClosed()){
+            updateConnector();
         }
 
         TableConfig tc = getConfByAlias(alias);
@@ -540,10 +549,10 @@ public class PostgreSQL implements DBConnector {
                 fk.put(fkColumnName, (pkTableName + ";" + pkColumnName));
             }
         }catch (SQLException e){
-            log.warn("Error getting foreignn keys in table: "+ queryName);
+            log.warn("Error getting foreign keys in the table: "+ queryName);
         }
         //Creating featureCollection with given name
-        FeatureCollection fs = new FeatureCollection(alias);
+        FeatureCollection fs = new FeatureCollection(alias, withSpatial);
 
         while (rs.next()) {
             try {
@@ -603,8 +612,6 @@ public class PostgreSQL implements DBConnector {
 
         if (geoCol != null && withSpatial) {
             log.debug("Getting Bounding Box for Table: " + queryName);
-            Statement stmt = c.createStatement();
-            //ST_SetSRID -> transforms Box to Polygon
             ResultSet resultSet = SqlBBox(sql, geoCol);
 
             if (resultSet.next()) {
@@ -612,18 +619,19 @@ public class PostgreSQL implements DBConnector {
                 if (ewkb != null) {
                     Geometry gm = PGgeometry.geomFromString(ewkb);
                     if (gm.getSrid() == 0) {
-                        log.warn("SRID is 0, assuming that the format used is 4326! Collection: " + alias);
+                        log.warn("SRID is 0, assuming the format used is 4326! Collection: " + alias);
                     }
-                    if (gm.getSrid() != 4326 || gm.getSrid() != 0) {
+                    if (gm.getSrid() != 4326 && gm.getSrid() != 0) {
                         log.warn("SRID for collection: " + alias + " is not set to 4326!");
                     } else {
-                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
-                        if (geo != null) {
-                            double[] bounding = geo.getBbox();
-                            if (bounding != null) {
-                                fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
-                            }
-                        }
+                        ArrayList<Double> bb = new ArrayList<>();
+                        Point min = gm.getFirstPoint();
+                        Point max = gm.getPoint(2);
+                        bb.add(min.getX());
+                        bb.add(min.getY());
+                        bb.add(max.getX());
+                        bb.add(max.getY());
+                        fs.setBB(bb);
                     }
                 }
             }
@@ -633,14 +641,15 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Get the Resultset with the given filters
-     *
      * @param sql          sql to be executed
      * @param filterParams Parameters to be filtered by
      * @param bbox         bbox to be used while filtering
      * @param geoCol       geometry column to be used
      * @param table        the table name
+     * @param limit         limit to be used
+     * @param offset        offset to start data
      * @return ResultSet with columns matching the params
-     * @throws Exception
+     * @throws Exception an error occurred while executing sql
      */
     public ResultSet SqlWhere(String sql, Map<String, String> filterParams, double[] bbox, String geoCol, String table, int limit, int offset) throws Exception {
         ResultSet rs;
@@ -652,7 +661,7 @@ public class PostgreSQL implements DBConnector {
 
             if (filterParams != null && filterParams.size() > 0) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
-                    String col = getConfigByAlias(table, entry.getKey());
+                    String col = getColumnByAlias(table, entry.getKey());
                     col = col == null ? entry.getKey() : col;
                     sql = sql + col + "::varchar = ? and ";
                 }
@@ -683,7 +692,7 @@ public class PostgreSQL implements DBConnector {
             }
 
             if (bbox != null && geoCol != null) {
-                PGbox2d box = new org.postgis.PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
+                PGbox2d box = new PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
                 ps.setObject(counter, box);
             }
 
@@ -696,12 +705,11 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Get BBOX for the whole table with fiven filters
-     *
+     * Get BBOX for the whole table with given filters
      * @param sql    SQL to be executed
      * @param geoCol geometry column name
      * @return ResultSet with columns specified by filterparams
-     * @throws SQLException
+     * @throws SQLException if an error occurred while executing sql
      */
     public ResultSet SqlBBox(String sql, String geoCol) throws SQLException {
         ResultSet rs;
@@ -710,17 +718,24 @@ public class PostgreSQL implements DBConnector {
                 + "), 4326) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
+        sql = sql.replaceFirst("\\?", "ALL");
         //Executing sql
         PreparedStatement ps = c.prepareStatement(sql);
 
+        //OFFSET
         ps.setInt(1, 0);
-        ps.setInt(2, 0);
 
         rs = ps.executeQuery();
         return rs;
     }
 
-    private String getConfigByAlias(String table, String alias) {
+    /**
+     * Get column name by alias
+     * @param table table the column is located in
+     * @param alias column alias
+     * @return column name if config exists. Null if no config is set.
+     */
+    private String getColumnByAlias(String table, String alias) {
         TableConfig tc = config.get(table);
         if (tc == null) return null;
         for (Map.Entry<String, ColumnConfig> entry : tc.getMap().entrySet()) {
@@ -733,13 +748,12 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Get the geometry column name of a table
-     *
-     * @param table Table name to get the column from
+     * @param table Table name from db
      * @return name if one exists else null
      */
     public String getGeometry(String table) {
         try {
-            log.debug("Getting geometry columns for table: " + table);
+            log.debug("Getting geometry columns for the table: " + table);
             PreparedStatement ps = c.prepareStatement(
                     "select f_geometry_column from geometry_columns where f_table_schema = ? and f_table_name = ?");
             ps.setString(1, schema);
@@ -751,14 +765,36 @@ public class PostgreSQL implements DBConnector {
                 return null;
             }
         } catch (SQLException e) {
-            log.warn("Error getting Geometry for table: " + table);
+            log.warn("Error getting Geometry for the table: " + table);
             return null;
         }
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArrayList<String> getAllGeometry(String table) {
+        ArrayList<String> names = new ArrayList<>();
+        try {
+            log.debug("Getting geometry columns for the table: " + table);
+            PreparedStatement ps = c.prepareStatement(
+                    "select f_geometry_column from geometry_columns where f_table_schema = ? and f_table_name = ?");
+            ps.setString(1, schema);
+            ps.setString(2, table);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                names.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            log.warn("Error getting Geometry for the table: " + table);
+            return null;
+        }
+        return names;
+    }
+
+    /**
      * Converts Geometry Object to a Geometry Object
-     *
      * @param geom Geometry Object
      * @return Geometry object if string is valid, else null
      */
@@ -791,40 +827,28 @@ public class PostgreSQL implements DBConnector {
         return null;
     }
 
-    /**
-     * Get all errors of the database connection
-     *
-     * @return Array with all error Messages
-     */
-    @JsonIgnore
-    public HashMap<String, String> getErrorBuffer() {
-        return errorBuffer;
-    }
-
-    /**
-     * Remove an error
-     *
-     * @param uuid UUID to remove
-     * @return true if removed else false
-     */
-    public boolean removeError(String uuid) {
-        return errorBuffer.remove(uuid) != null;
-    }
 
     /**
      * Get Config
-     *
      * @return config
      */
-    @JsonProperty
     public HashMap<String, TableConfig> getConfig() {
         return config;
     }
 
+    @Override
+    public void setConfig(HashMap<String, TableConfig> c) {
+        this.config = c;
+    }
+
+    @Override
+    public void setSqlString(HashMap<String, String> sqlString) {
+        this.sqlString = sqlString;
+    }
+
     /**
      * Hostname of the connector
-     *
-     * @return
+     * @return hostname
      */
     @JsonProperty
     public String getHostname() {
@@ -833,48 +857,70 @@ public class PostgreSQL implements DBConnector {
 
     /**
      * Set the hostname, not used till updateConnector was called
-     *
-     * @param hostname
+     * @param hostname hostname
      */
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
 
+    /**
+     * Get daabase name
+     * @return database name
+     */
     @JsonProperty
     public String getDatabase() {
         return database;
     }
 
+    /**
+     * Set database name
+     * @param database database name
+     */
     public void setDatabase(String database) {
         this.database = database;
     }
 
+    /**
+     * Get port
+     * @return port
+     */
     @JsonProperty
     public int getPort() {
         return port;
     }
 
+    /**
+     * Set database port
+     * @param port db port
+     */
     public void setPort(int port) {
         this.port = port;
     }
 
+    /**
+     * Get schema name
+     * @return schema name
+     */
     @JsonProperty
     public String getSchema() {
         return schema;
     }
 
+    /**
+     * Set schema name
+     * @param schema schema name
+     */
     public void setSchema(String schema) {
         this.schema = schema;
     }
 
     /**
      * Get Primary Key for table
-     *
      * @param table table name to get from
      * @return the primary key name
      */
     public String getPrimaryKey(String table) {
-        log.debug("Get PrimaryKey for table: " + table);
+        log.debug("Get PrimaryKey for the table: " + table);
         try {
             DatabaseMetaData md = c.getMetaData();
             ResultSet rs = md.getPrimaryKeys(null, schema, table);
@@ -888,6 +934,27 @@ public class PostgreSQL implements DBConnector {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public ArrayList<String> getAllPrimaryKey(String table) {
+        ArrayList<String> names = new ArrayList<>();
+        log.debug("Get PrimaryKey for the table: " + table);
+        try {
+            DatabaseMetaData md = c.getMetaData();
+            ResultSet rs = md.getPrimaryKeys(null, schema, table);
+            while (rs.next()) {
+                names.add(rs.getString(4).toLowerCase());
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+        return names;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeSQL(String name) {
         return sqlString.remove(name) != null;
     }

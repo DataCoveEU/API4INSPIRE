@@ -28,7 +28,7 @@ button#subTableName {
     color: red;
 }
 
- 
+
 tbody {
     display:block;
     height:30vh;
@@ -37,11 +37,20 @@ tbody {
 thead, tbody tr {
     display:table;
     width:100%;
-    table-layout:fixed;/* even columns width , fix width of table too*/
+    table-layout:fixed;/* even column's width , fix width of table too*/
 }
 thead {
     width: calc( 100% - 1em )/* scrollbar is average 1em/16px width, remove it from thead width */
 }
 table {
     width:100%;
+}
+
+.material-icons {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.notUsed {
+    color: grey;
 }

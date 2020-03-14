@@ -1,9 +1,21 @@
 /*
+ * The OGC API Simple provides enviromental data
  * Created on Wed Feb 26 2020
- *
  * @author Tobias Pressler
- *
  * Copyright (c) 2020 - Tobias Pressler
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published
+ *  by the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
  */
 package com.inspire.development.controller;
 
@@ -35,6 +47,12 @@ public class JwtAuthenticationController {
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
+    /**
+     * Used for authenticating a user
+     * @param authenticationRequest the request
+     * @return ResponseEntity with the generated JWT Token
+     * @throws Exception if an error occurred while authenticating
+     */
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
             throws Exception {
@@ -45,6 +63,12 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
+    /**
+     * Authenticate a user by a username and password
+     * @param username username
+     * @param password password
+     * @throws Exception if an error occurred while authenticating
+     */
     private void authenticate(String username, String password) throws Exception {
         try {
             authenticationManager.authenticate(

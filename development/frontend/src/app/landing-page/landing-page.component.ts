@@ -1,8 +1,22 @@
 /*
- * Created on Wed Feb 26 2020
- *
- * Copyright (c) 2020 - Lukas Gäbler
- */
+    The OGC API Simple provides enviromental data
+    Created on Wed Feb 26 2020
+    Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 import { Component, OnInit } from '@angular/core';
 import { HomeService } from '../home.service';
 declare var ol: any;
@@ -32,7 +46,7 @@ import {defaults as defaultControls, ZoomToExtent} from 'ol/control';
 export class LandingPageComponent implements OnInit {
 
   map: Map;
-  importantLinks: any = []; 
+  importantLinks: any = [];
   zoomToExtent: ZoomToExtent;
 
   showLoading: boolean = false;
@@ -47,9 +61,9 @@ export class LandingPageComponent implements OnInit {
     this.collections = col.collections;
 
     //Load all the important links to show them in the footer
-    this.importantLinks = await this.homeService.getLinks(); 
-    
-  
+    this.importantLinks = await this.homeService.getLinks();
+
+
     //init the layer where only the borders of the federal states are shown
     var austrocontorl = new ImageLayer({
       title: "Federal States",
@@ -71,7 +85,7 @@ export class LandingPageComponent implements OnInit {
 
     // init the button to switch layer
     var layerSwitcher = new LayerSwitcher({
-      tipLabel: 'Legende', // Optional label for button
+      tipLabel: 'Legende', // The optional label for button
       groupSelectStyle: 'children' // Can be 'children' [default], 'group' or 'none'
   });
 
@@ -89,13 +103,15 @@ export class LandingPageComponent implements OnInit {
       })
   });
 
-  
+
   //Add the layer-switch button
   this.map.addControl(layerSwitcher);
   //init and add the "zoom to extend button"
-  this.zoomToExtent = new ZoomToExtent();
+  this.zoomToExtent = new ZoomToExtent({
+    extent: [972685.0715,5820901.8490,1956582.4996,6293588.4319]
+  });
   this.map.addControl(this.zoomToExtent);
-    
+
   }
 
   /**
@@ -113,8 +129,8 @@ export class LandingPageComponent implements OnInit {
 
   /**
    * Select a collection to show in the map
-   * 
-   * @param event 
+   *
+   * @param event
    */
   onClick(event: any){
     this.showLoading = true;
@@ -130,17 +146,17 @@ export class LandingPageComponent implements OnInit {
             var vectorSource = new VectorSource({
               features: (new GeoJSON({ featureProjection: 'EPSG:3857' })).readFeatures(json)
             });
-            
+
             var vectorLayer = new VectorLayer({
               source: vectorSource,
               name: link
             });
 
             vectorLayer.setExtent(vectorSource.getExtent())
-    
+
             this.map.getLayers().getArray().push(vectorLayer);
             this.map.render();
-            
+
             this.setExtent();
             this.showLoading = false;
             break;
@@ -177,7 +193,7 @@ export class LandingPageComponent implements OnInit {
         bbox[3] = bbox[3] < bboxZw[3] ? bboxZw[3] : bbox[3];
       }
     }
-    
+
     this.map.removeControl(this.zoomToExtent);
     this.zoomToExtent = new ZoomToExtent({
       extent: bbox
@@ -186,7 +202,9 @@ export class LandingPageComponent implements OnInit {
     this.map.render();
   } else {
     this.map.removeControl(this.zoomToExtent);
-    this.zoomToExtent = new ZoomToExtent()
+    this.zoomToExtent = new ZoomToExtent({
+      extent: [972685.0715,5820901.8490,1956582.4996,6293588.4319]
+    })
     this.map.addControl(this.zoomToExtent);
     this.map.render();
   }

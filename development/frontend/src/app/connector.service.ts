@@ -226,4 +226,28 @@ export class ConnectorService {
       })
     })
   }
+
+  async getGeoColumns(json: object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post('/ogcapisimple/api/getGeo', json, {
+        responseType: 'text'
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    })
+  }
+
+  async getIdColumns(json: object) {
+    return new Promise((resolve, reject)=>{
+      this.httpClient.post('/ogcapisimple/api/getId', json, {
+        responseType: 'text'
+      }).subscribe((res)=>{
+        resolve(res);
+      }, (err)=>{
+        reject(err);
+      })
+    })
+  }
 }

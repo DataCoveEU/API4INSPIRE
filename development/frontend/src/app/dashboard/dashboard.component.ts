@@ -1,8 +1,22 @@
 /*
- * Created on Wed Feb 26 2020
- *
- * Copyright (c) 2020 - Lukas Gäbler
- */
+    The OGC API Simple provides enviromental data
+    Created on Wed Feb 26 2020
+    Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 
 import { Component, OnInit } from '@angular/core';
 
@@ -31,6 +45,7 @@ export class DashboardComponent implements OnInit {
 
   //The connector which is selected
   selectedConnector: any;
+  indexSelectedConnector:any;
 
   //The important links from the config file
   importantLinks: any = ["Lukas", "Tobias", "Kathi", "Klaus"];
@@ -73,6 +88,12 @@ export class DashboardComponent implements OnInit {
 
   //Show the error field or not show it
   errorField: boolean = false;
+
+  canBeUsedAsGeoColumn: boolean = false;
+  canBeUsedAsIdColumn: boolean = false;
+
+  availableAsGeoColumn: any = [];
+  availableAsIdColumn: any = [];
 
   geoColumn: string = "";
   idColumn: string = "";
@@ -124,17 +145,33 @@ export class DashboardComponent implements OnInit {
     index == -1 ? index = 0 : index = index
 
     this.selectedConnector = this.connectors[index];
+    this.indexSelectedConnector = 0;
     //Load the table names from the selected connector
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-
+    
 
     //Event when another conneector in the dropdown is selected
     select.onchange = async (event: any)=>{
       var select = document.getElementById("selectField") as HTMLSelectElement;
       this.selectedConnector = this.connectors[select.selectedIndex];
+      this.indexSelectedConnector = select.selectedIndex;
 
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
+      var change = document.getElementById(this.idTableSelected);
+      if(change != null) {
+        change.style.backgroundColor = "white";
+        change.style.color = "black";
+      }
       this.tableSelect = false;
+      this.idTableSelected = "";
+      this.idColumnSelected = "";
+      this.columnSelected = false;
+      this.columnNames = [];
+      this.showCols = false;
+      this.showRenameCol = false;
+      this.showRenameTable = false;
+
+      this.allTablesExcluded = this.areAllTableExcludedCheckbox();
     }
 
     //Check if all the tables are excluded
@@ -192,6 +229,8 @@ export class DashboardComponent implements OnInit {
     this.showCols = true;
 
     this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
+    this.availableAsGeoColumn = await this.conService.getGeoColumns({'id': this.selectedConnector.id, 'table':''+name});
+    this.availableAsIdColumn = await this.conService.getIdColumns({'id': this.selectedConnector.id, 'table':''+name});
 
     if(this.selectedConnector.config[name] == undefined) {
 
@@ -215,6 +254,19 @@ export class DashboardComponent implements OnInit {
    * @param name the name or id of the table row that has been clicked
    */
   onClickColumn(name: string) {
+    if(this.availableAsGeoColumn.includes(name)) {
+      this.canBeUsedAsGeoColumn = true;
+    } else {
+      this.canBeUsedAsGeoColumn = false;
+    }
+
+    if(this.availableAsIdColumn.includes(name)){
+      this.canBeUsedAsIdColumn = true;
+    } else {
+      this.canBeUsedAsIdColumn = false;
+    }
+   
+
     // If a "columnname row" is already selected
     // it has to be deselected
     if(this.columnSelected) {
@@ -231,6 +283,11 @@ export class DashboardComponent implements OnInit {
     this.showRenameCol = true;
     this.idColumnSelected = name;
     this.columnSelected = true;
+
+    console.log(name);
+    console.log(this.idColumn);
+    console.log(name == this.idColumn);
+    console.log(this.idColumnSelected);
   }
 
   /**
@@ -281,13 +338,25 @@ export class DashboardComponent implements OnInit {
           //Info message
           er.style.marginTop = "2%";
           er.innerHTML = this.messages(false, "Table renamed successfully", "INFORMATION");
-        this.reload();
+          var indx = this.indexSelectedConnector;
+          await this.reloadWithOutChange();
+          var select = document.getElementById("selectField") as HTMLSelectElement;
+          select.value = indx;
+
       }
     ).catch(()=>{
       //Error Message
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Table not renamed", "ERROR");
-    });
+    })
+
+  }
+
+  async reloadWithOutChange() {
+    var indx = this.indexSelectedConnector;
+    this.connectors = await this.conService.getConnector();
+    this.selectedConnector = this.connectors[indx];
+    this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
   }
 
   /**
@@ -331,7 +400,10 @@ export class DashboardComponent implements OnInit {
     }
     var er = document.getElementById("infoField");
     this.conService.renameColumn(json).then(async()=>{
-      this.reload();
+      var indx = this.indexSelectedConnector;
+      await this.reloadWithOutChange();
+      var select = document.getElementById("selectField") as HTMLSelectElement;
+      select.value = indx;
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
       //Info message
       er.style.marginTop = "2%";
@@ -344,7 +416,7 @@ export class DashboardComponent implements OnInit {
 
   }
 
-  /**
+ /**
    * Reload the connectors and tables
    */
   async reload() {
@@ -530,6 +602,8 @@ export class DashboardComponent implements OnInit {
         er.style.marginTop = "2%";
         er.innerHTML = this.messages(true, "Not selected as ID column", "ERROR");
     });
+    alert(this.idColumn == this.idColumnSelected)
+    console.log(this.idColumn == this.idColumnSelected);
   }
 
   /**
@@ -776,5 +850,5 @@ export class DashboardComponent implements OnInit {
     return erg;
   }
 
-
+  
 }

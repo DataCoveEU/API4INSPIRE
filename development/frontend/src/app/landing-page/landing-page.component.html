@@ -1,7 +1,20 @@
 <!--
+    The OGC API Simple provides enviromental data
     Created on Wed Feb 26 2020
-
     Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
 <app-nav></app-nav>
 <h2 style="text-align: center; margin-top: 1%">OGC API Simple</h2>
@@ -71,16 +84,18 @@
                     <tr class="table-head" fixed-header>
                         <th scope="col" class="table-head-font-weight-normal">#</th>
                         <th scope="col" class="table-head-font-weight-normal">Collection</th>
-                        <th scope="col" class="table-head-font-weight-normal">Use</th>
+                        <th scope="col" class="table-head-font-weight-normal" style="text-align: center">Use</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let thing of collections; let i = index;" class="tableRow">
-                        <th scope="row">{{ i+1 }}</th>
-                        <td>{{ thing?.id }}</td>
-                        <td style="text-align: center">
-                            <input type="checkbox" (click)="onClick($event)" />
-                        </td>
+                    <tr *ngFor="let thing of collections; let i = index" class="tableRow">
+                        <ng-template [ngIf]="thing?.extent">
+                            <th scope="row">{{ i+1 }}</th>
+                            <td style="word-wrap: break-word">{{ thing?.id }}</td>
+                            <td style="text-align: center">
+                                <input type="checkbox" (click)="onClick($event)" />
+                            </td>
+                        </ng-template>
                     </tr>
                 </tbody>
             </table>
