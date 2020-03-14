@@ -11,7 +11,6 @@ import { NavComponent } from './nav/nav.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PropertiesComponent } from './properties/properties.component';
 import { AddConnectorComponent } from './add-connector/add-connector.component';
-import { ImprintComponent } from './imprint/imprint.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { AuthService } from './auth.service';
 import { HttpClientModule } from '@angular/common/http';
@@ -35,7 +34,6 @@ export function tokenGetter(){return localStorage.getItem('access_token')}
     DashboardComponent,
     PropertiesComponent,
     AddConnectorComponent,
-    ImprintComponent,
     UserManagementComponent,
     CollectionsComponent,
     ItemsComponent

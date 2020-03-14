@@ -1,3 +1,10 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * @author Tobias Pressler
+ *
+ * Copyright (c) 2020 - Tobias Pressler
+ */
 package com.inspire.development.admin.jwt;
 
 import org.springframework.beans.factory.annotation.Autowired;

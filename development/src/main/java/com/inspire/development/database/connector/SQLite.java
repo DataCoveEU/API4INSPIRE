@@ -1,3 +1,10 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * @author Tobias Pressler
+ *
+ * Copyright (c) 2020 - Tobias Pressler
+ */
 package com.inspire.development.database.connector;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -216,12 +223,12 @@ public class SQLite implements DBConnector {
         log.info("Get all FeatureCollections");
         ArrayList<FeatureCollection> fc = new ArrayList<>();
         for (String table : getAllTables()) {
-                log.debug("Table: " + table);
-                try {
-                    fc.add(getFeatureCollectionByName(config.get(table) != null ? config.get(table).getAlias() : table, true, 0, 0, null, null));
-                }catch (Throwable t){
-                    //DO NOTHING
-                }
+            log.debug("Table: " + table);
+            try {
+                fc.add(getFeatureCollectionByName(config.get(table) != null ? config.get(table).getAlias() : table, true, 0, 0, null, null));
+            }catch (Throwable t){
+                //DO NOTHING
+            }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
     }
@@ -486,17 +493,17 @@ public class SQLite implements DBConnector {
             sql = sql != null ? sql : "SELECT * FROM " + queryName;
         }
 
+        sql+=" LIMIT ? OFFSET ?";
 
-            log.debug("Converting table: " + queryName + " to featureCollection");
-            ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName);
-            //Creating featureCollection with given name
-            FeatureCollection fs = new FeatureCollection(alias);
-            //Create offset
-            for (int i = 0; i < offset; i++) {
-                rs.next();
-            }
 
-            while (rs.next() && (fs.getFeatures().size() < limit || limit == -1)) {
+        log.debug("Converting table: " + queryName + " to featureCollection");
+        ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
+        //Creating featureCollection with given name
+        FeatureCollection fs = new FeatureCollection(alias);
+
+
+        while (rs.next()) {
+            try {
                 Feature f = new Feature();
                 HashMap<String, Object> prop = new HashMap<>();
                 ResultSetMetaData md = rs.getMetaData();
@@ -507,29 +514,29 @@ public class SQLite implements DBConnector {
                         f.setId(rs.getString(x));
                         log.debug("ID set");
                     } else {
-                        if(colName.equals("ogc_bbox")){
+                        if (colName.equals("ogc_bbox")) {
                             String ewkb = rs.getString(x);
-                            if(ewkb != null) {
+                            if (ewkb != null) {
                                 Geometry geom = PGgeometry.geomFromString(ewkb);
                                 if (geom != null) {
                                     org.postgis.Point fp = geom.getFirstPoint();
                                     org.postgis.Point lp = geom.getLastPoint();
-                                    f.setBbox(new double[]{fp.x,fp.y,lp.x,lp.y});
+                                    f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
                                 }
                             }
-                        }else {
-                            if(colName.equals("ogc_ewkb")){
+                        } else {
+                            if (colName.equals("ogc_ewkb")) {
                                 String ewkb = rs.getString(x);
-                                if(ewkb != null) {
+                                if (ewkb != null) {
                                     Geometry geom = PGgeometry.geomFromString(ewkb);
                                     if (geom != null) {
                                         mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom);
-                                        if(geo != null){
+                                        if (geo != null) {
                                             f.setGeometry(geo);
                                         }
                                     }
                                 }
-                            }else {
+                            } else {
                                 //Normal Feature
                                 if (!colName.equals(geoCol)) {
                                     String col = md.getColumnName(x);
@@ -538,9 +545,9 @@ public class SQLite implements DBConnector {
                                     //Check if there is a config for that table and if it has a column rename
                                     if (tc != null) {
                                         ColumnConfig columnConfig = tc.getMap().get(col);
-                                        if(columnConfig == null){
+                                        if (columnConfig == null) {
                                             prop.put(colName, o);
-                                        }else {
+                                        } else {
                                             if (!columnConfig.isExclude()) {
                                                 if (columnConfig.getAlias() == null) {
                                                     prop.put(colName, o);
@@ -559,37 +566,40 @@ public class SQLite implements DBConnector {
                 }
                 f.setProperties(prop);
                 fs.addFeature(f);
+            }catch (Exception e){
+                log.error("Error occurred while converting sqlite table to feature collection.  Table: " + queryName);
             }
+        }
 
-            if (geoCol != null) {
-                log.debug("Getting Bounding Box for Table: " + queryName);
-                Statement stmt = c.createStatement();
-                //ST_SetSRID -> transforms Box to Polygon
+        if (geoCol != null) {
+            log.debug("Getting Bounding Box for Table: " + queryName);
+            Statement stmt = c.createStatement();
+            //ST_SetSRID -> transforms Box to Polygon
 
-                ResultSet resultSet = SqlBBox(sql,filterParams,bbox, queryName,geoCol);
+            ResultSet resultSet = SqlBBox(sql,filterParams,bbox, queryName,geoCol);
 
-                if (resultSet.next()) {
-                    String ewkb = resultSet.getString(1);
-                    if (ewkb != null) {
-                        Geometry gm = PGgeometry.geomFromString(ewkb);
-                        if (gm.getSrid() == 0) {
-                            log.warn("SRID is 0, assuming that the format used is 4326! Collection: " + alias);
-                        }
-                        if (gm.getSrid() != 4326) {
-                            log.warn("SRID for collection: " + alias + " is not set to 4326!");
-                        } else {
-                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
-                            if (geo != null) {
-                                double[] bounding = geo.getBbox();
-                                if (bounding != null && withSpatial) {
-                                    fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
-                                }
+            if (resultSet.next()) {
+                String ewkb = resultSet.getString(1);
+                if (ewkb != null) {
+                    Geometry gm = PGgeometry.geomFromString(ewkb);
+                    if (gm.getSrid() == 0) {
+                        log.warn("SRID is 0, assuming that the format used is 4326! Collection: " + alias);
+                    }
+                    if (gm.getSrid() != 4326 && gm.getSrid() != 0) {
+                        log.warn("SRID for collection: " + alias + " is not set to 4326!");
+                    } else {
+                        mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(gm);
+                        if (geo != null) {
+                            double[] bounding = geo.getBbox();
+                            if (bounding != null && withSpatial) {
+                                fs.setBB(DoubleStream.of(bounding).boxed().collect(Collectors.toList()));
                             }
                         }
                     }
                 }
             }
-            return fs;
+        }
+        return fs;
     }
 
 
@@ -637,14 +647,16 @@ public class SQLite implements DBConnector {
         return null;
     }
 
-    public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table) throws SQLException{
+    public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table, int limit ,int offset) throws SQLException{
         ResultSet rs;
         if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
             sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox FROM (" + sql + ") as tabula";
 
-            if(filterParams != null && filterParams.size() > 0) {
+            if(bbox != null || (filterParams != null && filterParams.size() > 0))
                 sql += " where ";
 
+
+            if(filterParams != null && filterParams.size() > 0) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
                     String col = getConfigByAlias(table, entry.getKey());
                     col = col == null ? entry.getKey() : col;
@@ -662,6 +674,16 @@ public class SQLite implements DBConnector {
             PreparedStatement ps = c.prepareStatement(sql);
 
             int counter = 1;
+
+            if(counter == -1){
+                //Should be ALL
+                ps.setInt(counter++,limit);
+            }else{
+                ps.setInt(counter++,limit);
+            }
+
+            ps.setInt(counter++,offset);
+
             if(filterParams != null) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
                     ps.setString(counter, entry.getValue());
@@ -685,60 +707,18 @@ public class SQLite implements DBConnector {
 
     public ResultSet SqlBBox(String sql, Map<String,String> filterParams, double[] bbox, String table, String geoCol) throws SQLException{
         ResultSet rs;
-        if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
-            sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox FROM (" + sql + ") as tabula";
+        sql = "SELECT AsEWKB(Extent("
+                + geoCol
+                + ")) as table_extent FROM ("
+                + sql
+                + ") as tabulana";
+        //Executing sql
+        PreparedStatement ps = c.prepareStatement(sql);
 
-            if(filterParams != null && filterParams.size() > 0) {
-                sql += " where ";
+        ps.setInt(1,0);
+        ps.setInt(2,0);
 
-                for (Map.Entry<String, String> entry : filterParams.entrySet()) {
-                    String col = getConfigByAlias(table, entry.getKey());
-                    col = col == null ? entry.getKey() : col;
-                    sql = sql + col + " = ? and ";
-                }
-            }
-
-            if(bbox != null && geoCol != null) {
-                sql += "Intersects(Envelope(" + geoCol + "),GeomFromEWKB(?))";
-            }else {
-                if(filterParams != null && filterParams.size() > 0)
-                    sql = sql.substring(0, sql.length() - 4);
-            }
-
-            sql = "SELECT AsEWKB(Extent("
-                    + geoCol
-                    + ")) as table_extent FROM ("
-                    + sql
-                    + ") as tabulana";
-
-            PreparedStatement ps = c.prepareStatement(sql);
-
-            int counter = 1;
-            if(filterParams != null) {
-                for (Map.Entry<String, String> entry : filterParams.entrySet()) {
-                    ps.setString(counter, entry.getValue());
-                    counter++;
-                }
-            }
-
-
-            if(bbox != null && geoCol != null) {
-                PGbox2d box = new org.postgis.PGbox2d(new org.postgis.Point(bbox[0], bbox[1]), new org.postgis.Point(bbox[2], bbox[3]));
-                ps.setString(counter, box.toString());
-            }
-
-
-
-            rs = ps.executeQuery();
-        }else {
-            sql = "SELECT AsEWKB(Extent("
-                    + geoCol
-                    + ")) as table_extent FROM ("
-                    + sql
-                    + ") as tabulana";
-            //Executing sql
-            rs = c.createStatement().executeQuery(sql);
-        }
+        rs = ps.executeQuery();
         return rs;
     }
 

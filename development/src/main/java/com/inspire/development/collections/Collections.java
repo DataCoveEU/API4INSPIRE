@@ -1,3 +1,10 @@
+/*
+ * Created on Wed Feb 26 2020
+ *
+ * @author Tobias Pressler
+ *
+ * Copyright (c) 2020 - Tobias Pressler
+ */
 package com.inspire.development.collections;
 
 import java.util.ArrayList;
@@ -17,5 +24,9 @@ public class Collections {
 
     public List<Link> getLinks() {
         return links;
+    }
+
+    public void setCollections(List<FeatureCollection> c){
+        this.collections = c;
     }
 }

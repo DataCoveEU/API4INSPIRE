@@ -1,3 +1,8 @@
+<!--
+    Created on Wed Feb 26 2020
+
+    Copyright (c) 2020 - Lukas Gäbler
+-->
 <app-nav></app-nav>
 <h2 style="text-align: center; margin-top: 1%">OGC API Simple</h2>
 <div class="row card-deck">
@@ -72,7 +77,7 @@
                 <tbody>
                     <tr *ngFor="let thing of collections; let i = index;" class="tableRow">
                         <th scope="row">{{ i+1 }}</th>
-                        <td>{{ thing.id }}</td>
+                        <td>{{ thing?.id }}</td>
                         <td style="text-align: center">
                             <input type="checkbox" (click)="onClick($event)" />
                         </td>
