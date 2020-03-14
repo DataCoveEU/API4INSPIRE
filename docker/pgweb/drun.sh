@@ -1,6 +1,5 @@
 # !/usr/bin/sh
 echo "Docker Run of pgweb"
-cd /home/sdidocker/pgweb
 
 # create the network with: docker network create postgisnet
 docker run --name=pgweb --network=postgisnet -p 8090:8081 sosedoff/pgweb
