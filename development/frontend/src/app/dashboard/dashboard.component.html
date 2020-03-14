@@ -79,7 +79,10 @@
                 <tbody *ngIf="showCols">
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                         <th scope="row">{{ i+1 }}</th>
-                        <td>{{ colname }}  <i class="material-icons">vpn_key</i></td>
+                        <td>{{ colname }} 
+                            <i class="material-icons" *ngIf="availableAsIdColumn.includes(colname)" [ngClass]="{'notUsed' : colname != idColumn}">vpn_key</i>
+                            <i class="material-icons" *ngIf="availableAsGeoColumn.includes(colname)" [ngClass]="{'notUsed' : colname != geoColumn}">public</i>
+                        </td>
                         <td style="text-align: center">
                             <input class="excludeColumn" id="{{ 'checkbox-' + colname }}" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
                         </td>

@@ -265,6 +265,7 @@ export class DashboardComponent implements OnInit {
     } else {
       this.canBeUsedAsIdColumn = false;
     }
+   
 
     // If a "columnname row" is already selected
     // it has to be deselected
@@ -282,6 +283,11 @@ export class DashboardComponent implements OnInit {
     this.showRenameCol = true;
     this.idColumnSelected = name;
     this.columnSelected = true;
+
+    console.log(name);
+    console.log(this.idColumn);
+    console.log(name == this.idColumn);
+    console.log(this.idColumnSelected);
   }
 
   /**
@@ -596,6 +602,8 @@ export class DashboardComponent implements OnInit {
         er.style.marginTop = "2%";
         er.innerHTML = this.messages(true, "Not selected as ID column", "ERROR");
     });
+    alert(this.idColumn == this.idColumnSelected)
+    console.log(this.idColumn == this.idColumnSelected);
   }
 
   /**
