@@ -66,7 +66,7 @@
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
                                 <label style="width: 100%">
-                                    Connection name
+                                    Connectorname
                                     <input type="text" formControlName="conName" class="form-control shadow-sm" placeholder="Connectorname" />
                                     <div *ngIf="connectorNameSubmitted && connectorNameForm.controls.conName.errors" class="error">
                                         <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>
@@ -101,7 +101,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Password
-                                    <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" placeholder="New password" />
+                                    <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" placeholder="Password" />
                                     <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.newPwd.errors" class="error">
                                         <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
                                     </div>
@@ -136,7 +136,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Port number
-                                    <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port" />
+                                    <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port number" />
                                     <div *ngIf="changePortSubmitted && changePortForm.controls.newPort.errors" class="error">
                                         <div *ngIf="changePortForm.controls.newPort.errors.required">A port is required</div>
                                     </div>
