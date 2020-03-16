@@ -1918,3 +1918,8 @@ ALTER TABLE tna.insp_fieldelevation ADD CONSTRAINT fieldelev_2_ad FOREIGN KEY (a
 ALTER TABLE tna.insp_runwayarea ADD CONSTRAINT rwy_2_ad FOREIGN KEY (airport_locind) REFERENCES tna.insp_aerodromenode (codeicao);
 ALTER TABLE tna.insp_runwayarea ADD CONSTRAINT rwy_2_rwy_condition FOREIGN KEY (condition) REFERENCES tna.insp_conditionofairfacility (condition);
 COMMIT;
+
+/* add a second geometry column to insp_airspacearea for testing purpose only*/
+SELECT AddGeometryColumn ('tna','insp_airspacearea','pt_on_surface',0,'POINT',2);
+UPDATE tna.insp_airspacearea SET pt_on_surface = ST_PointOnSurface(geom);
+COMMIT;
