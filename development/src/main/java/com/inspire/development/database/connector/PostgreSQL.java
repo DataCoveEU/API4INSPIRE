@@ -586,6 +586,9 @@ public class PostgreSQL implements DBConnector {
                     }
                     String col = md.getColumnName(x);
                     Object o = rs.getObject(x);
+                    if(o instanceof PGgeometry){
+                        o = o.toString();
+                    }
                     if (fk.containsKey(colName)) o = "ogc_fk;" + fk.get(colName) + ";" + o;
                     if (tc != null) {
                         ColumnConfig columnConfig = tc.getMap().get(col);
