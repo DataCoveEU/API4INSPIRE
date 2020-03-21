@@ -675,13 +675,16 @@ public class PostgreSQL implements DBConnector {
                 if (filterParams != null && filterParams.size() > 0)
                     sql = sql.substring(0, sql.length() - 4);
             }
+
+            if(limit == -1){
+                sql = sql.replace("LIMIT ?","");
+            }
+
             PreparedStatement ps = c.prepareStatement(sql);
             int counter = 1;
 
-            if (counter == -1) {
+            if (limit != -1) {
                 //Should be ALL
-                ps.setInt(counter++, limit);
-            } else {
                 ps.setInt(counter++, limit);
             }
 
