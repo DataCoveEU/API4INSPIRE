@@ -29,14 +29,14 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option *ngFor="let connector of this.connectors" [attr.id]=connector.class>{{ connector.id }}</option>
+                        <option *ngFor="let connector of this.connectors; let i = index" [attr.value]=i [attr.id]=connector.class>{{ connector.id }}</option>
                     </select>
                 </div>
                 <div class="col-sm-6">
                     <button class="btn btn-success shadow-sm" style="width: 100%;" (click)="testConnection()">Test connection</button>
                     <br />
                     <br />
-                    <button class="btn btn-danger" id="delDb" style="width: 100%;" (click)="delConnector()">Delete DB connector</button>
+                    <button *ngIf="this.postgres" class="btn btn-danger" id="delDb" style="width: 100%;" (click)="delConnector()">Delete DB connector</button>
                 </div>
             </div>
 
@@ -49,7 +49,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Connector name
-                                    <input type="text" formControlName="conName" class="form-control" placeholder="Connector name" />
+                                    <input type="text" formControlName="conName" class="form-control" [attr.placeholder]=this.selectedConnector.id />
                                     <div *ngIf="sqlConnectorNameSub && sqlConnectorNameForm.controls.conName.errors" class="error">
                                         <div *ngIf="sqlConnectorNameForm.controls.conName.errors.required">A connector name is required</div>
                                     </div>
@@ -67,7 +67,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Connectorname
-                                    <input type="text" formControlName="conName" class="form-control shadow-sm" placeholder="Connectorname" />
+                                    <input type="text" formControlName="conName" class="form-control shadow-sm" [attr.placeholder]=this.selectedConnector.id />
                                     <div *ngIf="connectorNameSubmitted && connectorNameForm.controls.conName.errors" class="error">
                                         <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>
                                     </div>
@@ -84,7 +84,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Username
-                                    <input type="text" formControlName="newName" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Username" />
+                                    <input type="text" formControlName="newName" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.username />
                                     <div *ngIf="changeUserSubmitted && changeUsernameForm.controls.newName.errors" class="error">
                                         <div *ngIf="changeUsernameForm.controls.newName.errors.required">A username is required</div>
                                     </div>
@@ -101,7 +101,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Password
-                                    <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" placeholder="Password" />
+                                    <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" [attr.placeholder]=this.selectedConnector.password />
                                     <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.newPwd.errors" class="error">
                                         <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
                                     </div>
@@ -119,7 +119,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Hostname
-                                    <input type="text" formControlName="hostname" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Hostname" />
+                                    <input type="text" formControlName="hostname" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.hostname />
                                     <div *ngIf="changeHostnameSubmitted && changeHostnameForm.controls.hostname.errors" class="error">
                                         <div *ngIf="changeHostnameForm.controls.hostname.errors.required">A hostname is required</div>
                                     </div>
@@ -136,7 +136,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Port number
-                                    <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Port number" />
+                                    <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.port />
                                     <div *ngIf="changePortSubmitted && changePortForm.controls.newPort.errors" class="error">
                                         <div *ngIf="changePortForm.controls.newPort.errors.required">A port is required</div>
                                     </div>
@@ -152,7 +152,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Schema
-                                    <input type="text" formControlName="newSchema" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Schema" />
+                                    <input type="text" formControlName="newSchema" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.schema />
                                     <div *ngIf="changeSchmemaSubmitted && changeSchemaForm.controls.newSchema.errors" class="error">
                                         <div *ngIf="changeSchemaForm.controls.newSchema.errors.required">A schema is required</div>
                                     </div>
@@ -168,7 +168,7 @@
                             <div class="col-sm-6">
                                 <label style="width: 100%">
                                     Database
-                                    <input type="text" formControlName="name" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" placeholder="Database" />
+                                    <input type="text" formControlName="name" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.database />
                                     <div *ngIf="changeDatabaseSubmitted && changeDatabaseForm.controls.name.errors" class="error">
                                         <div *ngIf="changeDatabaseForm.controls.name.errors.required">A database is required</div>
                                     </div>

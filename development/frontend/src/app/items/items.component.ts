@@ -31,6 +31,14 @@ export class ItemsComponent implements OnInit {
   collection: string = "";
   items: any = [];
 
+  next: string = "";
+  previous: string = "";
+
+  nextAv: boolean = true;
+  prevAv: boolean = true;
+
+  jsonLink: string = "";
+
   constructor(private router: ActivatedRoute, private httpClient: HttpClient) { }
 
   async ngOnInit() {
@@ -39,16 +47,32 @@ export class ItemsComponent implements OnInit {
       this.collection = query.collection;
     });
     // load all the items
-    this.items = await this.getItems();
-    console.log(this.items);
+    this.items = await this.getItems("collections/" + this.collection + "/items");
+
+    if(!this.containsLink("next")) {
+      this.nextAv = false;
+    } else {
+      this.nextAv = true;
+    }
+    if(!this.containsLink("prev")) {
+      this.prevAv = false;
+    } else {
+      this.prevAv = true;
+    }
+
+    this.next = this.getLink("next");
+    this.previous = this.getLink("prev");
+    this.jsonLink = this.getLink("self");
+    
+    this.parseSelf();  
   }
 
   /**
    * Load the items using the OGC Simple API
    */
-  getItems() {
+  getItems(path: string) {
     return new Promise((resolve, reject)=>{
-      this.httpClient.get("collections/" + this.collection + "/items")
+      this.httpClient.get(path)
       .subscribe((res)=>{
         resolve(res);
       }, (err)=>{
@@ -57,4 +81,70 @@ export class ItemsComponent implements OnInit {
     })
   }
 
+
+  async nextPage() {
+      this.items = await this.getItems(this.next);
+    if(!this.containsLink("next")) {
+      this.nextAv = false;
+    } else {
+      this.nextAv = true;
+    }
+    if(!this.containsLink("prev")) {
+      this.prevAv = false;
+    } else {
+      this.prevAv = true;
+    }
+      
+
+    this.next = this.getLink("next");
+    this.previous = this.getLink("prev");
+    this.jsonLink = this.getLink("self");
+    this.parseSelf();
+
+  }
+
+  async previousPage() {
+    this.items = await this.getItems(this.previous);
+      
+    if(!this.containsLink("next")) {
+      this.nextAv = false;
+    } else {
+      this.nextAv = true;
+    }
+    if(!this.containsLink("prev")) {
+      this.prevAv = false;
+    } else {
+      this.prevAv = true;
+    }  
+    
+    this.next = this.getLink("next");
+    this.previous = this.getLink("prev");
+    this.jsonLink = this.getLink("self");
+    this.parseSelf();
+  }
+
+  containsLink(kind: string):boolean {
+    for(let i = 0; i < this.items.links.length; i++) {
+      if(this.items.links[i].rel == kind) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getLink(kind: string):string {
+    for(let i = 0; i < this.items.links.length; i++) {
+      if(this.items.links[i].rel == kind) {
+        return this.items.links[i].href;
+      }
+    }
+    return "";
+  }
+  
+
+  parseSelf() {
+    var show = document.getElementById("disp");
+    var str = this.jsonLink.split("=");
+    show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2])+10)
+  }
 }

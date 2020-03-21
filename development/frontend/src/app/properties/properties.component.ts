@@ -57,12 +57,13 @@ export class PropertiesComponent implements OnInit {
   sqlConnectorNameForm: FormGroup;
   sqlConnectorNameSub: boolean = false
 
+  index: any = -1;
 
   selectedConnector: any;
 
   connectors: any = [{"id":"No connectors are currently available"}];
 
-  constructor(private con: ConnectorService, private formBuilder: FormBuilder, private conService: ConnectorService) { }
+  constructor(private con: ConnectorService, private formBuilder: FormBuilder) { }
 
   async ngOnInit() {
     //init all the forms
@@ -102,26 +103,31 @@ export class PropertiesComponent implements OnInit {
     //Load all connectors
     this.connectors = await this.con.getConnector();    
 
+    if(this.connectors.length == 0){
+      this.connectors = [{id: "No Connectors"}];
+    }
+
     var sel = document.getElementById('connector') as HTMLSelectElement;
     this.selectedConnector = this.connectors[0];
     
-    var index = sel.selectedIndex;
-    index == -1 ? index = 0 : index = index
+    this.index = sel.selectedIndex;
+    this.index == -1 ? this.index = 0 : this.index = this.index
 
     //Differentiate between sqlite and postgres
-    if(this.connectors[index].class.includes("PostreSQL")) {
+    if(this.connectors[this.index].class.includes("PostgreSQL")) {
       this.postgres = true;
       this.sqlite = false;
-    } else if(this.connectors[index].class.includes("SQLite")) {
+    } else if(this.connectors[this.index].class.includes("SQLite")) {
       this.sqlite = true;
       this.postgres = false;
-    } 
-
+    }
 
     //Change the form depending on what connector it is
     sel.onchange = (event: any)=>{
       var cal = event.target.options[event.target.selectedIndex].getAttribute('id');
+      
       this.selectedConnector = this.connectors[sel.selectedIndex];
+      this.index = sel.selectedIndex;
 
       if(cal.includes("PostgreSQL")) {
         this.sqlite = false;
@@ -147,6 +153,7 @@ export class PropertiesComponent implements OnInit {
       'username': this.changeUsernameForm.value.newName
     };
 
+    alert("Not implemented in the backend yet!!!");
   }
 
   /**
@@ -164,8 +171,14 @@ export class PropertiesComponent implements OnInit {
       'username': this.changeUsernameForm.value.newName
     };
 
-
-    this.conService.changeConnectorProps(json);
+    var er = document.getElementById("infoField");
+    this.con.changeConnectorProps(json).then(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Usernamed changed", "INFORMATION");
+    }).catch((err)=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Usernamed not changed", "ERROR");
+    });
   }
 
   /**
@@ -182,7 +195,15 @@ export class PropertiesComponent implements OnInit {
       'id': this.selectedConnector.id,
       'password': this.changePasswordForm.value.newPwd
     };
-    this.conService.changeConnectorProps(json);
+
+    var er = document.getElementById("infoField");
+    this.con.changeConnectorProps(json).then(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Password changed", "INFORMATION");
+    }).catch((err)=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Password not changed", "ERROR");
+    });
   }
 
   /**
@@ -199,7 +220,15 @@ export class PropertiesComponent implements OnInit {
       'id': this.selectedConnector.id,
       'hostname': this.changeHostnameForm.value.hostname,
     };
-    this.conService.changeConnectorProps(json);
+
+    var er = document.getElementById("infoField");
+    this.con.changeConnectorProps(json).then(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Hostname changed", "INFORMATION");
+    }).catch((err)=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Hostname not changed", "ERROR");
+    });
   }
 
   /**
@@ -210,12 +239,20 @@ export class PropertiesComponent implements OnInit {
     if(this.changePortForm.invalid) {
       return;
     }
+
+    var er = document.getElementById("infoField");
     var json = {
       'class': "postgres",
       'id': this.selectedConnector.id,
       'port': this.changePortForm.value.newPort
     };
-    this.conService.changeConnectorProps(json);
+    this.con.changeConnectorProps(json).then(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Port changed", "INFORMATION");
+    }).catch((err)=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Port not changed", "ERROR");
+    });
   }
 
   /**
@@ -232,7 +269,15 @@ export class PropertiesComponent implements OnInit {
       'id': this.selectedConnector.id,
       'schema': this.changeSchemaForm.value.newSchema
     };
-    this.conService.changeConnectorProps(json);
+
+    var er = document.getElementById("infoField");
+    this.con.changeConnectorProps(json).then(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Schema changed", "INFORMATION");
+    }).catch(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Schema not changed", "ERROR");
+    });
   }
 
   /**
@@ -249,15 +294,23 @@ export class PropertiesComponent implements OnInit {
       'id': this.selectedConnector.id,
       'database': this.changeDatabaseForm.value.name
     };
-    this.conService.changeConnectorProps(json);
+
+    var er = document.getElementById("infoField");
+    this.con.changeConnectorProps(json).then(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Database changed", "INFORMATION");
+    }).catch(()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Database not changed", "ERROR");
+    });
   }
 
   /**
    * Remove a connector
    */
-  delConnector() {
+  async delConnector() {
     var er = document.getElementById("infoField");
-    this.conService.deleteConnector({'id': this.selectedConnector.id}).then(()=>{
+    this.con.deleteConnector({'id': this.selectedConnector.id}).then(()=>{
       //Show infor message
       er.style.marginTop = "2%";
           er.innerHTML = this.messages(false, "Connection deleted", "INFORMATION");
@@ -267,12 +320,16 @@ export class PropertiesComponent implements OnInit {
       er.innerHTML = this.messages(true, "Connection not deleted", "ERROR");
     });
 
+    this.reloadData()
+
+  
+
   }
 
   /**
    * Change sqlite connection name
    */
-  sqLiteConnectorName() {
+  async sqLiteConnectorName() {
     this.sqlConnectorNameSub = true;
     if(this.sqlConnectorNameForm.invalid) {
       return;
@@ -283,7 +340,18 @@ export class PropertiesComponent implements OnInit {
       'orgid': this.selectedConnector.id,
       'id': this.sqlConnectorNameForm.value.conName
     };
-    this.conService.changeConnectorProps(json);
+
+    var er = document.getElementById("infoField");
+    this.con.changeConnectorProps(json).then(async ()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Connector renamed", "INFORMATION")
+      await this.reloadData();
+
+    }).catch((err)=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Connector not renamed", "ERROR");
+      console.log(err);
+    });
   }
 
   /**
@@ -295,7 +363,7 @@ export class PropertiesComponent implements OnInit {
     };
     var er = document.getElementById("infoField");
 
-    this.conService.checkConnection(json).then(()=>{
+    this.con.checkConnection(json).then(()=>{
       //Return info message
       er.style.marginTop = "2%";
           er.innerHTML = this.messages(false, "Test was successfull", "INFORMATION");
@@ -326,6 +394,35 @@ export class PropertiesComponent implements OnInit {
               </div>`;
     }
     return erg;
+  }
+
+  async reloadData() {
+      this.connectors = await this.con.getConnector();
+   
+      this.index = 0;
+      var sel = document.getElementById('connector') as HTMLSelectElement;
+      sel.value = this.index;
+
+     this.selectedConnector = this.connectors[0];
+      var cal = this.connectors[0].class;
+      if(cal.includes("PostgreSQL")) {
+        this.sqlite = false;
+        this.postgres = true;
+      } else if(cal.includes("SQLite")) {
+        this.sqlite = true;
+        this.postgres = false;
+      }
+  }
+
+  async reloadWithOutChange() {
+    var indx = this.index;
+    this.connectors = await this.con.getConnector();
+    this.selectedConnector = this.connectors[indx];
+
+    if(this.connectors.length == 0) {
+      this.sqlite = false;
+      this.postgres = false;
+    }
   }
 
 }
