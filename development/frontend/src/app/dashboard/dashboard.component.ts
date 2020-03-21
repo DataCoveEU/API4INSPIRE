@@ -665,10 +665,35 @@ export class DashboardComponent implements OnInit {
     }
     var er = document.getElementById("infoField");
     this.geoColumn = this.idColumnSelected;
-    this.featureService.setAsGeometry(json).then(()=>{
+    this.featureService.setAsGeometry(json).then(async()=>{
       //Show info message if the service call was successfull
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION");
+
+      if(setTo) {
+        //is no more geo col
+        er.style.marginTop = "2%";
+        er.innerHTML = this.messages(false, `${this.idColumnSelected} is no more the GEO column`, "INFORMATION")
+        this.geoColumn = "";
+
+
+        var indx = this.indexSelectedConnector;
+        await this.reloadWithOutChange();
+        var select = document.getElementById("selectField") as HTMLSelectElement;
+        select.value = indx;
+        this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+      } else {
+        //is now geo col
+         er.style.marginTop = "2%";
+         er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION") 
+ 
+         var indx = this.indexSelectedConnector;
+         await this.reloadWithOutChange();
+         var select = document.getElementById("selectField") as HTMLSelectElement;
+         select.value = indx;
+         this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+      }
+
     }).catch(()=>{
       //Show an error message if the call wasnt successfull
         er.style.marginTop = "2%";
