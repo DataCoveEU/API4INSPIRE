@@ -11,9 +11,7 @@ Basic viewer specification was as follows (Keep in mind, this was a last minute 
 * Get Numbers & Graphs 
 * GO!!!
 
-In the 4 hours required to put some meteorological data online, Tomas did the viewer (it's been polished a bit since, but not much), not bad for a Sunday morning. The only change we did for the current Ad-hoc Austrian Air-Quality API Viewer is to modify the SensorThings API endpoint:
-
-**[Ad-hoc Austrian Air-Quality API Viewer](http://service.datacove.eu/AT_AIR/)**
+In the 4 hours required to put some meteorological data online, Tomas did the viewer (it's been polished a bit since, but not much), not bad for a Sunday morning. The only change we did for the current Ad-hoc Austrian Air-Quality API Viewer is to modify the SensorThings API endpoint: **[Ad-hoc Austrian Air-Quality API Viewer](http://service.datacove.eu/AT_AIR/)**
 
 Now for the geeky details. The following files comprise the viewer:
 
