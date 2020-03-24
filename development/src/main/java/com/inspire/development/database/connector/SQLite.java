@@ -631,12 +631,17 @@ public class SQLite implements DBConnector {
         ArrayList<String> names = new ArrayList<>();
         log.debug("Get PrimaryKey for the table: " + table);
         try {
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rs = md.getPrimaryKeys(null, null, table);
-            if (rs.next()) {
-                names.add(rs.getString(4).toUpperCase());
-            } else {
-                return null;
+            DatabaseMetaData dm = c.getMetaData();
+            ResultSet rs = dm.getIndexInfo(null, null, table, true, true);
+            while(rs.next()) {
+                names.add(rs.getString("column_name"));
+            }
+            if(names.size() == 0) {
+                DatabaseMetaData md = c.getMetaData();
+                ResultSet rs1 = md.getPrimaryKeys(null, null, table);
+                while (rs1.next()) {
+                    names.add(rs1.getString(4).toUpperCase());
+                }
             }
         } catch (SQLException e) {
             return null;

@@ -972,10 +972,18 @@ public class PostgreSQL implements DBConnector {
         ArrayList<String> names = new ArrayList<>();
         log.debug("Get PrimaryKey for the table: " + table);
         try {
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rs = md.getPrimaryKeys(null, schema, table);
-            while (rs.next()) {
-                names.add(rs.getString(4).toLowerCase());
+            DatabaseMetaData dm = c.getMetaData();
+            ResultSet rs = dm.getIndexInfo(null, schema, table, true, true);
+            while(rs.next()) {
+                names.add(rs.getString("column_name"));
+            }
+            if(names.size() == 0){
+                //Fallback
+                DatabaseMetaData md = c.getMetaData();
+                ResultSet rs1 = md.getPrimaryKeys(null, schema, table);
+                while (rs1.next()) {
+                    names.add(rs1.getString(4).toLowerCase());
+                }
             }
         } catch (SQLException e) {
             return null;
