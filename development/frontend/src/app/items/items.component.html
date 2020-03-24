@@ -19,9 +19,20 @@
 <app-nav></app-nav>
 
 <div style="margin: 2%">
+    <div class="row">
+        <div class="col-sm-2">
+            <button class="btn btn-primary" (click)="previousPage()" [disabled]="prevAv == false">Previous</button>
+        </div>
+        <div class="col-sm-2" id="disp"></div>
+        <div class="col-sm-2">
+            <button class="btn btn-primary" (click)="nextPage()" [disabled]="nextAv == false">Next</button>
+        </div>
+        <div class="col-sm-6"></div>
+    </div>
     <h3>Items</h3>
     <ul>
-        <li><a href="collections/{{ this.collection }}/items">This document as JSON</a></li>
+        <li><a href="collections?f=text%2Fhtml">Collections HTML page</a></li>
+        <li><a href="{{ this.jsonLink }}">This document as JSON</a></li>
     </ul>
     <div>
         <h5>{{ this.collection }}</h5>
