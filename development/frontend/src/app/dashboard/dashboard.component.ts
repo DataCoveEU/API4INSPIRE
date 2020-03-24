@@ -258,6 +258,11 @@ export class DashboardComponent implements OnInit {
       this.idColumn = this.selectedConnector.config[name].idCol
     }
     this.allColumnsExcluded = this.checkIfAllColumnExcluded();
+
+    if(this.selectedConnector.sqlString[this.idTableSelected] != null) {
+      this.canBeUsedAsGeoColumn = true;
+      this.canBeUsedAsIdColumn = true;
+    }
   }
 
   /**
@@ -295,6 +300,11 @@ export class DashboardComponent implements OnInit {
     this.showRenameCol = true;
     this.idColumnSelected = name;
     this.columnSelected = true;
+
+    if(this.selectedConnector.sqlString[this.idTableSelected] != null) {
+      this.canBeUsedAsGeoColumn = true;
+      this.canBeUsedAsIdColumn = true;
+    }
   }
 
   /**
