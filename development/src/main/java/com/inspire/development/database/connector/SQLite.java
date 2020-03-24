@@ -510,26 +510,34 @@ public class SQLite implements DBConnector {
                             log.debug("ID set");
                         } else {
                             if (colName.equals("ogc_bbox")) {
-                                String ewkb = rs.getString(x);
-                                if (ewkb != null) {
-                                    Geometry geom = PGgeometry.geomFromString(ewkb);
-                                    if (geom != null) {
-                                        org.postgis.Point fp = geom.getFirstPoint();
-                                        org.postgis.Point lp = geom.getLastPoint();
-                                        f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
-                                    }
-                                }
-                            } else {
-                                if (colName.equals("ogc_ewkb")) {
+                                ColumnConfig columnConfig = tc.getMap().get(geoCol);
+                                //Check if column is excluded
+                                if(columnConfig == null || (columnConfig != null && !columnConfig.isExclude())) {
                                     String ewkb = rs.getString(x);
-                                    if (ewkb != null) {
-                                        Geometry geom = PGgeometry.geomFromString(ewkb);
-                                        if (geom != null) {
-                                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom);
-                                            if (geo != null) {
-                                                f.setGeometry(geo);
+                                        if (ewkb != null) {
+                                            Geometry geom = PGgeometry.geomFromString(ewkb);
+                                            if (geom != null) {
+                                                org.postgis.Point fp = geom.getFirstPoint();
+                                                org.postgis.Point lp = geom.getLastPoint();
+                                                f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
                                             }
                                         }
+                                    }
+                                } else {
+                                    if (colName.equals("ogc_ewkb")) {
+                                        ColumnConfig columnConfig = tc.getMap().get(geoCol);
+                                        //Check if column is excluded
+                                        if(columnConfig == null || (columnConfig != null && !columnConfig.isExclude())) {
+                                            String ewkb = rs.getString(x);
+                                            if (ewkb != null) {
+                                                Geometry geom = PGgeometry.geomFromString(ewkb);
+                                                if (geom != null) {
+                                                    mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom);
+                                                    if (geo != null) {
+                                                        f.setGeometry(geo);
+                                                    }
+                                                }
+                                            }
                                     }
                                 } else {
                                     //Normal Feature

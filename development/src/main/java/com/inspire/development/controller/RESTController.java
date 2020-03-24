@@ -502,6 +502,9 @@ public class RESTController {
                         boolean check = (Boolean) input.get("check");
                         try {
                             FeatureCollection fc = db.execute(sql, collectionName, check);
+                            if(fc == null){
+                                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                            }
                             core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                             return new ResponseEntity<>(fc, HttpStatus.OK);
                         } catch (Exception e) {

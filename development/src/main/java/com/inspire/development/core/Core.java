@@ -33,7 +33,6 @@ import com.inspire.development.database.connector.SQLite;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.*;
 
 import mil.nga.sf.geojson.Feature;
@@ -82,7 +81,7 @@ public class Core {
 
             @Override
             public void onFileDelete(File file) {
-                deleteByPath(file.getName());
+                deleteByPath(file.getPath());
                 writeConfig(config.getConfigPath(), config.getConnectionPath());
             }
         });
