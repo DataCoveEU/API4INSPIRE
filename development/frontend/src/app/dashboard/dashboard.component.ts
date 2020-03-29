@@ -25,6 +25,7 @@ import { ConnectorService } from '../connector.service';
 import { SqlService } from '../sql.service';
 import { FeatureService } from '../feature.service';
 import { HomeService } from '../home.service';
+import { async } from '@angular/core/testing';
 
 @Component({
   selector: 'app-dashboard',
@@ -156,6 +157,10 @@ export class DashboardComponent implements OnInit {
       this.selectedConnector = this.connectors[select.selectedIndex];
       this.indexSelectedConnector = select.selectedIndex;
 
+      var indx = this.indexSelectedConnector;
+      await this.reloadWithOutChange();
+      select.value = indx;
+
       this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
       var change = document.getElementById(this.idTableSelected);
       if(change != null) {
@@ -171,7 +176,7 @@ export class DashboardComponent implements OnInit {
       this.showRenameCol = false;
       this.showRenameTable = false;
 
-      this.allTablesExcluded = this.areAllTableExcludedCheckbox();
+      this.allTablesExcluded = this.areAllTablesExcluded();
     }
 
     //Check if all the tables are excluded
@@ -231,21 +236,33 @@ export class DashboardComponent implements OnInit {
     this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
     this.availableAsGeoColumn = await this.conService.getGeoColumns({'id': this.selectedConnector.id, 'table':''+name});
     this.availableAsIdColumn = await this.conService.getIdColumns({'id': this.selectedConnector.id, 'table':''+name});
-
+      
+    
     if(this.selectedConnector.config[name] == undefined) {
-
+      console.log("Connector for this table is undefined")
+      this.geoColumn = "";
     } else if(this.selectedConnector.config[name].geoCol == undefined) {
-
+      console.log("There is no geo column for this table yet")
+      this.geoColumn = "";
     } else {
       this.geoColumn = this.selectedConnector.config[name].geoCol
     }
 
     if(this.selectedConnector.config[name] == undefined) {
-
+      console.log("Connector for this table is undefined")
+      this.idColumn = "";
     } else if(this.selectedConnector.config[name].idCol == undefined) {
+      console.log("There is no id column for this table yet")
+      this.idColumn = "";
+    } else {
       this.idColumn = this.selectedConnector.config[name].idCol
     }
     this.allColumnsExcluded = this.checkIfAllColumnExcluded();
+
+    if(this.selectedConnector.sqlString[this.idTableSelected] != null) {
+      this.canBeUsedAsGeoColumn = true;
+      this.canBeUsedAsIdColumn = true;
+    }
   }
 
   /**
@@ -284,10 +301,10 @@ export class DashboardComponent implements OnInit {
     this.idColumnSelected = name;
     this.columnSelected = true;
 
-    console.log(name);
-    console.log(this.idColumn);
-    console.log(name == this.idColumn);
-    console.log(this.idColumnSelected);
+    if(this.selectedConnector.sqlString[this.idTableSelected] != null) {
+      this.canBeUsedAsGeoColumn = true;
+      this.canBeUsedAsIdColumn = true;
+    }
   }
 
   /**
@@ -523,6 +540,11 @@ export class DashboardComponent implements OnInit {
     await this.conService.excludeTable(json);
     //Check if all the tables are excluded
     this.allTablesExcluded = this.areAllTableExcludedCheckbox();
+
+    var indx = this.indexSelectedConnector;
+    await this.reloadWithOutChange();
+    var select = document.getElementById("selectField") as HTMLSelectElement;
+    select.value = indx;
   }
 
   /**
@@ -591,19 +613,38 @@ export class DashboardComponent implements OnInit {
       }
     }
 
-    this.idColumn = this.idColumnSelected;
     var er = document.getElementById("infoField");
-    this.featureService.setAsId(json).then(()=>{
-      //Show info message
-      er.style.marginTop = "2%";
-      er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the ID column`, "INFORMATION");
+    this.featureService.setAsId(json).then(async()=>{
+      if(setTo) {
+        //Show info message
+        er.style.marginTop = "2%";
+        er.innerHTML = this.messages(false, `${this.idColumnSelected} is no more the ID column`, "INFORMATION")
+        this.idColumn = "";
+
+        var indx = this.indexSelectedConnector;
+        await this.reloadWithOutChange();
+        var select = document.getElementById("selectField") as HTMLSelectElement;
+        select.value = indx;
+        this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+      } else {
+        //Show info message
+        er.style.marginTop = "2%";
+        er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the ID column`, "INFORMATION")
+        this.idColumn = this.idColumnSelected;
+
+        var indx = this.indexSelectedConnector;
+        await this.reloadWithOutChange();
+        var select = document.getElementById("selectField") as HTMLSelectElement;
+        select.value = indx;
+        this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+      }
+      ;
       }).catch((err)=>{
         //Show error message
         er.style.marginTop = "2%";
         er.innerHTML = this.messages(true, "Not selected as ID column", "ERROR");
     });
-    alert(this.idColumn == this.idColumnSelected)
-    console.log(this.idColumn == this.idColumnSelected);
+    
   }
 
   /**
@@ -634,10 +675,35 @@ export class DashboardComponent implements OnInit {
     }
     var er = document.getElementById("infoField");
     this.geoColumn = this.idColumnSelected;
-    this.featureService.setAsGeometry(json).then(()=>{
+    this.featureService.setAsGeometry(json).then(async()=>{
       //Show info message if the service call was successfull
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION");
+
+      if(setTo) {
+        //is no more geo col
+        er.style.marginTop = "2%";
+        er.innerHTML = this.messages(false, `${this.idColumnSelected} is no more the GEO column`, "INFORMATION")
+        this.geoColumn = "";
+
+
+        var indx = this.indexSelectedConnector;
+        await this.reloadWithOutChange();
+        var select = document.getElementById("selectField") as HTMLSelectElement;
+        select.value = indx;
+        this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+      } else {
+        //is now geo col
+         er.style.marginTop = "2%";
+         er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION") 
+ 
+         var indx = this.indexSelectedConnector;
+         await this.reloadWithOutChange();
+         var select = document.getElementById("selectField") as HTMLSelectElement;
+         select.value = indx;
+         this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
+      }
+
     }).catch(()=>{
       //Show an error message if the call wasnt successfull
         er.style.marginTop = "2%";
@@ -751,12 +817,25 @@ export class DashboardComponent implements OnInit {
   areAllTableExcludedCheckbox(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
       var check = document.getElementById("checkbox-" + this.tableNames[i]) as HTMLInputElement;
+      console.log("checkbox-" + this.tableNames[i]);
+      console.log(check);
       if(check.checked == false) {
         return false;
       }
     }
     return true;
   }
+
+  areAllTablesExcluded(): boolean {
+    for(let i = 0; i < this.tableNames.length; i++) {
+        if(this.selectedConnector.config[this.tableNames[i]].exclude == false) {
+          return false
+        }
+    }
+
+    return true;
+  }
+
 
   /**
    * Check if all the columns are excluded by checking the config

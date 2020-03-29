@@ -80,8 +80,8 @@
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ colname }} 
-                            <i class="material-icons" *ngIf="availableAsIdColumn.includes(colname)" [ngClass]="{'notUsed' : colname != idColumn}">vpn_key</i>
-                            <i class="material-icons" *ngIf="availableAsGeoColumn.includes(colname)" [ngClass]="{'notUsed' : colname != geoColumn}">public</i>
+                            <i class="material-icons" *ngIf="availableAsIdColumn.includes(colname)" [ngClass]="{'used' : colname == idColumn, 'notUsed': colname != idColumn}">vpn_key</i>
+                            <i class="material-icons" *ngIf="availableAsGeoColumn.includes(colname)" [ngClass]="{'used' : colname == geoColumn, 'notUsed': colname != geoColumn}">public</i>
                         </td>
                         <td style="text-align: center">
                             <input class="excludeColumn" id="{{ 'checkbox-' + colname }}" type="checkbox" [checked]="this.selectedConnector?.config[this.idTableSelected]?.map[colname]?.exclude" (click)="excludeColumn(colname)">
@@ -133,14 +133,16 @@
                         <input type="checkbox" value="" (click)="useAsGeometry()" id="useAsGeometry" />&emsp;Use as geometry
                     </label>
                 </div>
+
                 <div class="checkbox" *ngIf="canBeUsedAsIdColumn">
                     <label *ngIf="this.idColumn == this.idColumnSelected">
-                        <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
+                        <input type="checkbox" value="" (click)="useAsId()" id="useAsId" checked />&emsp;Use as id
                     </label>
                     <label *ngIf="this.idColumn != this.idColumnSelected">
                         <input type="checkbox" value="" (click)="useAsId()" id="useAsId" />&emsp;Use as id
                     </label>
                 </div>
+
                 <button type="submit" class="btn btn-success" (click)="submitColumn()">Assign name</button>
             </form>
         </div>

@@ -67,6 +67,9 @@ class ConformanceDeclaration {
 
 @RestController
 public class RESTController {
+
+    private String hostEnv;
+
     @Value("classpath:openapi.json")
     Resource resourceFile;
     @Value("classpath:index.html")
@@ -76,6 +79,7 @@ public class RESTController {
 
     public RESTController() {
         core = new Core();
+        hostEnv = System.getenv("HOST_OGCAPISIMPLE");
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/openapi.json")
@@ -115,7 +119,8 @@ public class RESTController {
 
     @GetMapping("/collections")
     public Object Collections(@RequestHeader("Accept") String content,
-                              @RequestHeader(name = "Host", required = false) final String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
+                              @RequestHeader(name = "Host", required = false) String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
+        host = hostEnv != null ? hostEnv : host;
         if (f.equals("application/json")) {
             Collections c = new Collections(Arrays.asList(core.getAll()));
             c.setCollections(c.getCollections().stream().collect(Collectors.toList()));
@@ -184,7 +189,8 @@ public class RESTController {
      */
     @GetMapping("/collections/{collectionId}")
     public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id,
-                                                 @RequestHeader(name = "Host", required = false) final String host) {
+                                                 @RequestHeader(name = "Host", required = false) String host) {
+        host = hostEnv != null ? hostEnv : host;
         FeatureCollection fc = core.get(id, true, 0, 0, null, null, host);
         if (fc != null) {
             fc.getLinks()
@@ -223,8 +229,9 @@ public class RESTController {
                                      @RequestParam(required = false) double[] bbox,
                                      @RequestParam(required = false, defaultValue = "0") @Min(0) @Max(10000) int offset,
                                      @RequestParam(required = false) Map<String, String> filterParams,
-                                     @RequestHeader(name = "Host", required = false) final String host,
+                                     @RequestHeader(name = "Host", required = false) String host,
                                      @RequestParam(required = false, defaultValue = "application/json") String f) {
+        host = hostEnv != null ? hostEnv : host;
         if (f.equals("application/json")) {
             //Removing offset and limit param and bbox
             filterParams.remove("offset");
@@ -284,7 +291,8 @@ public class RESTController {
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
             @PathVariable("featureId") String featureId,
-            @RequestHeader(name = "Host", required = false) final String host) {
+            @RequestHeader(name = "Host", required = false) String host) {
+        host = hostEnv != null ? hostEnv : host;
         FeatureWithLinks f = core.getFeature(collectionId, featureId, host);
         if (f != null) {
             f.getLinks()
@@ -502,6 +510,9 @@ public class RESTController {
                         boolean check = (Boolean) input.get("check");
                         try {
                             FeatureCollection fc = db.execute(sql, collectionName, check);
+                            if(fc == null){
+                                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                            }
                             core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                             return new ResponseEntity<>(fc, HttpStatus.OK);
                         } catch (Exception e) {

@@ -543,6 +543,9 @@ public class PostgreSQL implements DBConnector {
             if (foreignKeys.next()) {
                 //Key in current table
                 String pkTableName = foreignKeys.getString("PKTABLE_NAME");
+                if(config.containsKey(pkTableName)){
+                    pkTableName = config.get(pkTableName).getAlias();
+                }
                 String pkColumnName = foreignKeys.getString("PKCOLUMN_NAME");
                 //Table to link to
                 String fkColumnName = foreignKeys.getString("FKCOLUMN_NAME");
@@ -562,11 +565,15 @@ public class PostgreSQL implements DBConnector {
                 for (int x = 1; x <= md.getColumnCount(); x++) {
                     String colName = md.getColumnName(x);
                     if (colName.equals("ogc_bbox")) {
-                        org.postgis.PGgeometry box = (org.postgis.PGgeometry) rs.getObject(x);
-                        if (box != null) {
-                            Point fp = box.getGeometry().getFirstPoint();
-                            Point lp = box.getGeometry().getLastPoint();
-                            f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
+                        ColumnConfig columnConfig = tc.getMap().get( md.getColumnName(x));
+                        //Check if column is excluded
+                        if(columnConfig == null || (columnConfig != null && !columnConfig.isExclude())) {
+                            org.postgis.PGgeometry box = (org.postgis.PGgeometry) rs.getObject(x);
+                            if (box != null) {
+                                Point fp = box.getGeometry().getFirstPoint();
+                                Point lp = box.getGeometry().getLastPoint();
+                                f.setBbox(new double[]{fp.x, fp.y, lp.x, lp.y});
+                            }
                         }
                         continue;
                     }
@@ -577,10 +584,14 @@ public class PostgreSQL implements DBConnector {
                     }
                     //Normal Feature
                     if (colName.equals(geoCol)) {
-                        PGgeometry geom = (PGgeometry) rs.getObject(x);
-                        if (geom != null) {
-                            mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom.getGeometry());
-                            f.setGeometry(geo);
+                        ColumnConfig columnConfig = tc.getMap().get( md.getColumnName(x));
+                        //Check if column is excluded
+                        if(columnConfig == null || (columnConfig != null && !columnConfig.isExclude())) {
+                            PGgeometry geom = (PGgeometry) rs.getObject(x);
+                            if (geom != null) {
+                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom.getGeometry());
+                                f.setGeometry(geo);
+                            }
                         }
                         continue;
                     }
@@ -588,6 +599,16 @@ public class PostgreSQL implements DBConnector {
                     Object o = rs.getObject(x);
                     if(o instanceof PGgeometry){
                         o = o.toString();
+                        //Auto use geo in view if nothing is set
+                        if(isView && geoCol == null){
+                            setGeo(queryName, col);
+                            PGgeometry geom = (PGgeometry) rs.getObject(x);
+                            if (geom != null) {
+                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom.getGeometry());
+                                f.setGeometry(geo);
+                            }
+                            continue;
+                        }
                     }
                     if (fk.containsKey(colName)) o = "ogc_fk;" + fk.get(colName) + ";" + o;
                     if (tc != null) {
@@ -675,13 +696,16 @@ public class PostgreSQL implements DBConnector {
                 if (filterParams != null && filterParams.size() > 0)
                     sql = sql.substring(0, sql.length() - 4);
             }
+
+            if(limit == -1){
+                sql = sql.replace("LIMIT ?","");
+            }
+
             PreparedStatement ps = c.prepareStatement(sql);
             int counter = 1;
 
-            if (counter == -1) {
+            if (limit != -1) {
                 //Should be ALL
-                ps.setInt(counter++, limit);
-            } else {
                 ps.setInt(counter++, limit);
             }
 
@@ -702,7 +726,11 @@ public class PostgreSQL implements DBConnector {
             rs = ps.executeQuery();
         } else {
             //Executing sql
-            rs = c.createStatement().executeQuery(sql);
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1,10);
+            ps.setInt(2,0);
+            //Executing sql
+            rs = ps.executeQuery();
         }
         return rs;
     }
@@ -944,10 +972,18 @@ public class PostgreSQL implements DBConnector {
         ArrayList<String> names = new ArrayList<>();
         log.debug("Get PrimaryKey for the table: " + table);
         try {
-            DatabaseMetaData md = c.getMetaData();
-            ResultSet rs = md.getPrimaryKeys(null, schema, table);
-            while (rs.next()) {
-                names.add(rs.getString(4).toLowerCase());
+            DatabaseMetaData dm = c.getMetaData();
+            ResultSet rs = dm.getIndexInfo(null, schema, table, true, true);
+            while(rs.next()) {
+                names.add(rs.getString("column_name"));
+            }
+            if(names.size() == 0){
+                //Fallback
+                DatabaseMetaData md = c.getMetaData();
+                ResultSet rs1 = md.getPrimaryKeys(null, schema, table);
+                while (rs1.next()) {
+                    names.add(rs1.getString(4).toLowerCase());
+                }
             }
         } catch (SQLException e) {
             return null;

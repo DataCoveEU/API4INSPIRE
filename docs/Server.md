@@ -10,5 +10,7 @@
   - Used to specify the paging limit used in the frontend map
 - CONFIG_OGCAPISIMPLE
   - Used for specifying the config path
+- HOST_OGCAPISIMPLE
+ - Used for specifying the host in links in the api 
 
   

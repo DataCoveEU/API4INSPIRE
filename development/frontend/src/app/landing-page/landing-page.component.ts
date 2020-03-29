@@ -194,6 +194,10 @@ export class LandingPageComponent implements OnInit {
       }
     }
 
+    bbox[0]-=100000;
+    bbox[1]-=100000;
+    bbox[2]+=100000;
+    bbox[3]+=100000;
     this.map.removeControl(this.zoomToExtent);
     this.zoomToExtent = new ZoomToExtent({
       extent: bbox
