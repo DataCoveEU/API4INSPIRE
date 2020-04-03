@@ -223,6 +223,7 @@ public class PostgreSQL implements DBConnector {
     @Override
     public FeatureCollection execute(String sql, String featureCollectionName, boolean check){
         try {
+            sql = sql.replace(";","");
             c.createStatement().executeQuery(sql);
             //SQL Executed
             sqlString.put(featureCollectionName, sql);
