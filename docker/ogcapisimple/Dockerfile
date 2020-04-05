@@ -5,7 +5,7 @@ FROM openjdk:$IMAGE_VERSION
 #test or prod
 ARG ACG_SDI_ENV=dev
 ARG TC_MAJOR=8
-ARG TC_VER=8.5.51
+ARG TC_VER=8.5.53
 ENV ACGSDI=${ACG_SDI_ENV}
 ENV CATALINA_HOME="/opt/tc-${ACGSDI}"
 #download links
