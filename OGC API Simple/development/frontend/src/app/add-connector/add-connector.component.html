@@ -1,0 +1,127 @@
+<!--
+    The OGC API Simple provides enviromental data
+    Created on Wed Feb 26 2020
+    Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<app-nav></app-nav>
+<div class="sidenav">
+    <div class="properties-main-text">
+        <h1>Add connection</h1>
+        <p>Add a DB connection</p>
+    </div>
+</div>
+<div class="main">
+    <div class="col-sm-6 col-sm-12">
+        <div class="properties" style="width: 100%">
+            <div class="row" style="width: 100%;">
+                <div class="col-sm-6">
+                    <select class="form-control shadow-sm" style="width: 100%;" id="connector">
+                        <option id="postgres">PostgreSQL connection</option>
+                    </select>
+                </div>
+            </div>
+            <div id="errorField"></div>
+            <div>
+                <form [formGroup]="addPostgresConnectorForm">
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <label style="width: 100%">
+                                Connection name
+                                <input type="text" formControlName="connectorName" class="form-control" style="width: 100%" placeholder="Connection name" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.connectorName.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.connectorName.errors.required">A connection name is required</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <label style="width: 100%">
+                                Username
+                                <input type="text" formControlName="username" class="form-control" style="width: 100%" placeholder="Username" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.username.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.username.errors.required">A username is required</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-sm-6">
+                            <label style="width: 100%">
+                                Password
+                                <input type="password" formControlName="password" class="form-control" style="width: 100%" placeholder="Password" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.password.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.password.errors.required">A password is required</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row" style="width: 100%">
+                        <div class="col-sm-6">
+                            <label style="width: 100%">
+                                Hostname
+                                <input class="form-control" formControlName="hostname" type="text" style="width: 100%" placeholder="Hostname" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.hostname.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.hostname.errors.required">A hostname is required</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <label style="width: 100%">
+                                Port number
+                                <input type="number" formControlName="port" class="form-control" style="width: 100%" placeholder="Port" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.port.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.port.errors.required">A port is required</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <label style="width: 100%">
+                                Database
+                                <input class="form-control" formControlName="database" type="text" style="width: 100%" placeholder="Database" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.database.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.database.errors.required">A database is required</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-sm-6">
+                            <label style="width: 100%">
+                                Schema
+                                <input class="form-control" formControlName="schema" type="text" style="width: 100%" placeholder="Schema" />
+                                <div *ngIf="postgresSubmitted && addPostgresConnectorForm.controls.schema.errors" class="error">
+                                    <div *ngIf="addPostgresConnectorForm.controls.schema.errors.required">A schema is required</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <button class="btn btn-success" style="width: 100%" (click)="addPostgresTest()">Test connection</button>
+                        </div>
+                    </div>
+                    <div class="row" style="width: 100%; margin-top: 1%">
+                        <div class="col-sm-6">
+                            <button class="btn btn-success" style="width: 100%" type="submit" (click)="addPostgresConnector()">Add connection</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

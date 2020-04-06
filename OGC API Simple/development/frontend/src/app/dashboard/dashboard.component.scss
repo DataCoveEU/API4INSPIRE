@@ -1,0 +1,61 @@
+div#content {
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 1%;
+}
+
+.col-sm-3, button#executeSQL {
+    margin-top: 1%;
+}
+
+div#tables, div#sql {
+    margin-top: 2%;
+}
+
+.tableRow:hover {
+    background-color: rgb(158, 158, 233)!important;
+}
+
+div#rename {
+    margin-top: 1%;
+}
+
+button#subTableName {
+    margin-top: 1%;
+}
+
+.error {
+    color: red;
+}
+
+
+tbody {
+    display:block;
+    height:30vh;
+    overflow:auto;
+}
+thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;/* even column's width , fix width of table too*/
+}
+thead {
+    width: calc( 100% - 1em )/* scrollbar is average 1em/16px width, remove it from thead width */
+}
+table {
+    width:100%;
+}
+
+.material-icons {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+
+.used {
+    color: #28A745;
+}
+
+.notUsed {
+    color: grey;
+}

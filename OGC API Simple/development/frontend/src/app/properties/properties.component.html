@@ -1,0 +1,187 @@
+<!--
+    The OGC API Simple provides enviromental data
+    Created on Wed Feb 26 2020
+    Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<app-nav></app-nav>
+<div class="sidenav">
+    <div class="properties-main-text">
+        <h1>Properties</h1>
+        <p>Change the properties of the DB connector</p>
+    </div>
+</div>
+<div class="main">
+    <div class="col-sm-6 col-sm-12">
+        <div class="properties" style="width: 100%">
+            <div class="row" style="width: 100%;">
+                <div class="col-sm-6">
+                    <select class="form-control shadow-sm" style="width: 100%;" id="connector">
+                        <option *ngFor="let connector of this.connectors; let i = index" [attr.value]=i [attr.id]=connector.class>{{ connector.id }}</option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <button class="btn btn-success shadow-sm" style="width: 100%;" (click)="testConnection()">Test connection</button>
+                    <br />
+                    <br />
+                    <button *ngIf="this.postgres" class="btn btn-danger" id="delDb" style="width: 100%;" (click)="delConnector()">Delete DB connector</button>
+                </div>
+            </div>
+
+            <div id="infoField"></div>
+
+            <div id="content">
+                <div *ngIf="this.sqlite">
+                    <form [formGroup]="sqlConnectorNameForm" (ngSubmit)="sqLiteConnectorName()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Connector name
+                                    <input type="text" formControlName="conName" class="form-control" [attr.placeholder]=this.selectedConnector.id />
+                                    <div *ngIf="sqlConnectorNameSub && sqlConnectorNameForm.controls.conName.errors" class="error">
+                                        <div *ngIf="sqlConnectorNameForm.controls.conName.errors.required">A connector name is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button class="btn btn-success" type="submit">Change name</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div *ngIf="this.postgres">
+                    <form [formGroup]="connectorNameForm" (ngSubmit)="submitConnectorName()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Connectorname
+                                    <input type="text" formControlName="conName" class="form-control shadow-sm" [attr.placeholder]=this.selectedConnector.id />
+                                    <div *ngIf="connectorNameSubmitted && connectorNameForm.controls.conName.errors" class="error">
+                                        <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button class="btn btn-success shadow-sm" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <h3 style="margin-top: 1%">Change credentials</h3>
+                    <hr />
+                    <form [formGroup]="changeUsernameForm" (ngSubmit)="changeUsername()">
+                        <div class="row" style="width: 100%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Username
+                                    <input type="text" formControlName="newName" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.username />
+                                    <div *ngIf="changeUserSubmitted && changeUsernameForm.controls.newName.errors" class="error">
+                                        <div *ngIf="changeUsernameForm.controls.newName.errors.required">A username is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button type="submit" class="btn btn-success shadow-sm" style="margin-top: 1%">Change username</button>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Password
+                                    <input class="form-control shadow-sm" formControlName="newPwd" style="width: 100%; margin-top: 1%" type="text" [attr.placeholder]=this.selectedConnector.password />
+                                    <div *ngIf="changePasswordSubmitted && changePasswordForm.controls.newPwd.errors" class="error">
+                                        <div *ngIf="changePasswordForm.controls.newPwd.errors.required">A password is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button type="submit" class="btn btn-success shadow-sm" style="margin-top: 1%">Change password</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr />
+
+                    <form [formGroup]="changeHostnameForm" (ngSubmit)="changeHostname()">
+                        <div class="row" style="width: 100%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Hostname
+                                    <input type="text" formControlName="hostname" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.hostname />
+                                    <div *ngIf="changeHostnameSubmitted && changeHostnameForm.controls.hostname.errors" class="error">
+                                        <div *ngIf="changeHostnameForm.controls.hostname.errors.required">A hostname is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button class="btn btn-success shadow-sm" type="submit" style="margin-top: 1%">Change hostname</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+                    <form [formGroup]="changePortForm" (ngSubmit)="changePort()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Port number
+                                    <input type="number" formControlName="newPort" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.port />
+                                    <div *ngIf="changePortSubmitted && changePortForm.controls.newPort.errors" class="error">
+                                        <div *ngIf="changePortForm.controls.newPort.errors.required">A port is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change port</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <form [formGroup]="changeSchemaForm" (ngSubmit)="changeSchema()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Schema
+                                    <input type="text" formControlName="newSchema" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.schema />
+                                    <div *ngIf="changeSchmemaSubmitted && changeSchemaForm.controls.newSchema.errors" class="error">
+                                        <div *ngIf="changeSchemaForm.controls.newSchema.errors.required">A schema is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change schema name</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <form [formGroup]="changeDatabaseForm" (ngSubmit)="changeDatabase()">
+                        <div class="row" style="width: 100%; margin-top: 1%">
+                            <div class="col-sm-6">
+                                <label style="width: 100%">
+                                    Database
+                                    <input type="text" formControlName="name" class="form-control shadow-sm" style="width: 100%; margin-top: 1%" [attr.placeholder]=this.selectedConnector.database />
+                                    <div *ngIf="changeDatabaseSubmitted && changeDatabaseForm.controls.name.errors" class="error">
+                                        <div *ngIf="changeDatabaseForm.controls.name.errors.required">A database is required</div>
+                                    </div>
+                                </label>
+                                <br />
+                                <button class="btn btn-success shadow-sm" style="margin-top: 1%">Change database</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
