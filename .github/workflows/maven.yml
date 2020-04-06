@@ -17,13 +17,13 @@ jobs:
       with:
         java-version: 1.8
     - name: Install dependencies
-      working-directory: ./development
+      working-directory: ./OGCAPISimple/development
       run: mvn --file ./pom.xml clean 
     - name: Build with Maven
-      working-directory: ./development
+      working-directory: ./OGCAPISimple/development
       run: mvn --file ./pom.xml clean install 
     - name: Copy war
-      run: cp development/target/ogcapisimple.war docker/ogcapisimple
+      run: cp development/target/ogcapisimple.war ./OGCAPISimple/docker/ogcapisimple
     - name: rm folder ${sys:log4j.saveDirectory}
       run: rm -rf 'development/${env:LOG}'
     - name: Commit files
