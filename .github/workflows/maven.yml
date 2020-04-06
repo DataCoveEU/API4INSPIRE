@@ -23,7 +23,7 @@ jobs:
       working-directory: ./OGCAPISimple/development
       run: mvn --file ./pom.xml clean install 
     - name: Copy war
-      run: cp development/target/ogcapisimple.war ./OGCAPISimple/docker/ogcapisimple
+      run: cp ./OGCAPISimple/development/target/ogcapisimple.war ./OGCAPISimple/docker/ogcapisimple
     - name: rm folder ${sys:log4j.saveDirectory}
       run: rm -rf 'development/${env:LOG}'
     - name: Commit files
