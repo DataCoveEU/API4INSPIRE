@@ -1,0 +1,49 @@
+<!--
+    The OGC API Simple provides enviromental data
+    Created on Wed Feb 26 2020
+    Copyright (c) 2020 - Lukas Gäbler
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<app-nav></app-nav>
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-5">
+        <form [formGroup]="changePwdForm" (ngSubmit)="renamePwd()">
+            <label>
+                <input type="password" formControlName="oldPwd" class="form-control" placeholder="Old password" />
+                <div *ngIf="submit && changePwdForm.controls.oldPwd.errors" class="error">
+                    <div *ngIf="changePwdForm.controls.oldPwd.errors.required">The old password is required</div>
+                </div>
+            </label>
+            <br />
+            <label>
+                <input type="password" formControlName="newPwd" class="form-control" placeholder="New password" />
+                <div *ngIf="submit && changePwdForm.controls.newPwd.errors" class="error">
+                    <div *ngIf="changePwdForm.controls.newPwd.errors.required">The new password is required</div>
+                </div>
+            </label>
+            <br />
+            <label>
+                <input type="password" formControlName="reNewPwd" class="form-control" placeholder="Repeat new password" />
+                <div *ngIf="submit && changePwdForm.controls.reNewPwd.errors" class="error">
+                    <div *ngIf="changePwdForm.controls.reNewPwd.errors.required">Please repeat new password</div>
+                </div>
+            </label>
+            <div *ngIf="notEqual" class="error">The new passwords have to be identical</div>
+            <br />
+            <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+    </div>
+</div>
