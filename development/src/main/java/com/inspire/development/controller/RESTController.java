@@ -233,6 +233,7 @@ public class RESTController {
                                      @RequestParam(required = false, defaultValue = "application/json") String f) {
         host = hostEnv != null ? hostEnv : host;
         if (f.equals("application/json")) {
+
             //Removing offset and limit param and bbox
             filterParams.remove("offset");
             filterParams.remove("limit");

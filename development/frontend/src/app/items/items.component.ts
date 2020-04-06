@@ -37,6 +37,8 @@ export class ItemsComponent implements OnInit {
   nextAv: boolean = true;
   prevAv: boolean = true;
 
+  last = 0;
+
   jsonLink: string = "";
 
   constructor(private router: ActivatedRoute, private httpClient: HttpClient) { }
@@ -49,20 +51,20 @@ export class ItemsComponent implements OnInit {
     // load all the items
     this.items = await this.getItems("collections/" + this.collection + "/items");
 
-    if(!this.containsLink("next")) {
+    if(!this.containsLink("next", this.items)) {
       this.nextAv = false;
     } else {
       this.nextAv = true;
     }
-    if(!this.containsLink("prev")) {
+    if(!this.containsLink("prev", this.items)) {
       this.prevAv = false;
     } else {
       this.prevAv = true;
     }
 
-    this.next = this.getLink("next");
-    this.previous = this.getLink("prev");
-    this.jsonLink = this.getLink("self");
+    this.next = this.getLink("next", this.items);
+    this.previous = this.getLink("prev", this.items);
+    this.jsonLink = this.getLink("self", this.items);
     
     this.parseSelf();  
   }
@@ -84,21 +86,21 @@ export class ItemsComponent implements OnInit {
 
   async nextPage() {
       this.items = await this.getItems(this.next);
-    if(!this.containsLink("next")) {
+    if(!this.containsLink("next", this.items)) {
       this.nextAv = false;
     } else {
       this.nextAv = true;
     }
-    if(!this.containsLink("prev")) {
+    if(!this.containsLink("prev", this.items)) {
       this.prevAv = false;
     } else {
       this.prevAv = true;
     }
       
 
-    this.next = this.getLink("next");
-    this.previous = this.getLink("prev");
-    this.jsonLink = this.getLink("self");
+    this.next = this.getLink("next", this.items);
+    this.previous = this.getLink("prev", this.items);
+    this.jsonLink = this.getLink("self", this.items);
     this.parseSelf();
 
   }
@@ -106,36 +108,36 @@ export class ItemsComponent implements OnInit {
   async previousPage() {
     this.items = await this.getItems(this.previous);
       
-    if(!this.containsLink("next")) {
+    if(!this.containsLink("next", this.items)) {
       this.nextAv = false;
     } else {
       this.nextAv = true;
     }
-    if(!this.containsLink("prev")) {
+    if(!this.containsLink("prev",this.items)) {
       this.prevAv = false;
     } else {
       this.prevAv = true;
     }  
     
-    this.next = this.getLink("next");
-    this.previous = this.getLink("prev");
-    this.jsonLink = this.getLink("self");
+    this.next = this.getLink("next", this.items);
+    this.previous = this.getLink("prev", this.items);
+    this.jsonLink = this.getLink("self", this.items);
     this.parseSelf();
   }
 
-  containsLink(kind: string):boolean {
-    for(let i = 0; i < this.items.links.length; i++) {
-      if(this.items.links[i].rel == kind) {
+  containsLink(kind: string, items):boolean {
+    for(let i = 0; i < items.links.length; i++) {
+      if(items.links[i].rel == kind) {
         return true;
       }
     }
     return false;
   }
 
-  getLink(kind: string):string {
-    for(let i = 0; i < this.items.links.length; i++) {
-      if(this.items.links[i].rel == kind) {
-        return this.items.links[i].href;
+  getLink(kind: string, items):string {
+    for(let i = 0; i < items.links.length; i++) {
+      if(items.links[i].rel == kind) {
+        return items.links[i].href;
       }
     }
     return "";
@@ -147,4 +149,5 @@ export class ItemsComponent implements OnInit {
     var str = this.jsonLink.split("=");
     show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2])+10)
   }
+
 }
