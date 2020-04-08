@@ -3,7 +3,7 @@
     "geometry" : {
       "type" : "Point",
       "coordinates" : [ 16.205833, 47.959167 ]
-    }
+    },
     "properties" : {
       "owner" : "http://dd.eionet.europa.eu",
       "Datastreams/Observations/FeatureOfInterest/description" : "Generated from location 72",
@@ -18,6 +18,6 @@
       "definition" : "http://dd.eionet.europa.eu/vocabulary/aq/pollutant/38",
       "id" : 4,
       "recommendedUnit" : "µg/m3"
-    },
+    }
 
   } 
