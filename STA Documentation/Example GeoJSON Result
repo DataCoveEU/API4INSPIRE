@@ -1,0 +1,25 @@
+{
+  "type" : "FeatureCollection",
+  "features" : [ {
+    "type" : "Feature",
+    "properties" : {
+      "owner" : "http://dd.eionet.europa.eu",
+      "Datastreams/Observations/FeatureOfInterest/description" : "Generated from location 72",
+      "Datastreams/Observations/FeatureOfInterest/name" : "FoI for location 72",
+      "Datastreams/Observations/result" : 1.5589374304,
+      "description" : "NO",
+      "localId" : 38,
+      "Datastreams/id" : 73,
+      "Datastreams/Observations/phenomenonTime" : "2020-04-08T09:00:00.000Z/2020-04-08T10:00:00.000Z",
+      "name" : "NO",
+      "Datastreams/name" : "SPO.03.0201.1205.38.1",
+      "definition" : "http://dd.eionet.europa.eu/vocabulary/aq/pollutant/38",
+      "id" : 4,
+      "recommendedUnit" : "µg/m3"
+    },
+    "geometry" : {
+      "type" : "Point",
+      "coordinates" : [ 16.205833, 47.959167 ]
+    }
+  } ]
+}
