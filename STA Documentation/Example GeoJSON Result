@@ -1,6 +1,4 @@
 {
-  "type" : "FeatureCollection",
-  "features" : [ {
     "type" : "Feature",
     "properties" : {
       "owner" : "http://dd.eionet.europa.eu",
@@ -21,5 +19,4 @@
       "type" : "Point",
       "coordinates" : [ 16.205833, 47.959167 ]
     }
-  } ]
-}
+  } 
