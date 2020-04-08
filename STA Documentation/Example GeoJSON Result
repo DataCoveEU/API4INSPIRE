@@ -1,5 +1,9 @@
 {
     "type" : "Feature",
+    "geometry" : {
+      "type" : "Point",
+      "coordinates" : [ 16.205833, 47.959167 ]
+    }
     "properties" : {
       "owner" : "http://dd.eionet.europa.eu",
       "Datastreams/Observations/FeatureOfInterest/description" : "Generated from location 72",
@@ -15,8 +19,5 @@
       "id" : 4,
       "recommendedUnit" : "µg/m3"
     },
-    "geometry" : {
-      "type" : "Point",
-      "coordinates" : [ 16.205833, 47.959167 ]
-    }
+
   } 
