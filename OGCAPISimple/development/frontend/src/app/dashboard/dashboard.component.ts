@@ -476,8 +476,9 @@ export class DashboardComponent implements OnInit {
     this.sqlService.executeSQL(json).then(
       async ()=>{
         //Show info message
-        errorText.innerHTML = this.messages(false, "SQL executed successfull", "INFORMATION");
-                    this.reload();
+        errorText.innerHTML = this.messages(false, "SQL executed successfull. The view has been added to the list of collections above", "INFORMATION");
+        this.reload();
+
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;

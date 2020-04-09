@@ -80,6 +80,10 @@
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                         <th scope="row">{{ i+1 }}</th>
                         <td>{{ colname }} 
+                            <!-- The icons need to be here 2 times because once for the views and once for the tables. The first 2 are for the views -->
+                            <i class="material-icons used" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected] && this.selectedConnector?.config[this.idTableSelected]?.idCol == colname">vpn_key</i>
+                            <i class="material-icons used" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected] && this.selectedConnector?.config[this.idTableSelected]?.geoCol == colname">public</i>
+
                             <i class="material-icons" *ngIf="availableAsIdColumn.includes(colname)" [ngClass]="{'used' : colname == idColumn, 'notUsed': colname != idColumn}">vpn_key</i>
                             <i class="material-icons" *ngIf="availableAsGeoColumn.includes(colname)" [ngClass]="{'used' : colname == geoColumn, 'notUsed': colname != geoColumn}">public</i>
                         </td>
@@ -107,9 +111,6 @@
                 <div class="row">
                     <div class="col-sm-3">
                         <button type="submit" id="subTableName" style="width:100%" class="btn btn-success" (click)="submitTable()">Asssign collection name</button>
-                    </div>
-                    <div class="col-sm-3">
-                        <button class="btn btn-danger" (click)="delSQL(this.idTableSelected)" style="width:100%" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]">Delete</button>
                     </div>
                     <div class="col-sm-6"></div>
                 </div>
@@ -174,11 +175,18 @@
                 <br />
                 <div class="row">
                     <div class="col-sm-2">
+                        <button class="btn btn-success" style="width: 100%" (click)="testSQL()">Check</button>
+                    </div>
+                    <div class="col-sm-2">
                         <button class="btn btn-success" style="width: 100%" (click)="executeSQL()">Execute</button>
                     </div>
                     <div class="col-sm-2">
-                        <button class="btn btn-success" style="width: 100%" (click)="testSQL()">Check</button>
+                        <button class="btn btn-success" style="width: 100%" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]">Update</button>
                     </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-danger" (click)="delSQL(this.idTableSelected)" style="width:100%" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]">Delete</button>
+                    </div>
+
                 </div>
             </form>
 
