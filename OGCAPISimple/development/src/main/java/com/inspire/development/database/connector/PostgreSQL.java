@@ -530,7 +530,6 @@ public class PostgreSQL implements DBConnector {
         boolean isView = sql != null;
         sql = sql != null ? sql : "SELECT * FROM " + schema + "." + queryName;
 
-        sql += " LIMIT ? OFFSET ?";
 
         log.debug("Converting table: " + queryName + " to featureCollection");
         //Executing sql
@@ -688,7 +687,7 @@ public class PostgreSQL implements DBConnector {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
                     String col = getColumnByAlias(table, entry.getKey());
                     col = col == null ? entry.getKey() : col;
-                    sql = sql + col + "::varchar = ? and ";
+                    sql = sql + col + "::varchar like ? and ";
                 }
             }
             if (bbox != null && geoCol != null) {
@@ -699,30 +698,33 @@ public class PostgreSQL implements DBConnector {
             }
 
             if(limit == -1){
-                sql = sql.replace("LIMIT ?","");
+                sql+=" OFFSET ?";
+            }else{
+                sql+=" LIMIT ? OFFSET ?";
             }
 
             PreparedStatement ps = c.prepareStatement(sql);
             int counter = 1;
 
-            if (limit != -1) {
-                //Should be ALL
-                ps.setInt(counter++, limit);
-            }
-
-            ps.setInt(counter++, offset);
 
             if (filterParams != null) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
-                    ps.setString(counter, entry.getValue());
+                    String replaced = entry.getValue().replace("*","%");
+                    ps.setString(counter, replaced);
                     counter++;
                 }
             }
 
             if (bbox != null && geoCol != null) {
                 PGbox2d box = new PGbox2d(new Point(bbox[0], bbox[1]), new Point(bbox[2], bbox[3]));
-                ps.setObject(counter, box);
+                ps.setObject(counter++, box);
             }
+
+            if (limit != -1) {//Should be ALL
+                ps.setInt(counter++, limit);
+            }
+
+            ps.setInt(counter, offset);
 
             rs = ps.executeQuery();
         } else {
