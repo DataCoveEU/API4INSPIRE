@@ -491,9 +491,6 @@ public class SQLite implements DBConnector {
             sql = sql != null ? sql : "SELECT * FROM " + queryName;
         }
 
-
-
-
             log.debug("Converting table: " + queryName + " to featureCollection");
             ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
             //Creating featureCollection with given name
@@ -753,9 +750,21 @@ public class SQLite implements DBConnector {
 
             rs = ps.executeQuery();
         }else {
+
+            if(limit == -1){
+                sql+=" OFFSET ?";
+            }else{
+                sql+=" LIMIT ? OFFSET ?";
+            }
+
             PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1,0);
-            ps.setInt(2,0);
+
+            if(limit == -1){
+                ps.setInt(1,offset);
+            }else{
+                ps.setInt(1,limit);
+                ps.setInt(2,offset);
+            }
             //Executing sql
             rs = ps.executeQuery();
         }
@@ -776,7 +785,6 @@ public class SQLite implements DBConnector {
                 + ")) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
-        sql = sql.replace("LIMIT ? OFFSET ?",  "");
         //Executing sql
         rs = c.createStatement().executeQuery(sql);
         return rs;
