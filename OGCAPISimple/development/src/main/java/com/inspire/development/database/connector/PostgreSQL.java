@@ -35,7 +35,6 @@ import org.postgis.Geometry;
 import org.postgis.PGbox2d;
 import org.postgis.PGgeometry;
 import org.postgis.Point;
-import org.springframework.web.servlet.View;
 
 import java.sql.*;
 import java.util.*;
@@ -728,10 +727,21 @@ public class PostgreSQL implements DBConnector {
 
             rs = ps.executeQuery();
         } else {
+
+            if(limit == -1){
+                sql+=" OFFSET ?";
+            }else{
+                sql+=" LIMIT ? OFFSET ?";
+            }
             //Executing sql
             PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1,10);
-            ps.setInt(2,0);
+
+            if(limit == -1){
+                ps.setInt(1,offset);
+            }else{
+                ps.setInt(1,limit);
+                ps.setInt(2,offset);
+            }
             //Executing sql
             rs = ps.executeQuery();
         }
@@ -752,12 +762,8 @@ public class PostgreSQL implements DBConnector {
                 + "), 4326) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
-        sql = sql.replaceFirst("\\?", "ALL");
         //Executing sql
         PreparedStatement ps = c.prepareStatement(sql);
-
-        //OFFSET
-        ps.setInt(1, 0);
 
         rs = ps.executeQuery();
         return rs;
