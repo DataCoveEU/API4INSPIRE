@@ -9,7 +9,7 @@ For more resources on how to deploy such APIs, please also see our [Project Wiki
 Pertaining to OGC API - Features, we will be providing this API in two versions
 
 * Geoserver: GeoServer can provide OGC API - Features as an alternative access point on existing GML deployments utilizing App Schema via an extension. 
-* [Simple OGC API Development](./docs/SimpleOGCAPI_Development.md)
+* [Simple OGC API Development](./OGCAPISimple/docs/SimpleOGCAPI_Development.md)
 
 ### OGC SensorThings API
 * FROST: The Fraunhofer Open Source SensorThings API will be utilized for the provision of SensorThings API deployments
