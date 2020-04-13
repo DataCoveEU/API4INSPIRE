@@ -1,4 +1,4 @@
-# !/usr/bin/sh
+#!/usr/bin/sh
 echo "Docker Run of pgweb"
 
 # create the network with: docker network create postgisnet
