@@ -119,7 +119,8 @@ public class RESTController {
 
     @GetMapping("/collections")
     public Object Collections(@RequestHeader("Accept") String content,
-                              @RequestHeader(name = "Host", required = false) String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
+                              @RequestHeader(name = "Host", required = false) String host,
+                              @RequestParam(required = false, defaultValue = "application/json") String f) {
         host = hostEnv != null ? hostEnv : host;
         if (f.equals("application/json")) {
             Collections c = new Collections(Arrays.asList(core.getAll()));
