@@ -491,9 +491,6 @@ public class SQLite implements DBConnector {
             sql = sql != null ? sql : "SELECT * FROM " + queryName;
         }
 
-        sql+=" LIMIT ? OFFSET ?";
-
-
             log.debug("Converting table: " + queryName + " to featureCollection");
             ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
             //Creating featureCollection with given name
@@ -709,7 +706,7 @@ public class SQLite implements DBConnector {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
                     String col = getColumnByAlias(table, entry.getKey());
                     col = col == null ? entry.getKey() : col;
-                    sql = sql + col + " = ? and ";
+                    sql = sql + col + " like ? and ";
                 }
             }
 
@@ -720,18 +717,17 @@ public class SQLite implements DBConnector {
                     sql = sql.substring(0, sql.length() - 4);
             }
 
+            if(limit == -1){
+                sql+=" OFFSET ?";
+            }else{
+                sql+=" LIMIT ? OFFSET ?";
+            }
+
             PreparedStatement ps = c.prepareStatement(sql);
 
             int counter = 1;
 
-            if(counter == -1){
-                //Should be ALL
-                ps.setInt(counter++,limit);
-            }else{
-                ps.setInt(counter++,limit);
-            }
 
-            ps.setInt(counter++,offset);
 
             if(filterParams != null) {
                 for (Map.Entry<String, String> entry : filterParams.entrySet()) {
@@ -743,14 +739,32 @@ public class SQLite implements DBConnector {
 
             if(bbox != null && geoCol != null) {
                 PGbox2d box = new org.postgis.PGbox2d(new org.postgis.Point(bbox[0], bbox[1]), new org.postgis.Point(bbox[2], bbox[3]));
-                ps.setString(counter, box.toString());
+                ps.setString(counter++, box.toString());
             }
+
+            if(counter == -1){
+                ps.setInt(counter++,limit);
+            }
+
+            ps.setInt(counter,offset);
 
             rs = ps.executeQuery();
         }else {
+
+            if(limit == -1){
+                sql+=" OFFSET ?";
+            }else{
+                sql+=" LIMIT ? OFFSET ?";
+            }
+
             PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1,0);
-            ps.setInt(2,0);
+
+            if(limit == -1){
+                ps.setInt(1,offset);
+            }else{
+                ps.setInt(1,limit);
+                ps.setInt(2,offset);
+            }
             //Executing sql
             rs = ps.executeQuery();
         }
@@ -771,7 +785,6 @@ public class SQLite implements DBConnector {
                 + ")) as table_extent FROM ("
                 + sql
                 + ") as tabulana";
-        sql = sql.replace("LIMIT ? OFFSET ?",  "");
         //Executing sql
         rs = c.createStatement().executeQuery(sql);
         return rs;
