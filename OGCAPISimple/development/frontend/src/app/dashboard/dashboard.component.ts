@@ -239,20 +239,20 @@ export class DashboardComponent implements OnInit {
       
     
     if(this.selectedConnector.config[name] == undefined) {
-      console.log("Connector for this table is undefined")
+//      console.log("Connector for this table is undefined")
       this.geoColumn = "";
     } else if(this.selectedConnector.config[name].geoCol == undefined) {
-      console.log("There is no geo column for this table yet")
+//      console.log("There is no geo column for this table yet")
       this.geoColumn = "";
     } else {
       this.geoColumn = this.selectedConnector.config[name].geoCol
     }
 
     if(this.selectedConnector.config[name] == undefined) {
-      console.log("Connector for this table is undefined")
+//      console.log("Connector for this table is undefined")
       this.idColumn = "";
     } else if(this.selectedConnector.config[name].idCol == undefined) {
-      console.log("There is no id column for this table yet")
+//      console.log("There is no id column for this table yet")
       this.idColumn = "";
     } else {
       this.idColumn = this.selectedConnector.config[name].idCol
@@ -501,7 +501,7 @@ export class DashboardComponent implements OnInit {
       'id': this.selectedConnector.id,
       'sql': this.sqlForm.value.sqlQuery,
       'collectionName': this.sqlForm.value.collectionId,
-      'check': false
+      'check': true
     };
 
     var errorText = document.getElementById('sqlError');
@@ -928,6 +928,32 @@ export class DashboardComponent implements OnInit {
               </div>`;
     }
     return erg;
+  }
+
+  updateSQL() {
+    var json = {
+      'id': this.selectedConnector.id,
+      'sql': this.sqlForm.value.sqlQuery,
+      'sqlName': this.idTableSelected
+    };  
+
+    console.log(json);
+    this.conService.updateSQL(json).then(()=>{
+      this.reload();
+      console.log("updated")
+    }).catch((err)=>{
+      console.log("err");
+    })
+    
+  }
+
+  deleteSQL() {
+    this.conService.delSQL({"name": this.idTableSelected}).then(()=>{
+        console.log("deleted")
+        this.reload();
+      }).catch((err)=>{
+        console.log("err");
+      })
   }
 
   
