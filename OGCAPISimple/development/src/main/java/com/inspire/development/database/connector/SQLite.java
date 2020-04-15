@@ -572,7 +572,9 @@ public class SQLite implements DBConnector {
                 }
             }
 
-            if (geoCol != null) {
+            ColumnConfig columnConfig = tc.getMap().get(geoCol);
+
+            if (geoCol != null && withSpatial && (columnConfig == null || (columnConfig != null && !columnConfig.isExclude()))) {
                 log.debug("Getting Bounding Box for Table: " + queryName);
                 ResultSet resultSet = SqlBBox(sql,geoCol);
 
