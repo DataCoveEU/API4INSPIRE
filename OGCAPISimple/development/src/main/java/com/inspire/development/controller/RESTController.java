@@ -384,17 +384,25 @@ public class RESTController {
                     if (id != null) {
                         //Get Connector by ID
                         DBConnector db = core.getConnectorById(id);
-                        if (db != null) {
+                        if (db != null && db instanceof PostgreSQL) {
                             //Cast Connector
                             PostgreSQL postgreSQL = (PostgreSQL) db;
+
+                            String newid = (String) input.get("newid");
+                            if(newid != null)
+                                postgreSQL.setName(newid);
+
                             String database = (String) input.get("database");
-                            postgreSQL.setDatabase(database);
+                            if(database != null)
+                                postgreSQL.setDatabase(database);
 
                             String schema = (String) input.get("schema");
-                            postgreSQL.setSchema(schema);
+                            if(schema != null)
+                                postgreSQL.setSchema(schema);
 
                             String hostname = (String) input.get("hostname");
-                            postgreSQL.setHostname(hostname);
+                            if(hostname != null)
+                                postgreSQL.setHostname(hostname);
 
                             Integer port = (Integer) input.get("port");
                             if (port != null) {
@@ -402,10 +410,12 @@ public class RESTController {
                             }
 
                             String username = (String) input.get("username");
-                            postgreSQL.setUsername(username);
+                            if(username != null)
+                                postgreSQL.setUsername(username);
 
                             String password = (String) input.get("password");
-                            postgreSQL.setPassword(password);
+                            if(password != null)
+                                postgreSQL.setPassword(password);
 
                             String error = postgreSQL.updateConnector();
                             if (error == null) {
@@ -756,6 +766,20 @@ public class RESTController {
             core.removeConnector(id);
             core.writeConfig(core.getConfigPath(), core.getConnectionPath());
             return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/editSQL", method = RequestMethod.POST)
+    public ResponseEntity<Object> editSQL(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if (id == null) return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+        DBConnector db = core.getConnectorById(id);
+        if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+        String sql = (String )input.get("sql");
+        if(sql == null) return new ResponseEntity<>("SQL is null", HttpStatus.BAD_REQUEST);
+        String sqlName = (String )input.get("sqlName");
+        if(sqlName == null) return new ResponseEntity<>("SQLName is null", HttpStatus.BAD_REQUEST);
+        db.getSqlString().put(sqlName,sql);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/deleteSQL", method = RequestMethod.POST)

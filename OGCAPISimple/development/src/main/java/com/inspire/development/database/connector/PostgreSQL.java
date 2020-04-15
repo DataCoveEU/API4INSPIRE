@@ -1007,4 +1007,8 @@ public class PostgreSQL implements DBConnector {
     public boolean removeSQL(String name) {
         return sqlString.remove(name) != null;
     }
+
+    public void setName(String id) {
+      this.id = id;
+    }
 }
