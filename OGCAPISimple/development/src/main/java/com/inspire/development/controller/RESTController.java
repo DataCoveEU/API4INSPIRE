@@ -239,6 +239,7 @@ public class RESTController {
             filterParams.remove("offset");
             filterParams.remove("limit");
             filterParams.remove("bbox");
+            filterParams.remove("f");
             FeatureCollection fc = core.get(id, false, limit, offset, bbox, filterParams, host);
             if (fc != null) {
                 String params = filterParams.entrySet().stream()
