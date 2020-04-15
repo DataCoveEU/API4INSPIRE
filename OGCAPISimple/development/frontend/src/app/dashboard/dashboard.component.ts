@@ -937,22 +937,23 @@ export class DashboardComponent implements OnInit {
       'sqlName': this.idTableSelected
     };  
 
-    console.log(json);
+    var errorText = document.getElementById('sqlError');
     this.conService.updateSQL(json).then(()=>{
+      errorText.innerHTML = this.messages(false, "SQL upadted successfull", "INFORMATION");
       this.reload();
-      console.log("updated")
     }).catch((err)=>{
-      console.log("err");
+      errorText.innerHTML = this.messages(true, "SQL not upadted successfull", "INFORMATION");
     })
     
   }
 
   deleteSQL() {
+    var errorText = document.getElementById('sqlError');
     this.conService.delSQL({"name": this.idTableSelected}).then(()=>{
-        console.log("deleted")
+        errorText.innerHTML = this.messages(false, "SQL deleted successfull", "INFORMATION");
         this.reload();
       }).catch((err)=>{
-        console.log("err");
+        errorText.innerHTML = this.messages(true, "SQL not deleted successfull", "INFORMATION");
       })
   }
 
