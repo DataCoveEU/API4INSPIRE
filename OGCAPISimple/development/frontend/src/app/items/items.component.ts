@@ -73,26 +73,8 @@ export class ItemsComponent implements OnInit {
    * Load the items using the OGC Simple API
    */
   getItems(path: string) {
-    var newPath = path;
-    if(this.buildString().length != 0) {
-      if(path.includes("?")) {
-        //There are already parameters
-        if(this.buildString().length != 0) {
-          // there are parameters in buildString()
-          newPath = path + "&" + this.buildString();
-        }
-      } else {
-        //there are no parameters in path
-        if(this.buildString().length != 0) {
-          // there are parameters in buildString()
-          newPath = path + "?" + this.buildString();
-        }
-    }
-    
-      
-    }
     return new Promise((resolve, reject)=>{
-      this.httpClient.get(newPath)
+      this.httpClient.get(path + this.buildString())
       .subscribe((res)=>{
         resolve(res);
       }, (err)=>{
@@ -169,16 +151,14 @@ export class ItemsComponent implements OnInit {
   }
 
   buildString() {
-    var erg = "";
-    var filter = window.location.search.split('?f=text%2Fhtml')
-    if(filter[1] != "" ) {
-      var fil = filter[1].split("&")
-      for(let i = 1; i < fil.length; i++) {
-        erg = erg + fil[i] + "&"
-      }
-      return erg;
-    }
-    return erg;
+    var params = new URLSearchParams(window.location.search);
+    params.delete("f");
+    var url = new URL(window.location.toString());
+    var filts = url.search = params.toString()
+    if(filts.length != 0) {
+      return "?" + filts;
+    }  
+    return "";
   }
 
 }

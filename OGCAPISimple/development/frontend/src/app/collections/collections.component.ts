@@ -56,16 +56,14 @@ export class CollectionsComponent implements OnInit {
   }
 
   buildString() {
-    var erg = "";
-    var filter = window.location.search.split('?f=text%2Fhtml')
-    if(filter[1] != "" ) {
-      var fil = filter[1].split("&")
-      for(let i = 1; i < fil.length; i++) {
-        erg = erg + fil[i] + "&"
-      }
-      return "?" + erg;
-    }
-    return erg;
+    var params = new URLSearchParams(window.location.search);
+    params.delete("f");
+    var url = new URL(window.location.toString());
+    var filts = url.search = params.toString()
+    if(filts.length != 0) {
+      return "?" + filts;
+    }  
+    return "";
   }
 
 }
