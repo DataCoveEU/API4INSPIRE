@@ -147,6 +147,10 @@ export class ItemsComponent implements OnInit {
   parseSelf() {
     var show = document.getElementById("disp");
     var str = this.jsonLink.split("=");
+    if(str[2].includes("&")) {
+      var gs = str[2].split("&");
+      str[2] = gs[0];
+    }
     show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2])+10)
   }
 
@@ -154,10 +158,11 @@ export class ItemsComponent implements OnInit {
     var params = new URLSearchParams(window.location.search);
     params.delete("f");
     var url = new URL(window.location.toString());
-    var filts = url.search = params.toString()
+    var filts = url.search = params.toString();
     if(filts.length != 0) {
-      return "?" + filts;
+      return "?" + filts// + "&f=application/json";
     }  
+    //return "&f=application/json";
     return "";
   }
 

@@ -791,6 +791,7 @@ public class RESTController {
         return new ResponseEntity<>(o, HttpStatus.OK);
     }
 
+
     @RequestMapping(value = "/api/checkConnection", method = RequestMethod.POST)
     public ResponseEntity<Object> checkConnection(@RequestBody Map<String, ?> input) {
         String id = (String) input.get("id");
