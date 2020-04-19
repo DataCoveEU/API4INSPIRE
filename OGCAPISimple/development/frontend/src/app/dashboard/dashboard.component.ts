@@ -951,6 +951,7 @@ export class DashboardComponent implements OnInit {
     var errorText = document.getElementById('sqlError');
     this.conService.delSQL({"name": this.idTableSelected}).then(()=>{
         errorText.innerHTML = this.messages(false, "SQL deleted successfull", "INFORMATION");
+        this.idTableSelected = "";
         this.reload();
       }).catch((err)=>{
         errorText.innerHTML = this.messages(true, "SQL not deleted successfull", "INFORMATION");

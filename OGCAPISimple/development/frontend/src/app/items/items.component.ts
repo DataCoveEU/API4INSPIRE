@@ -20,6 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { isGeneratedFile } from '@angular/compiler/src/aot/util';
 
 @Component({
   selector: 'app-items',
@@ -49,7 +50,7 @@ export class ItemsComponent implements OnInit {
       this.collection = query.collection;
     });
     // load all the items
-    this.items = await this.getItems("collections/" + this.collection + "/items");
+    this.items = await this.getItems("collections/" + this.collection + "/items", false, false);
 
     if(!this.containsLink("next", this.items)) {
       this.nextAv = false;
@@ -72,9 +73,9 @@ export class ItemsComponent implements OnInit {
   /**
    * Load the items using the OGC Simple API
    */
-  getItems(path: string) {
+  getItems(path: string, isNext, isBefore) {
     return new Promise((resolve, reject)=>{
-      this.httpClient.get(path + this.buildString())
+      this.httpClient.get(path + this.buildString(isNext, isBefore))
       .subscribe((res)=>{
         resolve(res);
       }, (err)=>{
@@ -85,7 +86,7 @@ export class ItemsComponent implements OnInit {
 
 
   async nextPage() {
-      this.items = await this.getItems(this.next);
+      this.items = await this.getItems(this.next, true, false);
     if(!this.containsLink("next", this.items)) {
       this.nextAv = false;
     } else {
@@ -106,7 +107,7 @@ export class ItemsComponent implements OnInit {
   }
 
   async previousPage() {
-    this.items = await this.getItems(this.previous);
+    this.items = await this.getItems(this.previous, false, true);
       
     if(!this.containsLink("next", this.items)) {
       this.nextAv = false;
@@ -151,14 +152,27 @@ export class ItemsComponent implements OnInit {
       var gs = str[2].split("&");
       str[2] = gs[0];
     }
-    show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2])+10)
+    var params = new URLSearchParams(window.location.search);
+    var add = params.get("limit") != null ? params.get("limit") : 10
+    if(params.get("limit") == null) {
+      show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2]) + 10)
+    } else {
+      show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2]) + parseInt(params.get("limit")))
+    }
+    
   }
 
-  buildString() {
-    var params = new URLSearchParams(window.location.search);
-    params.delete("f");
-    var url = new URL(window.location.toString());
-    var filts = url.search = params.toString();
+  buildString(isNext, isBefore) {
+    var filts = "";
+    if(isNext || isBefore) {
+      var params = new URLSearchParams(window.location.search);
+      params.delete("f");
+      params.delete("limit");
+      params.delete("offset");
+      var url = new URL(window.location.toString());
+      filts = url.search = params.toString();  
+    }
+
     if(filts.length != 0) {
       return "?" + filts// + "&f=application/json";
     }  
