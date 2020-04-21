@@ -21,6 +21,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { isGeneratedFile } from '@angular/compiler/src/aot/util';
+import { parseTemplate } from '@angular/compiler';
 
 @Component({
   selector: 'app-items',
@@ -153,8 +154,7 @@ export class ItemsComponent implements OnInit {
       str[2] = gs[0];
     }
     var params = new URLSearchParams(window.location.search);
-    var add = params.get("limit") != null ? params.get("limit") : 10
-    if(params.get("limit") == null) {
+    if(params.                                                                                                                                                                                          get("limit") == null) {
       show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2]) + 10)
     } else {
       show.innerHTML = "Displaying items: " + str[2] + " - " + (parseInt(str[2]) + parseInt(params.get("limit")))
@@ -164,20 +164,20 @@ export class ItemsComponent implements OnInit {
 
   buildString(isNext, isBefore) {
     var filts = "";
+    var params = new URLSearchParams(window.location.search);
+    params.delete("f");
+    var url = new URL(window.location.toString());
+    filts = url.search = params.toString();  
     if(isNext || isBefore) {
-      var params = new URLSearchParams(window.location.search);
       params.delete("f");
       params.delete("limit");
       params.delete("offset");
-      var url = new URL(window.location.toString());
       filts = url.search = params.toString();  
     }
-
     if(filts.length != 0) {
-      return "?" + filts// + "&f=application/json";
+      return "?" + filts // + "&f=application/json";
     }  
-    //return "&f=application/json";
-    return "";
+    return filts;
   }
 
 }
