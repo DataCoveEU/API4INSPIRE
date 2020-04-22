@@ -62,4 +62,5 @@ Hydrological Network [HY], Surface Water Quality [EF & OM]
 * STA: https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1 
 * Viewer: https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/114/ 
 
+**This work is developed under the European Location Interoperability Solutions for e-Government (ELISE) Action, financed by Interoperability solutions for public administrations, businesses and citizens (ISA²) Programme.**
 
