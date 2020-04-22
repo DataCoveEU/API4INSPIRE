@@ -64,3 +64,4 @@ Hydrological Network [HY], Surface Water Quality [EF & OM]
 
 **This work is developed under the European Location Interoperability Solutions for e-Government (ELISE) Action, financed by Interoperability solutions for public administrations, businesses and citizens (ISA²) Programme.**
 
+![ELISE](https://github.com/DataCoveEU/API4INSPIRE/blob/master/STA%20Documentation/ELISE%20name%20VI%20-%20small.png "ELISE - Enabling digital government through geospatial & location intelligence")
