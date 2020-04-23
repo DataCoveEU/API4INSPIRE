@@ -29,6 +29,8 @@ import com.inspire.development.core.Core;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -82,6 +84,7 @@ public class RESTController {
         hostEnv = System.getenv("HOST_OGCAPISIMPLE");
     }
 
+    @CrossOrigin(maxAge = 3600)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/openapi.json")
     public @ResponseBody
     Object getApiDef() {
@@ -94,6 +97,7 @@ public class RESTController {
         return null;
     }
 
+    @CrossOrigin(maxAge = 3600)
     @RequestMapping(path = "/api", produces = {"text/html", "application/json"})
     @ResponseBody
     public Object index(@RequestParam(required = false, defaultValue = "text/html") String f) {
@@ -117,6 +121,7 @@ public class RESTController {
         }
     }
 
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/collections")
     public Object Collections(@RequestHeader("Accept") String content,
                               @RequestHeader(name = "Host", required = false) String host,
@@ -172,6 +177,7 @@ public class RESTController {
      * Gets the conformance declaration
      * @return the json file which contains the conformance declaration
      */
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/conformance")
     public ConformanceDeclaration getConformance() {
         String[] links = {
@@ -188,6 +194,7 @@ public class RESTController {
      * @param id the id of the feature Collection
      * @return the collection with the id
      */
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/collections/{collectionId}")
     public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id,
                                                  @RequestHeader(name = "Host", required = false) String host) {
@@ -223,6 +230,7 @@ public class RESTController {
      * @param id the id of the feature Collection
      * @return all of the items of the matching feature collection
      */
+    @CrossOrigin(maxAge = 3600)
     @RequestMapping(path = "/collections/{collectionId}/items", method = RequestMethod.GET)
     @ResponseBody
     public Object getCollectionItems(@PathVariable("collectionId") String id,
@@ -234,7 +242,12 @@ public class RESTController {
                                      @RequestParam(required = false, defaultValue = "application/json") String f) {
         host = hostEnv != null ? hostEnv : host;
         if (f.equals("application/json")) {
+            Map<String,String> linkParams = new HashMap();
 
+            //Clone Map
+            for (Map.Entry<String,String> entry: filterParams.entrySet()) {
+                linkParams.put(entry.getKey(), entry.getValue());
+            }
             //Removing offset and limit param and bbox
             filterParams.remove("offset");
             filterParams.remove("limit");
@@ -242,11 +255,15 @@ public class RESTController {
             filterParams.remove("f");
             FeatureCollection fc = core.get(id, false, limit, offset, bbox, filterParams, host);
             if (fc != null) {
-                String params = filterParams.entrySet().stream()
-                        .map(p -> p.getKey() + "=" + p.getValue())
-                        .reduce((p1, p2) -> p1 + "&" + p2)
-                        .map(s -> "&" + s)
-                        .orElse("");
+
+                String params = linkParams.entrySet().stream()
+                    .map(p -> urlEncodeUTF8(p.getKey()) + "=" + urlEncodeUTF8(p.getValue()))
+                    .reduce((p1, p2) -> p1 + "&" + p2)
+                    .orElse("");
+
+                if(params != "")
+                    params = "&" + params;
+
 
                 fc.getLinks()
                         .add(new Link(
@@ -283,6 +300,16 @@ public class RESTController {
         }
     }
 
+    static String urlEncodeUTF8(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedOperationException(e);
+        }
+    }
+
+
+
     /**
      * Gets the items of a special item (=feature) from a special feature collection
      * @param host host header
@@ -290,6 +317,7 @@ public class RESTController {
      * @param featureId    the id of the item (=feature)
      * @return a special item (=feature) from a collection
      */
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/collections/{collectionId}/items/{featureId}")
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
