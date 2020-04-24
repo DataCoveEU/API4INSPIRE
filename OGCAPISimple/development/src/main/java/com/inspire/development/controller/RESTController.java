@@ -29,6 +29,8 @@ import com.inspire.development.core.Core;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.PostgreSQL;
 import com.inspire.development.database.connector.SQLite;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -82,6 +84,7 @@ public class RESTController {
         hostEnv = System.getenv("HOST_OGCAPISIMPLE");
     }
 
+    @CrossOrigin(maxAge = 3600)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/openapi.json")
     public @ResponseBody
     Object getApiDef() {
@@ -94,6 +97,7 @@ public class RESTController {
         return null;
     }
 
+    @CrossOrigin(maxAge = 3600)
     @RequestMapping(path = "/api", produces = {"text/html", "application/json"})
     @ResponseBody
     public Object index(@RequestParam(required = false, defaultValue = "text/html") String f) {
@@ -117,9 +121,11 @@ public class RESTController {
         }
     }
 
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/collections")
     public Object Collections(@RequestHeader("Accept") String content,
-                              @RequestHeader(name = "Host", required = false) String host, @RequestParam(required = false, defaultValue = "application/json") String f) {
+                              @RequestHeader(name = "Host", required = false) String host,
+                              @RequestParam(required = false, defaultValue = "application/json") String f) {
         host = hostEnv != null ? hostEnv : host;
         if (f.equals("application/json")) {
             Collections c = new Collections(Arrays.asList(core.getAll()));
@@ -171,6 +177,7 @@ public class RESTController {
      * Gets the conformance declaration
      * @return the json file which contains the conformance declaration
      */
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/conformance")
     public ConformanceDeclaration getConformance() {
         String[] links = {
@@ -187,6 +194,7 @@ public class RESTController {
      * @param id the id of the feature Collection
      * @return the collection with the id
      */
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/collections/{collectionId}")
     public ResponseEntity<Object> getCollections(@PathVariable("collectionId") String id,
                                                  @RequestHeader(name = "Host", required = false) String host) {
@@ -222,6 +230,7 @@ public class RESTController {
      * @param id the id of the feature Collection
      * @return all of the items of the matching feature collection
      */
+    @CrossOrigin(maxAge = 3600)
     @RequestMapping(path = "/collections/{collectionId}/items", method = RequestMethod.GET)
     @ResponseBody
     public Object getCollectionItems(@PathVariable("collectionId") String id,
@@ -233,18 +242,28 @@ public class RESTController {
                                      @RequestParam(required = false, defaultValue = "application/json") String f) {
         host = hostEnv != null ? hostEnv : host;
         if (f.equals("application/json")) {
+            Map<String,String> linkParams = new HashMap();
 
+            //Clone Map
+            for (Map.Entry<String,String> entry: filterParams.entrySet()) {
+                linkParams.put(entry.getKey(), entry.getValue());
+            }
             //Removing offset and limit param and bbox
             filterParams.remove("offset");
             filterParams.remove("limit");
             filterParams.remove("bbox");
+            filterParams.remove("f");
             FeatureCollection fc = core.get(id, false, limit, offset, bbox, filterParams, host);
             if (fc != null) {
-                String params = filterParams.entrySet().stream()
-                        .map(p -> p.getKey() + "=" + p.getValue())
-                        .reduce((p1, p2) -> p1 + "&" + p2)
-                        .map(s -> "&" + s)
-                        .orElse("");
+
+                String params = linkParams.entrySet().stream()
+                    .map(p -> urlEncodeUTF8(p.getKey()) + "=" + urlEncodeUTF8(p.getValue()))
+                    .reduce((p1, p2) -> p1 + "&" + p2)
+                    .orElse("");
+
+                if(params != "")
+                    params = "&" + params;
+
 
                 fc.getLinks()
                         .add(new Link(
@@ -281,6 +300,16 @@ public class RESTController {
         }
     }
 
+    static String urlEncodeUTF8(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedOperationException(e);
+        }
+    }
+
+
+
     /**
      * Gets the items of a special item (=feature) from a special feature collection
      * @param host host header
@@ -288,6 +317,7 @@ public class RESTController {
      * @param featureId    the id of the item (=feature)
      * @return a special item (=feature) from a collection
      */
+    @CrossOrigin(maxAge = 3600)
     @GetMapping("/collections/{collectionId}/items/{featureId}")
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
@@ -382,17 +412,25 @@ public class RESTController {
                     if (id != null) {
                         //Get Connector by ID
                         DBConnector db = core.getConnectorById(id);
-                        if (db != null) {
+                        if (db != null && db instanceof PostgreSQL) {
                             //Cast Connector
                             PostgreSQL postgreSQL = (PostgreSQL) db;
+
+                            String newid = (String) input.get("newid");
+                            if(newid != null)
+                                postgreSQL.setName(newid);
+
                             String database = (String) input.get("database");
-                            postgreSQL.setDatabase(database);
+                            if(database != null)
+                                postgreSQL.setDatabase(database);
 
                             String schema = (String) input.get("schema");
-                            postgreSQL.setSchema(schema);
+                            if(schema != null)
+                                postgreSQL.setSchema(schema);
 
                             String hostname = (String) input.get("hostname");
-                            postgreSQL.setHostname(hostname);
+                            if(hostname != null)
+                                postgreSQL.setHostname(hostname);
 
                             Integer port = (Integer) input.get("port");
                             if (port != null) {
@@ -400,10 +438,12 @@ public class RESTController {
                             }
 
                             String username = (String) input.get("username");
-                            postgreSQL.setUsername(username);
+                            if(username != null)
+                                postgreSQL.setUsername(username);
 
                             String password = (String) input.get("password");
-                            postgreSQL.setPassword(password);
+                            if(password != null)
+                                postgreSQL.setPassword(password);
 
                             String error = postgreSQL.updateConnector();
                             if (error == null) {
@@ -756,6 +796,20 @@ public class RESTController {
             return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/editSQL", method = RequestMethod.POST)
+    public ResponseEntity<Object> editSQL(@RequestBody Map<String, ?> input) {
+        String id = (String) input.get("id");
+        if (id == null) return new ResponseEntity<>("Connector id is null", HttpStatus.BAD_REQUEST);
+        DBConnector db = core.getConnectorById(id);
+        if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
+        String sql = (String )input.get("sql");
+        if(sql == null) return new ResponseEntity<>("SQL is null", HttpStatus.BAD_REQUEST);
+        String sqlName = (String )input.get("sqlName");
+        if(sqlName == null) return new ResponseEntity<>("SQLName is null", HttpStatus.BAD_REQUEST);
+        db.getSqlString().put(sqlName,sql);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/deleteSQL", method = RequestMethod.POST)
     public ResponseEntity<Object> deleteSQL(@RequestBody Map<String, ?> input) {
         String name = (String) input.get("name");
@@ -764,6 +818,7 @@ public class RESTController {
         core.writeConfig(core.getConfigPath(), core.getConnectionPath());
         return new ResponseEntity<>(o, HttpStatus.OK);
     }
+
 
     @RequestMapping(value = "/api/checkConnection", method = RequestMethod.POST)
     public ResponseEntity<Object> checkConnection(@RequestBody Map<String, ?> input) {

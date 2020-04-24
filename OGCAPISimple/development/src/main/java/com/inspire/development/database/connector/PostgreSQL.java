@@ -633,7 +633,8 @@ public class PostgreSQL implements DBConnector {
             }
         }
 
-        if (geoCol != null && withSpatial) {
+        ColumnConfig columnConfig = tc.getMap().get(geoCol);
+        if (geoCol != null && withSpatial && (columnConfig == null || (columnConfig != null && !columnConfig.isExclude()))) {
             log.debug("Getting Bounding Box for Table: " + queryName);
             ResultSet resultSet = SqlBBox(sql, geoCol);
 
@@ -1005,5 +1006,9 @@ public class PostgreSQL implements DBConnector {
      */
     public boolean removeSQL(String name) {
         return sqlString.remove(name) != null;
+    }
+
+    public void setName(String id) {
+      this.id = id;
     }
 }

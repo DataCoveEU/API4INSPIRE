@@ -239,20 +239,20 @@ export class DashboardComponent implements OnInit {
       
     
     if(this.selectedConnector.config[name] == undefined) {
-      console.log("Connector for this table is undefined")
+//      console.log("Connector for this table is undefined")
       this.geoColumn = "";
     } else if(this.selectedConnector.config[name].geoCol == undefined) {
-      console.log("There is no geo column for this table yet")
+//      console.log("There is no geo column for this table yet")
       this.geoColumn = "";
     } else {
       this.geoColumn = this.selectedConnector.config[name].geoCol
     }
 
     if(this.selectedConnector.config[name] == undefined) {
-      console.log("Connector for this table is undefined")
+//      console.log("Connector for this table is undefined")
       this.idColumn = "";
     } else if(this.selectedConnector.config[name].idCol == undefined) {
-      console.log("There is no id column for this table yet")
+//      console.log("There is no id column for this table yet")
       this.idColumn = "";
     } else {
       this.idColumn = this.selectedConnector.config[name].idCol
@@ -501,7 +501,7 @@ export class DashboardComponent implements OnInit {
       'id': this.selectedConnector.id,
       'sql': this.sqlForm.value.sqlQuery,
       'collectionName': this.sqlForm.value.collectionId,
-      'check': false
+      'check': true
     };
 
     var errorText = document.getElementById('sqlError');
@@ -928,6 +928,34 @@ export class DashboardComponent implements OnInit {
               </div>`;
     }
     return erg;
+  }
+
+  updateSQL() {
+    var json = {
+      'id': this.selectedConnector.id,
+      'sql': this.sqlForm.value.sqlQuery,
+      'sqlName': this.idTableSelected
+    };  
+
+    var errorText = document.getElementById('sqlError');
+    this.conService.updateSQL(json).then(()=>{
+      errorText.innerHTML = this.messages(false, "SQL upadted successfull", "INFORMATION");
+      this.reload();
+    }).catch((err)=>{
+      errorText.innerHTML = this.messages(true, "SQL not upadted successfull", "INFORMATION");
+    })
+    
+  }
+
+  deleteSQL() {
+    var errorText = document.getElementById('sqlError');
+    this.conService.delSQL({"name": this.idTableSelected}).then(()=>{
+        errorText.innerHTML = this.messages(false, "SQL deleted successfull", "INFORMATION");
+        this.idTableSelected = "";
+        this.reload();
+      }).catch((err)=>{
+        errorText.innerHTML = this.messages(true, "SQL not deleted successfull", "INFORMATION");
+      })
   }
 
   

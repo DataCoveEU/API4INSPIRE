@@ -150,10 +150,18 @@ export class PropertiesComponent implements OnInit {
     var json = {
       'class': "postgres",
       'id': this.selectedConnector.id,
-      'username': this.changeUsernameForm.value.newName
+      'newid': this.connectorNameForm.value.conName
     };
-
-    alert("Not implemented in the backend yet!!!");
+    var er = document.getElementById("infoField");
+    this.con.changeConnectorProps(json).then(async ()=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(false, "Connectorname changed", "INFORMATION");
+      await this.reloadData();
+    }).catch((err)=>{
+      er.style.marginTop = "2%";
+      er.innerHTML = this.messages(true, "Connectorname not changed", "ERROR");
+      console.log(err);
+    })
   }
 
   /**

@@ -37,6 +37,9 @@ export class CollectionsComponent implements OnInit {
     //Init the feature collectins array
     var col:any = (await this.getCollections());
     this.featureCollections = col.collections;
+
+    
+    
   }
 
   /**
@@ -44,12 +47,23 @@ export class CollectionsComponent implements OnInit {
    */
   async getCollections() {
     return new Promise((resolve, reject) =>{
-      this.httpClient.get('collections').subscribe((res)=>{
+      this.httpClient.get('collections' + this.buildString()).subscribe((res)=>{
         resolve(res);
       }, (err)=>{
         reject(err);
       })
     });
+  }
+
+  buildString() {
+    var params = new URLSearchParams(window.location.search);
+    params.delete("f");
+    var url = new URL(window.location.toString());
+    var filts = url.search = params.toString()
+    if(filts.length != 0) {
+      return "?" + filts;
+    }  
+    return "";
   }
 
 }
