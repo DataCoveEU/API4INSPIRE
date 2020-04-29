@@ -22,6 +22,7 @@ import { Component, OnInit, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR } from '@ang
 import * as $ from 'jquery';
 import { ConnectorService } from '../connector.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { async } from '@angular/core/testing';
 
 @Component({
   selector: 'app-properties',
@@ -109,7 +110,7 @@ export class PropertiesComponent implements OnInit {
 
     var sel = document.getElementById('connector') as HTMLSelectElement;
     this.selectedConnector = this.connectors[0];
-    
+
     this.index = sel.selectedIndex;
     this.index == -1 ? this.index = 0 : this.index = this.index
 
@@ -160,7 +161,7 @@ export class PropertiesComponent implements OnInit {
     }).catch((err)=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Connectorname not changed", "ERROR");
-      console.log(err);
+      
     })
   }
 
@@ -180,9 +181,10 @@ export class PropertiesComponent implements OnInit {
     };
 
     var er = document.getElementById("infoField");
-    this.con.changeConnectorProps(json).then(()=>{
+    this.con.changeConnectorProps(json).then(async ()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Usernamed changed", "INFORMATION");
+      await this.reloadData();
     }).catch((err)=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Usernamed not changed", "ERROR");
@@ -205,9 +207,10 @@ export class PropertiesComponent implements OnInit {
     };
 
     var er = document.getElementById("infoField");
-    this.con.changeConnectorProps(json).then(()=>{
+    this.con.changeConnectorProps(json).then(async()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Password changed", "INFORMATION");
+      await this.reloadData();
     }).catch((err)=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Password not changed", "ERROR");
@@ -230,9 +233,10 @@ export class PropertiesComponent implements OnInit {
     };
 
     var er = document.getElementById("infoField");
-    this.con.changeConnectorProps(json).then(()=>{
+    this.con.changeConnectorProps(json).then(async ()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Hostname changed", "INFORMATION");
+      await this.reloadData();
     }).catch((err)=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Hostname not changed", "ERROR");
@@ -254,9 +258,10 @@ export class PropertiesComponent implements OnInit {
       'id': this.selectedConnector.id,
       'port': this.changePortForm.value.newPort
     };
-    this.con.changeConnectorProps(json).then(()=>{
+    this.con.changeConnectorProps(json).then(async ()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Port changed", "INFORMATION");
+      await this.reloadData();
     }).catch((err)=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Port not changed", "ERROR");
@@ -279,9 +284,10 @@ export class PropertiesComponent implements OnInit {
     };
 
     var er = document.getElementById("infoField");
-    this.con.changeConnectorProps(json).then(()=>{
+    this.con.changeConnectorProps(json).then(async ()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Schema changed", "INFORMATION");
+      await this.reloadData();
     }).catch(()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Schema not changed", "ERROR");
@@ -304,9 +310,10 @@ export class PropertiesComponent implements OnInit {
     };
 
     var er = document.getElementById("infoField");
-    this.con.changeConnectorProps(json).then(()=>{
+    this.con.changeConnectorProps(json).then(async ()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Database changed", "INFORMATION");
+      await this.reloadData();
     }).catch(()=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Database not changed", "ERROR");
@@ -318,10 +325,11 @@ export class PropertiesComponent implements OnInit {
    */
   async delConnector() {
     var er = document.getElementById("infoField");
-    this.con.deleteConnector({'id': this.selectedConnector.id}).then(()=>{
+    this.con.deleteConnector({'id': this.selectedConnector.id}).then(async ()=>{
       //Show infor message
       er.style.marginTop = "2%";
-          er.innerHTML = this.messages(false, "Connection deleted", "INFORMATION");
+      er.innerHTML = this.messages(false, "Connection deleted", "INFORMATION");
+      await this.reloadData();
     }).catch((err)=>{
       //Show error message
       er.style.marginTop = "2%";
@@ -354,7 +362,6 @@ export class PropertiesComponent implements OnInit {
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Connector renamed", "INFORMATION")
       await this.reloadData();
-
     }).catch((err)=>{
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(true, "Connector not renamed", "ERROR");
@@ -405,32 +412,24 @@ export class PropertiesComponent implements OnInit {
   }
 
   async reloadData() {
-      this.connectors = await this.con.getConnector();
-   
-      this.index = 0;
-      var sel = document.getElementById('connector') as HTMLSelectElement;
-      sel.value = this.index;
-
-     this.selectedConnector = this.connectors[0];
-      var cal = this.connectors[0].class;
-      if(cal.includes("PostgreSQL")) {
-        this.sqlite = false;
-        this.postgres = true;
-      } else if(cal.includes("SQLite")) {
-        this.sqlite = true;
-        this.postgres = false;
-      }
+    var indx = this.findIndexById(this.selectedConnector.id);
+    await this.con.getConnector().then((data) => {
+      this.connectors = data;
+      this.selectedConnector = this.connectors[indx];
+      console.log(indx);
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
   }
 
-  async reloadWithOutChange() {
-    var indx = this.index;
-    this.connectors = await this.con.getConnector();
-    this.selectedConnector = this.connectors[indx];
-
-    if(this.connectors.length == 0) {
-      this.sqlite = false;
-      this.postgres = false;
+  findIndexById(id) {
+    for(let i = 0; i < this.connectors.length; i++) {
+      if(this.connectors[i].id == id ) {
+        return i;
+      }
     }
+    return -1;
   }
 
 }

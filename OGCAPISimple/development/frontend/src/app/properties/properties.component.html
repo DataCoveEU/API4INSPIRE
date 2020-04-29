@@ -29,7 +29,7 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option *ngFor="let connector of this.connectors; let i = index" [attr.value]=i [attr.id]=connector.class>{{ connector.id }}</option>
+                        <option *ngFor="let connector of this.connectors; let i = index" [attr.value]=i [attr.class]=connector.id [attr.id]=connector.class [selected]="connector.id == selectedConnector.id">{{ connector.id }}</option>
                     </select>
                 </div>
                 <div class="col-sm-6">
