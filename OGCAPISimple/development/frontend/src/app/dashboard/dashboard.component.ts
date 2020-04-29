@@ -503,6 +503,7 @@ export class DashboardComponent implements OnInit {
       'collectionName': this.sqlForm.value.collectionId,
       'check': true
     };
+    console.log(json)
 
     var errorText = document.getElementById('sqlError');
     //Call the service
@@ -513,6 +514,7 @@ export class DashboardComponent implements OnInit {
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;
+      console.log(err);
       //Show error message
       errorText.innerHTML = this.messages(true, `${err.error}`, "SQL TEST ERROR");
     });
