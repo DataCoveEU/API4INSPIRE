@@ -1,5 +1,5 @@
 /*
- * The OGC API Simple provides enviromental data
+ * The OGC API Simple provides environmental data
  * Created on Wed Feb 26 2020
  * @author Tobias Pressler
  * Copyright (c) 2020 - Tobias Pressler
@@ -731,7 +731,7 @@ public class RESTController {
         DBConnector db = core.getConnectorById(id);
         if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
         Object exl = input.get("exclude");
-        if (exl == null) return new ResponseEntity<>("Exclued Value is null", HttpStatus.BAD_REQUEST);
+        if (exl == null) return new ResponseEntity<>("Excluded Value is null", HttpStatus.BAD_REQUEST);
         boolean exclude = (Boolean) exl;
         for (int i = 0; i < db.getAllTables().size(); i++)
             db.setTableExclude(db.getAllTables().get(i), exclude);

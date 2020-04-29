@@ -1,5 +1,5 @@
 /*
- * The OGC API Simple provides enviromental data
+ * The OGC API Simple provides environmental data
  * Created on Wed Feb 26 2020
  * @author Tobias Pressler
  * Copyright (c) 2020 - Tobias Pressler
@@ -394,7 +394,7 @@ public class PostgreSQL implements DBConnector {
      */
     @Override
     public void renameProp(String table, String feature, String featureAlias) {
-        log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
+        log.info("Renaming property: " + feature + " to " + featureAlias + ", in table " + table);
         if (config.containsKey(table)) {
             TableConfig conf = config.get(table);
             conf.getMap().put(feature, new ColumnConfig(featureAlias, false));
@@ -488,7 +488,7 @@ public class PostgreSQL implements DBConnector {
      * @param withSpatial  true if spatial info shall be provided in the response
      * @param limit        limit on how many items shall be included in the response
      * @param offset       offset to the data in the database
-     * @param bbox         array in the form of [xmin, ymin, xmax, ymax]. Only data with an intersecting boundingbox is included in the response
+     * @param bbox         array in the form of [xmin, ymin, xmax, ymax]. Only data with an intersecting bounding box is included in the response
      * @param filterParams Params to be filtered by. Null if nothing should be filtered by
      * @return FeatureCollection with data specified by the params
      * @throws Exception Thrown if any SQLException occurred.
@@ -660,7 +660,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Get the Resultset with the given filters
+     * Get the resultset with the given filters
      * @param sql          sql to be executed
      * @param filterParams Parameters to be filtered by
      * @param bbox         bbox to be used while filtering
@@ -901,7 +901,7 @@ public class PostgreSQL implements DBConnector {
     }
 
     /**
-     * Get daabase name
+     * Get database name
      * @return database name
      */
     @JsonProperty
