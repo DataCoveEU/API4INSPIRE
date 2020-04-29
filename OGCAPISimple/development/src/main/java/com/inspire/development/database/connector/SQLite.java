@@ -97,10 +97,9 @@ public class SQLite implements DBConnector {
 
             log.info("Created SQL Connector with the id: " + id);
         } catch (SQLException e) {
-            log.error("Error creating connector with the id: " + id + ". Error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error creating connector with the id: " + id + ". Error: ", e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("Error with SQLite creation: ", e);
         }
     }
 
