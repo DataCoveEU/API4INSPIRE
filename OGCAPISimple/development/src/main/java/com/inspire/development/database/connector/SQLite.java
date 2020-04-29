@@ -1,5 +1,5 @@
 /*
- * The OGC API Simple provides enviromental data
+ * The OGC API Simple provides environmental data
  * Created on Wed Feb 26 2020
  * @author Tobias Pressler
  * Copyright (c) 2020 - Tobias Pressler
@@ -97,10 +97,9 @@ public class SQLite implements DBConnector {
 
             log.info("Created SQL Connector with the id: " + id);
         } catch (SQLException e) {
-            log.error("Error creating connector with the id: " + id + ". Error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error creating connector with the id: " + id + ". Error: ", e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("Error with SQLite creation: ", e);
         }
     }
 
@@ -141,8 +140,7 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName, boolean check){
-        try {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) throws Exception{
             sql = sql.replace(";","");
             c.createStatement().executeQuery(sql);
             //SQL Executed
@@ -151,9 +149,6 @@ public class SQLite implements DBConnector {
             if(check)
                 sqlString.remove(featureCollectionName);
             return fc;
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     /**
@@ -283,7 +278,7 @@ public class SQLite implements DBConnector {
      * {@inheritDoc}
      */
     public void renameProp(String table, String feature, String featureAlias) {
-        log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
+        log.info("Renaming property: " + feature + " to " + featureAlias + ", in table " + table);
         if (config.containsKey(table)) {
             TableConfig conf = config.get(table);
             conf.getMap().put(feature, new ColumnConfig(featureAlias, false));
@@ -377,7 +372,7 @@ public class SQLite implements DBConnector {
     /**
      * Gets table config by alias
      * @param alias Table alias
-     * @return table config if exists eles null
+     * @return table config if exists else null
      */
     public TableConfig getConfByAlias(String alias) {
         log.debug("Getting config by alias for alias: " + alias);

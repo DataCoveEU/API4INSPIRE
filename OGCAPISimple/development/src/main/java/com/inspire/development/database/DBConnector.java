@@ -1,5 +1,5 @@
 /*
- * The OGC API Simple provides enviromental data
+ * The OGC API Simple provides environmental data
  * Created on Wed Feb 26 2020
  * @author Tobias Pressler
  * Copyright (c) 2020 - Tobias Pressler
@@ -52,7 +52,7 @@ public interface DBConnector {
      * @param check true if featureCollection should be kept
      * @return Feature Collection from SQL query result, null if error occurred.
      */
-    FeatureCollection execute(String sql, String fcName, boolean check);
+    FeatureCollection execute(String sql, String fcName, boolean check) throws Exception;
 
     /**
      * Get FeatureCollection with given name

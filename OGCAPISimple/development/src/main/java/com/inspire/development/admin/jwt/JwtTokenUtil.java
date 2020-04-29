@@ -1,5 +1,5 @@
 /*
- * The OGC API Simple provides enviromental data
+ * The OGC API Simple provides environmental data
  * Created on Wed Feb 26 2020
  * @author Tobias Pressler
  * Copyright (c) 2020 - Tobias Pressler
@@ -56,7 +56,7 @@ public class JwtTokenUtil implements Serializable {
         return claimsResolver.apply(claims);
     }
 
-    //for retrieveing any information from token we will need the secret key
+    //for retrieving any information from token we will need the secret key
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }

@@ -1,5 +1,5 @@
 <!--
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -29,7 +29,7 @@
             <div class="row" style="width: 100%;">
                 <div class="col-sm-6">
                     <select class="form-control shadow-sm" style="width: 100%;" id="connector">
-                        <option *ngFor="let connector of this.connectors; let i = index" [attr.value]=i [attr.id]=connector.class>{{ connector.id }}</option>
+                        <option *ngFor="let connector of this.connectors; let i = index" [attr.value]=i [attr.class]=connector.id [attr.id]=connector.class [selected]="connector.id == selectedConnector.id">{{ connector.id }}</option>
                     </select>
                 </div>
                 <div class="col-sm-6">
@@ -66,7 +66,7 @@
                         <div class="row" style="width: 100%; margin-top: 1%">
                             <div class="col-sm-6">
                                 <label style="width: 100%">
-                                    Connectorname
+                                    Connector name
                                     <input type="text" formControlName="conName" class="form-control shadow-sm" [value]=this.selectedConnector.id />
                                     <div *ngIf="connectorNameSubmitted && connectorNameForm.controls.conName.errors" class="error">
                                         <div *ngIf="connectorNameForm.controls.conName.errors.required">A connector name is required</div>

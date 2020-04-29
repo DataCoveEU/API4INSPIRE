@@ -1,5 +1,5 @@
 /*
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -37,7 +37,7 @@ export class DashboardComponent implements OnInit {
   //The table names that will be displayed
   tableNames = [];
 
-  //The columnnames that will be displayed
+  //The column names that will be displayed
   columnNames = [];
   //columnConfigNames = [];
 
@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit {
 
   //Check if a column is selected
   columnSelected: boolean = false;
-  //The id of the selectd column
+  //The id of the selected column
   idColumnSelected: string = "";
 
   //The form to assign a collection name
@@ -85,7 +85,7 @@ export class DashboardComponent implements OnInit {
   addLinkSubmitted: boolean = false;
 
   //Check if the sql query was executed successfully or not
-  sqlNotSucess: boolean = false;
+  sqlNotSuccess: boolean = false;
 
   //Show the error field or not show it
   errorField: boolean = false;
@@ -106,7 +106,7 @@ export class DashboardComponent implements OnInit {
                 private conService: ConnectorService,
                 private featureService: FeatureService,
                 private sqlService: SqlService,
-                private homeSerivce: HomeService) { }
+                private homeService: HomeService) { }
 
 
 
@@ -130,7 +130,7 @@ export class DashboardComponent implements OnInit {
       columnName: ['', Validators.required]
     });
 
-    this.importantLinks = await this.homeSerivce.getLinks();
+    this.importantLinks = await this.homeService.getLinks();
 
 
     //Load all the connectors from the config
@@ -151,7 +151,7 @@ export class DashboardComponent implements OnInit {
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
     
 
-    //Event when another conneector in the dropdown is selected
+    //Event when another connector in the dropdown is selected
     select.onchange = async (event: any)=>{
       var select = document.getElementById("selectField") as HTMLSelectElement;
       this.selectedConnector = this.connectors[select.selectedIndex];
@@ -204,14 +204,14 @@ export class DashboardComponent implements OnInit {
    * @param name the name or the id of the table row that has been clicked
    */
   async onClickTableName(name: string) {
-    // If a "tablename row" is already selected, then
+    // If a "table name row" is already selected, then
     // you have to change the style
     if(this.tableSelect) {
       var change = document.getElementById(this.idTableSelected);
       change.style.backgroundColor = "white";
       change.style.color = "black";
 
-      // If a "columnname row" is also selected
+      // If a "column name row" is also selected
       // then you have to deselect is
       if(this.columnSelected) {
         var col = document.getElementById(this.idColumnSelected)
@@ -284,7 +284,7 @@ export class DashboardComponent implements OnInit {
     }
    
 
-    // If a "columnname row" is already selected
+    // If a "column name row" is already selected
     // it has to be deselected
     if(this.columnSelected) {
       var change = document.getElementById(this.idColumnSelected);
@@ -424,7 +424,7 @@ export class DashboardComponent implements OnInit {
       this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+this.idTableSelected});
       //Info message
       er.style.marginTop = "2%";
-      er.innerHTML = this.messages(false, "Column renamed successfull", "INFORMATION");
+      er.innerHTML = this.messages(false, "Column renamed successful", "INFORMATION");
     }).catch(()=>{
           //Error message
           er.style.marginTop = "2%";
@@ -476,12 +476,12 @@ export class DashboardComponent implements OnInit {
     this.sqlService.executeSQL(json).then(
       async ()=>{
         //Show info message
-        errorText.innerHTML = this.messages(false, "SQL executed successfull. The view has been added to the list of collections above", "INFORMATION");
+        errorText.innerHTML = this.messages(false, "SQL executed successful. The view has been added to the list of collections above", "INFORMATION");
         this.reload();
 
       }
     ).catch((err)=>{
-      this.sqlNotSucess = true;
+      this.sqlNotSuccess = true;
       //Show error message
       errorText.innerHTML = this.messages(true, `${err.error}`, "SQL ERROR");
     });
@@ -508,11 +508,11 @@ export class DashboardComponent implements OnInit {
     //Call the service
     this.sqlService.executeSQL(json).then(
       async ()=>{
-        //Show infor message
-        errorText.innerHTML = this.messages(false, "SQL executed successfull", "TEST INFORMATION");
+        //Show info message
+        errorText.innerHTML = this.messages(false, "SQL executed successful", "TEST INFORMATION");
       }
     ).catch((err)=>{
-      this.sqlNotSucess = true;
+      this.sqlNotSuccess = true;
       //Show error message
       errorText.innerHTML = this.messages(true, `${err.error}`, "SQL TEST ERROR");
     });
@@ -677,7 +677,7 @@ export class DashboardComponent implements OnInit {
     var er = document.getElementById("infoField");
     this.geoColumn = this.idColumnSelected;
     this.featureService.setAsGeometry(json).then(async()=>{
-      //Show info message if the service call was successfull
+      //Show info message if the service call was successful
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION");
 
@@ -706,7 +706,7 @@ export class DashboardComponent implements OnInit {
       }
 
     }).catch(()=>{
-      //Show an error message if the call wasnt successfull
+      //Show an error message if the call wasn't successful
         er.style.marginTop = "2%";
         er.innerHTML = this.messages(true, "Not selected as GEO column", "ERROR");
     });
@@ -717,11 +717,11 @@ export class DashboardComponent implements OnInit {
    */
   async excludeAllTables() {
     var tables:any = document.getElementsByClassName("excludeTable");
-    var exlcudeAll:any = document.getElementById("exludeAllTables");
+    var excludeAll:any = document.getElementById("excludeAllTables");
     var exclude: Boolean;
-    if(exlcudeAll.checked) {
+    if(excludeAll.checked) {
       // After clicking the checkbox is checked
-      // so all og the tables will be exluded
+      // so all og the tables will be excluded
       exclude = true;
       for(var i = 0; i < tables.length; i++) {
         tables[i].checked = "checked";
@@ -799,11 +799,11 @@ export class DashboardComponent implements OnInit {
       'name': this.addImportantLinkFrom.value.displayName
     };
     var er = document.getElementById("infoLinkField");
-    this.homeSerivce.addLink(json).then( async ()=>{
+    this.homeService.addLink(json).then( async ()=>{
       //Show info message
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Added as important link", "INFORMATION")
-      this.importantLinks = await this.homeSerivce.getLinks();
+      this.importantLinks = await this.homeService.getLinks();
 
     }).catch((err)=>{
       //Show error message
@@ -818,8 +818,6 @@ export class DashboardComponent implements OnInit {
   areAllTableExcludedCheckbox(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
       var check = document.getElementById("checkbox-" + this.tableNames[i]) as HTMLInputElement;
-      console.log("checkbox-" + this.tableNames[i]);
-      console.log(check);
       if(check.checked == false) {
         return false;
       }
@@ -857,7 +855,7 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Check if all the columns are exclueded by checking if the checkboxes are checked
+   * Check if all the columns are excluded by checking if the checkboxes are checked
    */
   checkIfAllColumnExcludedCheckbox():boolean {
     for(let i = 0; i < this.columnNames.length; i++) {
@@ -875,16 +873,16 @@ export class DashboardComponent implements OnInit {
    *
    * @param name the name of the important link that should be removed
    */
-  removeImortantLink(name:string) {
+  removeImportantLink(name:string) {
     var json = {
       "name": name
     };
     var er = document.getElementById("infoLinkField");
-    this.homeSerivce.removeLink(json).then(async ()=>{
+    this.homeService.removeLink(json).then(async ()=>{
       //Show info message
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Important link successfully removed", "INFORMATION");
-          this.importantLinks = await this.homeSerivce.getLinks();
+          this.importantLinks = await this.homeService.getLinks();
     }, (err)=>{
       //Show the error message
       er.style.marginTop = "2%";
@@ -930,6 +928,9 @@ export class DashboardComponent implements OnInit {
     return erg;
   }
 
+  /**
+   * Update the a query
+   */
   updateSQL() {
     var json = {
       'id': this.selectedConnector.id,
@@ -939,22 +940,29 @@ export class DashboardComponent implements OnInit {
 
     var errorText = document.getElementById('sqlError');
     this.conService.updateSQL(json).then(()=>{
-      errorText.innerHTML = this.messages(false, "SQL upadted successfull", "INFORMATION");
+      // Show success message
+      errorText.innerHTML = this.messages(false, "SQL updated successful", "INFORMATION");
       this.reload();
     }).catch((err)=>{
-      errorText.innerHTML = this.messages(true, "SQL not upadted successfull", "INFORMATION");
+      // Show error message
+      errorText.innerHTML = this.messages(true, "SQL not updated successful", "INFORMATION");
     })
     
   }
 
+  /**
+   * Delete a sql view
+   */
   deleteSQL() {
     var errorText = document.getElementById('sqlError');
     this.conService.delSQL({"name": this.idTableSelected}).then(()=>{
-        errorText.innerHTML = this.messages(false, "SQL deleted successfull", "INFORMATION");
+        // Show success message
+        errorText.innerHTML = this.messages(false, "SQL deleted successful", "INFORMATION");
         this.idTableSelected = "";
         this.reload();
       }).catch((err)=>{
-        errorText.innerHTML = this.messages(true, "SQL not deleted successfull", "INFORMATION");
+        // Show error message
+        errorText.innerHTML = this.messages(true, "SQL not deleted successful", "INFORMATION");
       })
   }
 

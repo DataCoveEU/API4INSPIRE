@@ -1,5 +1,5 @@
 <!--
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -40,9 +40,9 @@
                         <th scope="col" class="table-head-font-weight-normal">Table name</th>
                         <th scope="col" class="table-head-font-weight-normal">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="exludeAllTables" [checked]="this.allTablesExcluded" (click)="excludeAllTables()">
-                                <!-- exludeAllTables -->
-                                <label class="custom-control-label" for="exludeAllTables">Exclude</label>
+                                <input type="checkbox" class="custom-control-input" id="excludeAllTables" [checked]="this.allTablesExcluded" (click)="excludeAllTables()">
+                                <!-- excludeAllTables -->
+                                <label class="custom-control-label" for="excludeAllTables">Exclude</label>
                             </div>
                         </th>
                         <th scope="col" class="table-head-font-weight-normal">Collection name</th>
@@ -110,7 +110,7 @@
                 <br />
                 <div class="row">
                     <div class="col-sm-3">
-                        <button type="submit" id="subTableName" style="width:100%" class="btn btn-success" (click)="submitTable()">Asssign collection name</button>
+                        <button type="submit" id="subTableName" style="width:100%" class="btn btn-success" (click)="submitTable()">Assign collection name</button>
                     </div>
                     <div class="col-sm-6"></div>
                 </div>
@@ -231,7 +231,7 @@
                 <div class="row" style="margin-top: 1%">
                     <div class="col-sm-4"><a href="{{ link.link }}">{{ link.name }}</a></div>
                     <div class="col-sm-8">
-                        <div class="btn btn-danger" (click)="removeImortantLink(link.name)">Remove</div>
+                        <div class="btn btn-danger" (click)="removeImportantLink(link.name)">Remove</div>
                     </div>
                 </div>
             </div>

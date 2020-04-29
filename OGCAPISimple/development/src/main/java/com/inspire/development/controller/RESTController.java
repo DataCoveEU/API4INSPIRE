@@ -1,5 +1,5 @@
 /*
- * The OGC API Simple provides enviromental data
+ * The OGC API Simple provides environmental data
  * Created on Wed Feb 26 2020
  * @author Tobias Pressler
  * Copyright (c) 2020 - Tobias Pressler
@@ -318,7 +318,7 @@ public class RESTController {
      * @return a special item (=feature) from a collection
      */
     @CrossOrigin(maxAge = 3600)
-    @GetMapping("/collections/{collectionId}/items/{featureId}")
+    @GetMapping(path="/collections/{collectionId}/items/{featureId}", produces = "application/geo+json")
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
             @PathVariable("featureId") String featureId,
@@ -551,9 +551,6 @@ public class RESTController {
                         boolean check = (Boolean) input.get("check");
                         try {
                             FeatureCollection fc = db.execute(sql, collectionName, check);
-                            if(fc == null){
-                                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                            }
                             core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                             return new ResponseEntity<>(fc, HttpStatus.OK);
                         } catch (Exception e) {
@@ -734,7 +731,7 @@ public class RESTController {
         DBConnector db = core.getConnectorById(id);
         if (db == null) return new ResponseEntity<>("Connector id not found", HttpStatus.BAD_REQUEST);
         Object exl = input.get("exclude");
-        if (exl == null) return new ResponseEntity<>("Exclued Value is null", HttpStatus.BAD_REQUEST);
+        if (exl == null) return new ResponseEntity<>("Excluded Value is null", HttpStatus.BAD_REQUEST);
         boolean exclude = (Boolean) exl;
         for (int i = 0; i < db.getAllTables().size(); i++)
             db.setTableExclude(db.getAllTables().get(i), exclude);
