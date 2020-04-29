@@ -220,19 +220,15 @@ public class PostgreSQL implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName, boolean check){
-        try {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) throws Exception{
             sql = sql.replace(";","");
             c.createStatement().executeQuery(sql);
             //SQL Executed
             sqlString.put(featureCollectionName, sql);
-            FeatureCollection fc = getFeatureCollectionByName(featureCollectionName, false, -1, 0, null, null);
+            FeatureCollection fc = getFeatureCollectionByName(featureCollectionName, false, 10, 0, null, null);
             if (check)
                 sqlString.remove(featureCollectionName);
             return fc;
-        }catch (Exception e){
-            return null;
-        }
     }
 
     /**

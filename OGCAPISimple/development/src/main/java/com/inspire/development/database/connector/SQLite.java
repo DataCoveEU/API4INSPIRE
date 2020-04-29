@@ -140,8 +140,7 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName, boolean check){
-        try {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) throws Exception{
             sql = sql.replace(";","");
             c.createStatement().executeQuery(sql);
             //SQL Executed
@@ -150,9 +149,6 @@ public class SQLite implements DBConnector {
             if(check)
                 sqlString.remove(featureCollectionName);
             return fc;
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     /**
