@@ -318,7 +318,7 @@ public class RESTController {
      * @return a special item (=feature) from a collection
      */
     @CrossOrigin(maxAge = 3600)
-    @GetMapping("/collections/{collectionId}/items/{featureId}")
+    @GetMapping(path="/collections/{collectionId}/items/{featureId}", produces = "application/geo+json")
     public ResponseEntity<Object> getItemFromCollection(
             @PathVariable("collectionId") String collectionId,
             @PathVariable("featureId") String featureId,
