@@ -162,12 +162,19 @@ export class ItemsComponent implements OnInit {
     
   }
 
+  /**
+   * 
+   * @param isNext is the string needed for the next link
+   * @param isBefore is the string needed for the previous lin 
+   */
   buildString(isNext, isBefore) {
     var filts = "";
     var params = new URLSearchParams(window.location.search);
     params.delete("f");
     var url = new URL(window.location.toString());
-    filts = url.search = params.toString();  
+    filts = url.search = params.toString();
+    // if it is a next or previous link, then all the params are removed
+    // as they are already included in the next or previous link  
     if(isNext || isBefore) {
       params.delete("f");
       params.delete("limit");

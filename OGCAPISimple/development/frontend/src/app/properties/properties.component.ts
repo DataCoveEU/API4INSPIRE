@@ -416,7 +416,6 @@ export class PropertiesComponent implements OnInit {
     await this.con.getConnector().then((data) => {
       this.connectors = data;
       this.selectedConnector = this.connectors[indx];
-      console.log(indx);
     })
     .catch((err)=>{
       console.log(err);

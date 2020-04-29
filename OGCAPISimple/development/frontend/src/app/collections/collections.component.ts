@@ -55,6 +55,9 @@ export class CollectionsComponent implements OnInit {
     });
   }
 
+  /**
+   * Build the string with the parameters for the request
+   */
   buildString() {
     var params = new URLSearchParams(window.location.search);
     params.delete("f");

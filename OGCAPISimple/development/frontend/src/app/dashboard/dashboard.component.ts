@@ -503,7 +503,6 @@ export class DashboardComponent implements OnInit {
       'collectionName': this.sqlForm.value.collectionId,
       'check': true
     };
-    console.log(json)
 
     var errorText = document.getElementById('sqlError');
     //Call the service
@@ -514,7 +513,6 @@ export class DashboardComponent implements OnInit {
       }
     ).catch((err)=>{
       this.sqlNotSucess = true;
-      console.log(err);
       //Show error message
       errorText.innerHTML = this.messages(true, `${err.error}`, "SQL TEST ERROR");
     });
@@ -820,8 +818,6 @@ export class DashboardComponent implements OnInit {
   areAllTableExcludedCheckbox(): boolean {
     for(let i = 0; i < this.tableNames.length; i++) {
       var check = document.getElementById("checkbox-" + this.tableNames[i]) as HTMLInputElement;
-      console.log("checkbox-" + this.tableNames[i]);
-      console.log(check);
       if(check.checked == false) {
         return false;
       }
@@ -932,6 +928,9 @@ export class DashboardComponent implements OnInit {
     return erg;
   }
 
+  /**
+   * Update the a query
+   */
   updateSQL() {
     var json = {
       'id': this.selectedConnector.id,
@@ -941,21 +940,28 @@ export class DashboardComponent implements OnInit {
 
     var errorText = document.getElementById('sqlError');
     this.conService.updateSQL(json).then(()=>{
+      // Show success message
       errorText.innerHTML = this.messages(false, "SQL upadted successfull", "INFORMATION");
       this.reload();
     }).catch((err)=>{
+      // Show error message
       errorText.innerHTML = this.messages(true, "SQL not upadted successfull", "INFORMATION");
     })
     
   }
 
+  /**
+   * Delete a sql view
+   */
   deleteSQL() {
     var errorText = document.getElementById('sqlError');
     this.conService.delSQL({"name": this.idTableSelected}).then(()=>{
+        // Show success message
         errorText.innerHTML = this.messages(false, "SQL deleted successfull", "INFORMATION");
         this.idTableSelected = "";
         this.reload();
       }).catch((err)=>{
+        // Show error message
         errorText.innerHTML = this.messages(true, "SQL not deleted successfull", "INFORMATION");
       })
   }
