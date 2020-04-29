@@ -52,7 +52,7 @@ public interface DBConnector {
      * @param check true if featureCollection should be kept
      * @return Feature Collection from SQL query result, null if error occurred.
      */
-    FeatureCollection execute(String sql, String fcName, boolean check);
+    FeatureCollection execute(String sql, String fcName, boolean check) throws Exception;
 
     /**
      * Get FeatureCollection with given name

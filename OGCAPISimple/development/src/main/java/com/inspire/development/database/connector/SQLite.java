@@ -97,10 +97,9 @@ public class SQLite implements DBConnector {
 
             log.info("Created SQL Connector with the id: " + id);
         } catch (SQLException e) {
-            log.error("Error creating connector with the id: " + id + ". Error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error creating connector with the id: " + id + ". Error: ", e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("Error with SQLite creation: ", e);
         }
     }
 
@@ -141,8 +140,7 @@ public class SQLite implements DBConnector {
      */
     @JsonIgnore
     @Override
-    public FeatureCollection execute(String sql, String featureCollectionName, boolean check){
-        try {
+    public FeatureCollection execute(String sql, String featureCollectionName, boolean check) throws Exception{
             sql = sql.replace(";","");
             c.createStatement().executeQuery(sql);
             //SQL Executed
@@ -151,9 +149,6 @@ public class SQLite implements DBConnector {
             if(check)
                 sqlString.remove(featureCollectionName);
             return fc;
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     /**
