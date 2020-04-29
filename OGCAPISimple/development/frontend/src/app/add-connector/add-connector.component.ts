@@ -1,5 +1,5 @@
 /*
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides envirnomental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -37,7 +37,7 @@ export class AddConnectorComponent implements OnInit {
   constructor(private conService:ConnectorService, private formBuilder:FormBuilder) { }
 
   ngOnInit() {
-    //Initialzie the form to add a postgres connector
+    //Initialize the form to add a postgres connector
     this.addPostgresConnectorForm = this.formBuilder.group({
       connectorName: ['', Validators.required],
       username: ['', Validators.required],
@@ -133,7 +133,7 @@ export class AddConnectorComponent implements OnInit {
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #38B2AC; color: white">TEST POSTGRES</div>
                           <div class="card-body" style="background-color: #E6FFFA; color: #234E52">
-                            <p>Postgres connection test was successfull</p>
+                            <p>Postgres connection test was successful</p>
                           </div>
                         </div>
                       </div>`;
@@ -142,7 +142,7 @@ export class AddConnectorComponent implements OnInit {
       er.innerHTML = `<div class="card card-custom">
                         <div class="card-header" style="background-color: #F56565; color: white">TEST POSTGRES</div>
                           <div class="card-body" style="background-color: #FFF5F5; color: #CE303C">
-                            <p>Postgres conncetion test failed</p>
+                            <p>Postgres connection test failed</p>
                           </div>
                         </div>
                       </div>`;

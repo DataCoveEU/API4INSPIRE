@@ -1,5 +1,5 @@
 /*
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -46,7 +46,7 @@ export class ItemsComponent implements OnInit {
   constructor(private router: ActivatedRoute, private httpClient: HttpClient) { }
 
   async ngOnInit() {
-    // set the collection varibale (the collection that is selected)
+    // set the collection variable (the collection that is selected)
     this.router.params.subscribe(async(query)=>{
       this.collection = query.collection;
     });

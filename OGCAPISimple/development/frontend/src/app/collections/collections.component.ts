@@ -1,5 +1,5 @@
 /*
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -34,12 +34,9 @@ export class CollectionsComponent implements OnInit {
   featureCollections: any = [];
 
   async ngOnInit() {
-    //Init the feature collectins array
+    //Init the feature collections array
     var col:any = (await this.getCollections());
     this.featureCollections = col.collections;
-
-    
-    
   }
 
   /**

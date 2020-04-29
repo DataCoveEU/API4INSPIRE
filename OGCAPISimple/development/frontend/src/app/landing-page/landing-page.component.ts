@@ -1,5 +1,5 @@
 /*
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -47,7 +47,7 @@ export class LandingPageComponent implements OnInit {
 
   map: Map;
   importantLinks: any = [];
-  zoomToExtent: ZoomToExtent;
+  zoomToExtent: ZoomToExtent;austrocontrol
 
   showLoading: boolean = false;
 
@@ -65,7 +65,7 @@ export class LandingPageComponent implements OnInit {
 
 
     //init the layer where only the borders of the federal states are shown
-    var austrocontorl = new ImageLayer({
+    var austrocontrol = new ImageLayer({
       title: "Federal States",
       type: 'base',
       source: new ImageWMS({
@@ -89,10 +89,10 @@ export class LandingPageComponent implements OnInit {
       groupSelectStyle: 'children' // Can be 'children' [default], 'group' or 'none'
   });
 
-    //init the map with the tow layers and set the deafult view point
+    //init the map with the tow layers and set the default view point
     this.map = new Map({
       layers: [
-        austrocontorl,
+        austrocontrol,
         osm
       ],
       target: 'map',

@@ -1,5 +1,5 @@
 /*
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -156,11 +156,11 @@ export class PropertiesComponent implements OnInit {
     var er = document.getElementById("infoField");
     this.con.changeConnectorProps(json).then(async ()=>{
       er.style.marginTop = "2%";
-      er.innerHTML = this.messages(false, "Connectorname changed", "INFORMATION");
+      er.innerHTML = this.messages(false, "Connector name changed", "INFORMATION");
       await this.reloadData();
     }).catch((err)=>{
       er.style.marginTop = "2%";
-      er.innerHTML = this.messages(true, "Connectorname not changed", "ERROR");
+      er.innerHTML = this.messages(true, "Connector name not changed", "ERROR");
       
     })
   }
@@ -183,11 +183,11 @@ export class PropertiesComponent implements OnInit {
     var er = document.getElementById("infoField");
     this.con.changeConnectorProps(json).then(async ()=>{
       er.style.marginTop = "2%";
-      er.innerHTML = this.messages(false, "Usernamed changed", "INFORMATION");
+      er.innerHTML = this.messages(false, "Username changed", "INFORMATION");
       await this.reloadData();
     }).catch((err)=>{
       er.style.marginTop = "2%";
-      er.innerHTML = this.messages(true, "Usernamed not changed", "ERROR");
+      er.innerHTML = this.messages(true, "Username not changed", "ERROR");
     });
   }
 
@@ -269,7 +269,7 @@ export class PropertiesComponent implements OnInit {
   }
 
   /**
-   * Chnage postgres connection schema
+   * Change postgres connection schema
    */
   changeSchema() {
     this.changeSchmemaSubmitted = true;
@@ -326,7 +326,7 @@ export class PropertiesComponent implements OnInit {
   async delConnector() {
     var er = document.getElementById("infoField");
     this.con.deleteConnector({'id': this.selectedConnector.id}).then(async ()=>{
-      //Show infor message
+      //Show info message
       er.style.marginTop = "2%";
       er.innerHTML = this.messages(false, "Connection deleted", "INFORMATION");
       await this.reloadData();
