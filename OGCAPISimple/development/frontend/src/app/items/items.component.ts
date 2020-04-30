@@ -1,5 +1,5 @@
 /*
-    The OGC API Simple provides enviromental data
+    The OGC API Simple provides environmental data
     Created on Wed Feb 26 2020
     Copyright (c) 2020 - Lukas Gäbler
 
@@ -46,7 +46,7 @@ export class ItemsComponent implements OnInit {
   constructor(private router: ActivatedRoute, private httpClient: HttpClient) { }
 
   async ngOnInit() {
-    // set the collection varibale (the collection that is selected)
+    // set the collection variable (the collection that is selected)
     this.router.params.subscribe(async(query)=>{
       this.collection = query.collection;
     });
@@ -162,12 +162,19 @@ export class ItemsComponent implements OnInit {
     
   }
 
+  /**
+   * 
+   * @param isNext is the string needed for the next link
+   * @param isBefore is the string needed for the previous lin 
+   */
   buildString(isNext, isBefore) {
     var filts = "";
     var params = new URLSearchParams(window.location.search);
     params.delete("f");
     var url = new URL(window.location.toString());
-    filts = url.search = params.toString();  
+    filts = url.search = params.toString();
+    // if it is a next or previous link, then all the params are removed
+    // as they are already included in the next or previous link  
     if(isNext || isBefore) {
       params.delete("f");
       params.delete("limit");

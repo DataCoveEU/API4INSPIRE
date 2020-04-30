@@ -1,5 +1,5 @@
 /*
- * The OGC API Simple provides enviromental data
+ * The OGC API Simple provides environmental data
  * Created on Wed Feb 26 2020
  * @author Tobias Pressler
  * Copyright (c) 2020 - Tobias Pressler
@@ -278,7 +278,7 @@ public class SQLite implements DBConnector {
      * {@inheritDoc}
      */
     public void renameProp(String table, String feature, String featureAlias) {
-        log.info("Renaming propertie: " + feature + " to " + featureAlias + ", in table " + table);
+        log.info("Renaming property: " + feature + " to " + featureAlias + ", in table " + table);
         if (config.containsKey(table)) {
             TableConfig conf = config.get(table);
             conf.getMap().put(feature, new ColumnConfig(featureAlias, false));
@@ -372,7 +372,7 @@ public class SQLite implements DBConnector {
     /**
      * Gets table config by alias
      * @param alias Table alias
-     * @return table config if exists eles null
+     * @return table config if exists else null
      */
     public TableConfig getConfByAlias(String alias) {
         log.debug("Getting config by alias for alias: " + alias);
