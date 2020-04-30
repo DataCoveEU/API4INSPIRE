@@ -628,8 +628,8 @@ public class PostgreSQL implements DBConnector {
                 log.error("An error occurred while converting feature collection, table" + queryName);
             }
         }
-
-        ColumnConfig columnConfig = tc.getMap().get(geoCol);
+        ColumnConfig columnConfig = null;
+        if(tc != null) columnConfig = tc.getMap().get(geoCol);
         if (geoCol != null && withSpatial && (columnConfig == null || (columnConfig != null && !columnConfig.isExclude()))) {
             log.debug("Getting Bounding Box for Table: " + queryName);
             ResultSet resultSet = SqlBBox(sql, geoCol);
