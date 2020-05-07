@@ -803,7 +803,13 @@ public class RESTController {
         if(sql == null) return new ResponseEntity<>("SQL is null", HttpStatus.BAD_REQUEST);
         String sqlName = (String )input.get("sqlName");
         if(sqlName == null) return new ResponseEntity<>("SQLName is null", HttpStatus.BAD_REQUEST);
-        db.getSqlString().put(sqlName,sql);
+        String newName = (String )input.get("newName");
+        if(newName == null){
+            db.getSqlString().put(sqlName,sql);
+        }else {
+            db.getSqlString().remove(sqlName);
+            db.getSqlString().put(newName,sql);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
