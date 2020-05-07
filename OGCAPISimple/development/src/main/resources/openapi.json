@@ -10,7 +10,7 @@
     "description": "Simple Feature based OGC Api"
   },
   "externalDocs": {
-    "description": "WFS specification",
+    "description": "OGC API specification",
     "url": "https://github.com/opengeospatial/WFS_FES"
   },
   "servers": [
@@ -179,7 +179,6 @@
                   "conformsTo": [
                     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
                     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
-                    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html",
                     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"
                   ]
                 }
@@ -591,11 +590,6 @@
                     }
                   ]
                 }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
               }
             }
           },
@@ -620,11 +614,6 @@
                     }
                   },
                   "description": "Information about the exception: an error code plus an optional description."
-                }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -1360,17 +1349,7 @@
                     "coordinates": [
                       "..."
                     ]
-                  },
-                  "properties": {
-                    "function": "residential",
-                    "floors": "2",
-                    "lastUpdate": "2015-08-01T12:34:56Z"
                   }
-                }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -1396,11 +1375,6 @@
                     }
                   },
                   "description": "Information about the exception: an error code plus an optional description."
-                }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }

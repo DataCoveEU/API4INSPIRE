@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -111,7 +112,9 @@ public class RESTController {
             if (f.equals("application/json")) {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
-                    return mapper.readValue(resourceFile.getInputStream(), Object.class).toString();
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.set("Content-Type", "application/json");
+                    return ResponseEntity.ok().headers(headers).body(mapper.readValue(resourceFile.getInputStream(), Object.class));
                 } catch (IOException e) {
                     return null;
                 }
@@ -183,7 +186,6 @@ public class RESTController {
         String[] links = {
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
-                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html",
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"};
         return new ConformanceDeclaration(links);
     }
