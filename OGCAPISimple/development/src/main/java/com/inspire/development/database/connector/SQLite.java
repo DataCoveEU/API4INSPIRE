@@ -739,7 +739,7 @@ public class SQLite implements DBConnector {
                 ps.setString(counter++, box.toString());
             }
 
-            if(counter == -1){
+            if(counter != -1){
                 ps.setInt(counter++,limit);
             }
 
