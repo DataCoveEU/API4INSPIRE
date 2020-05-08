@@ -159,8 +159,7 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <label style="width: 100%">
-                            <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" *ngIf="!this.selectedConnector?.sqlString[this.idTableSelected]"/>
-                            <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" [value]="this.idTableSelected" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]" />
+                            <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" value="{{ queryName }}"/>
                             <div *ngIf="sqlSubmitted && sqlForm.controls.collectionId.errors" class="error">
                                 <div *ngIf="sqlForm.controls.collectionId.errors.required">A collection name is required</div>
                             </div>
@@ -168,8 +167,7 @@
                     </div>
                 </div>
                 <label style="width: 100%;">
-                    <textarea class="form-control" formControlName="sqlQuery" rows="5" placeholder="Write and execute sql here" *ngIf="!this.selectedConnector?.sqlString[this.idTableSelected]"></textarea>
-                    <textarea class="form-control" formControlName="sqlQuery" rows="5" [value]="this.selectedConnector?.sqlString[this.idTableSelected]" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected]"></textarea>
+                    <textarea class="form-control" formControlName="sqlQuery" rows="5" placeholder="Write and execute sql here"  value="{{ query }}"></textarea>
                     <div *ngIf="sqlSubmitted && sqlForm.controls.sqlQuery.errors" class="error">
                         <div *ngIf="sqlForm.controls.sqlQuery.errors.required">A sql query is required</div>
                     </div>
