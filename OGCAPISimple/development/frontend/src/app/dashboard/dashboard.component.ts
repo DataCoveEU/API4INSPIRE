@@ -102,6 +102,9 @@ export class DashboardComponent implements OnInit {
   allTablesExcluded: boolean;
   allColumnsExcluded: boolean = false;
 
+  queryName = "";
+  query = "";
+
   constructor(  private formBuilder: FormBuilder,
                 private conService: ConnectorService,
                 private featureService: FeatureService,
@@ -204,6 +207,14 @@ export class DashboardComponent implements OnInit {
    * @param name the name or the id of the table row that has been clicked
    */
   async onClickTableName(name: string) {
+
+    if(this.selectedConnector.sqlString[name] != undefined) {
+      this.queryName = name;
+      this.query = this.selectedConnector.sqlString[name];
+    } else {
+      this.queryName = "";
+      this.query = "";
+    }
     // If a "table name row" is already selected, then
     // you have to change the style
     if(this.tableSelect) {
@@ -509,7 +520,7 @@ export class DashboardComponent implements OnInit {
     this.sqlService.executeSQL(json).then(
       async ()=>{
         //Show info message
-        errorText.innerHTML = this.messages(false, "SQL executed successful", "TEST INFORMATION");
+        errorText.innerHTML = this.messages(false, "The SQL test was successful", "TEST INFORMATION");
       }
     ).catch((err)=>{
       this.sqlNotSuccess = true;
@@ -932,10 +943,12 @@ export class DashboardComponent implements OnInit {
    * Update the a query
    */
   updateSQL() {
+
     var json = {
       'id': this.selectedConnector.id,
       'sql': this.sqlForm.value.sqlQuery,
-      'sqlName': this.idTableSelected
+      'sqlName': this.idTableSelected,
+      "newName": this.sqlForm.value.collectionId
     };  
 
     var errorText = document.getElementById('sqlError');
@@ -943,6 +956,7 @@ export class DashboardComponent implements OnInit {
       // Show success message
       errorText.innerHTML = this.messages(false, "SQL updated successful", "INFORMATION");
       this.reload();
+      this.idTableSelected = this.sqlForm.value.collectionId;
     }).catch((err)=>{
       // Show error message
       errorText.innerHTML = this.messages(true, "SQL not updated successful", "INFORMATION");
@@ -960,6 +974,7 @@ export class DashboardComponent implements OnInit {
         errorText.innerHTML = this.messages(false, "SQL deleted successful", "INFORMATION");
         this.idTableSelected = "";
         this.reload();
+        this.idTableSelected = "";
       }).catch((err)=>{
         // Show error message
         errorText.innerHTML = this.messages(true, "SQL not deleted successful", "INFORMATION");

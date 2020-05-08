@@ -176,9 +176,14 @@ export class ItemsComponent implements OnInit {
     // if it is a next or previous link, then all the params are removed
     // as they are already included in the next or previous link  
     if(isNext || isBefore) {
-      params.delete("f");
-      params.delete("limit");
-      params.delete("offset");
+      if(params.toString().includes("&")) {
+        var pa = params.toString().split("&");
+        for(let i = 0; i < pa.length; i++) {
+          params.delete(pa[i].split("=")[0]);
+        }
+      } else {
+        params.delete(params.toString().split("=")[0]);
+      }
       filts = url.search = params.toString();  
     }
     if(filts.length != 0) {
