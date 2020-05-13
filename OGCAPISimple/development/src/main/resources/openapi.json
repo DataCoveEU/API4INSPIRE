@@ -13,13 +13,10 @@
     "description": "OGC API specification",
     "url": "https://github.com/opengeospatial/WFS_FES"
   },
-  "servers": [
-    {
-      "description": "This server"
-    }
-  ],
-  "tags": [
-    {
+  "servers": [{
+    "description": "This server"
+  }],
+  "tags": [{
       "name": "Capabilities",
       "description": "essential characteristics of this API"
     },
@@ -82,8 +79,7 @@
                   }
                 },
                 "example": {
-                  "links": [
-                    {
+                  "links": [{
                       "href": "http://data.example.org/",
                       "rel": "self",
                       "type": "application/json"
@@ -227,17 +223,15 @@
         ],
         "summary": "the feature collections in the dataset",
         "operationId": "getCollections",
-        "parameters": [
-          {
-            "name": "f",
-            "in": "query",
-            "example": "text/html",
-            "description": "Differentiate between an application/json or text/html response.",
-            "schema": {
-              "type": "string"
-            }
+        "parameters": [{
+          "name": "f",
+          "in": "query",
+          "example": "text/html",
+          "description": "Differentiate between an application/json or text/html response.",
+          "schema": {
+            "type": "string"
           }
-        ],
+        }],
         "responses": {
           "200": {
             "description": "The feature collections shared by this API.\n\nThe dataset is organized as one or more feature collections. This resource\nprovides information about and access to the collections.\n\nThe response contains the list of collections. For each collection, a link\nto the items in the collection (path `/collections/{collectionId}/items`,\nlink relation `items`) as well as key information about the collection.\nThis information includes:\n\n* A local identifier for the collection that is unique for the dataset;\n* A list of coordinate reference systems (CRS) in which geometries may be returned by the server. The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);\n\n* An optional extent that can be used to provide an indication of the spatial and temporal extent of the collection - typically derived from the data;",
@@ -288,12 +282,10 @@
                           },
                           "links": {
                             "type": "array",
-                            "example": [
-                              {
-                                "href": "http://data.example.com/airspaces",
-                                "rel": "item"
-                              }
-                            ],
+                            "example": [{
+                              "href": "http://data.example.com/airspaces",
+                              "rel": "item"
+                            }],
                             "items": {
                               "required": [
                                 "href"
@@ -351,8 +343,7 @@
                   }
                 },
                 "example": {
-                  "links": [
-                    {
+                  "links": [{
                       "href": "http://data.example.org/collections.json",
                       "rel": "self",
                       "type": "application/json",
@@ -378,37 +369,34 @@
                       "length": 472546
                     }
                   ],
-                  "collections": [
-                    {
-                      "id": "buildings",
-                      "title": "Buildings",
-                      "description": "Buildings in the city of Bonn.",
-                      "extent": {
-                        "spatial": {
-                          "bbox": [
-                            [
-                              7.01,
-                              50.63,
-                              7.22,
-                              50.78
-                            ]
+                  "collections": [{
+                    "id": "buildings",
+                    "title": "Buildings",
+                    "description": "Buildings in the city of Bonn.",
+                    "extent": {
+                      "spatial": {
+                        "bbox": [
+                          [
+                            7.01,
+                            50.63,
+                            7.22,
+                            50.78
                           ]
-                        }
+                        ]
+                      }
+                    },
+                    "links": [{
+                        "href": "http://data.example.org/collections/airspaces/items",
+                        "rel": "items",
+                        "type": "application/geo+json"
                       },
-                      "links": [
-                        {
-                          "href": "http://data.example.org/collections/airspaces/items",
-                          "rel": "items",
-                          "type": "application/geo+json"
-                        },
-                        {
-                          "href": "http://data.example.org/collections/buildings/items.html",
-                          "rel": "items",
-                          "type": "text/html"
-                        }
-                      ]
-                    }
-                  ]
+                      {
+                        "href": "http://data.example.org/collections/buildings/items.html",
+                        "rel": "items",
+                        "type": "text/html"
+                      }
+                    ]
+                  }]
                 }
               },
               "text/html": {
@@ -455,26 +443,15 @@
         ],
         "summary": "describe the feature collection with id `collectionId`",
         "operationId": "describeCollection",
-        "parameters": [
-          {
-            "name": "collectionId",
-            "in": "path",
-            "description": "local identifier of a collection",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "f",
-            "in": "query",
-            "example": "text/html",
-            "description": "Differentiate between an application/json or text/html response.",
-            "schema": {
-              "type": "string"
-            }
+        "parameters": [{
+          "name": "collectionId",
+          "in": "path",
+          "description": "local identifier of a collection",
+          "required": true,
+          "schema": {
+            "type": "string"
           }
-        ],
+        }],
         "responses": {
           "200": {
             "description": "Information about the feature collection with id `collectionId`.\n\nThe response contains a link to the items in the collection\n(path `/collections/{collectionId}/items`, link relation `items`)\nas well as key information about the collection. This information\nincludes:\n\n* A local identifier for the collection that is unique for the dataset;\n* A list of coordinate reference systems (CRS) in which geometries may be returned by the server. The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);\n\n* An optional extent that can be used to provide an indication of the spatial extent of the collection - typically derived from the data;",
@@ -494,12 +471,10 @@
                     },
                     "links": {
                       "type": "array",
-                      "example": [
-                        {
-                          "href": "http://data.example.com/buildings",
-                          "rel": "item"
-                        }
-                      ],
+                      "example": [{
+                        "href": "http://data.example.com/buildings",
+                        "rel": "item"
+                      }],
                       "items": {
                         "required": [
                           "href"
@@ -577,18 +552,11 @@
                       ]
                     }
                   },
-                  "links": [
-                    {
-                      "href": "http://data.example.org/collections/airspaces/items",
-                      "rel": "items",
-                      "type": "application/geo+json"
-                    },
-                    {
-                      "href": "http://data.example.org/collections/airspaces/items.html",
-                      "rel": "items",
-                      "type": "text/html"
-                    }
-                  ]
+                  "links": [{
+                    "href": "http://data.example.org/collections/airspaces/items",
+                    "rel": "items",
+                    "type": "application/geo+json"
+                  }]
                 }
               }
             }
@@ -629,8 +597,7 @@
         "summary": "fetch features",
         "description": "Fetch features of the feature collection with id `collectionId`.\n\nEvery feature in a dataset belongs to a collection. A dataset may\nconsist of multiple feature collections. A feature collection is often a\ncollection of features of a similar type, based on a common schema.\n\nUse content negotiation to request HTML or GeoJSON.",
         "operationId": "getFeatures",
-        "parameters": [
-          {
+        "parameters": [{
             "name": "collectionId",
             "in": "path",
             "description": "local identifier of a collection",
@@ -713,8 +680,7 @@
                             ]
                           },
                           "geometry": {
-                            "oneOf": [
-                              {
+                            "oneOf": [{
                                 "required": [
                                   "coordinates",
                                   "type"
@@ -887,8 +853,7 @@
                             "nullable": true
                           },
                           "id": {
-                            "oneOf": [
-                              {
+                            "oneOf": [{
                                 "type": "string"
                               },
                               {
@@ -949,16 +914,10 @@
                 },
                 "example": {
                   "type": "FeatureCollection",
-                  "links": [
-                    {
+                  "links": [{
                       "href": "http://data.example.com/collections/airspaces/items?f=application/json",
                       "rel": "self",
                       "type": "application/json"
-                    },
-                    {
-                      "href": "http://data.example.com/collections/buildings/items?f=text/html",
-                      "rel": "alternate",
-                      "type": "text/html"
                     },
                     {
                       "href": "http://data.example.com/collections/buildings/items.json&offset=10&limit=10",
@@ -967,8 +926,7 @@
                       "title": "next page"
                     }
                   ],
-                  "features": [
-                    {
+                  "features": [{
                       "type": "Feature",
                       "id": "123",
                       "geometry": {
@@ -1000,11 +958,6 @@
                     }
                   ]
                 }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
               }
             }
           },
@@ -1026,11 +979,6 @@
                     }
                   },
                   "description": "Information about the exception: an error code plus an optional description."
-                }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -1074,10 +1022,9 @@
           "Data"
         ],
         "summary": "fetch a single feature",
-        "description": "Fetch the feature with id `featureId` in the feature collection\nwith id `collectionId`.\n\nUse content negotiation to request HTML or GeoJSON.",
+        "description": "Fetch the feature with id `featureId` in the feature collection\nwith id `collectionId`.\n\nUse content negotiation to request a GeoJSON.",
         "operationId": "getFeature",
-        "parameters": [
-          {
+        "parameters": [{
             "name": "collectionId",
             "in": "path",
             "description": "local identifier of a collection",
@@ -1116,8 +1063,7 @@
                       ]
                     },
                     "geometry": {
-                      "oneOf": [
-                        {
+                      "oneOf": [{
                           "required": [
                             "coordinates",
                             "type"
@@ -1290,8 +1236,7 @@
                       "nullable": true
                     },
                     "id": {
-                      "oneOf": [
-                        {
+                      "oneOf": [{
                           "type": "string"
                         },
                         {
@@ -1326,8 +1271,7 @@
                 },
                 "example": {
                   "type": "Feature",
-                  "links": [
-                    {
+                  "links": [{
                       "href": "http://data.example.com/collections/buildings/items/123?f=application/json",
                       "rel": "self",
                       "type": "application/geo+json"
@@ -1477,8 +1421,7 @@
           },
           "links": {
             "type": "array",
-            "example": [
-              {
+            "example": [{
                 "href": "http://data.example.com/buildings",
                 "rel": "item"
               },
@@ -1682,8 +1625,7 @@
                 },
                 "links": {
                   "type": "array",
-                  "example": [
-                    {
+                  "example": [{
                       "href": "http://data.example.com/buildings",
                       "rel": "item"
                     },
@@ -1956,8 +1898,7 @@
                   ]
                 },
                 "geometry": {
-                  "oneOf": [
-                    {
+                  "oneOf": [{
                       "required": [
                         "coordinates",
                         "type"
@@ -2130,8 +2071,7 @@
                   "nullable": true
                 },
                 "id": {
-                  "oneOf": [
-                    {
+                  "oneOf": [{
                       "type": "string"
                     },
                     {
@@ -2244,8 +2184,7 @@
             ]
           },
           "geometry": {
-            "oneOf": [
-              {
+            "oneOf": [{
                 "required": [
                   "coordinates",
                   "type"
@@ -2418,8 +2357,7 @@
             "nullable": true
           },
           "id": {
-            "oneOf": [
-              {
+            "oneOf": [{
                 "type": "string"
               },
               {
@@ -2464,8 +2402,7 @@
         }
       },
       "geometryGeoJSON": {
-        "oneOf": [
-          {
+        "oneOf": [{
             "required": [
               "coordinates",
               "type"
@@ -2974,8 +2911,7 @@
             "example": {
               "title": "Buildings in Bonn",
               "description": "Access to data about buildings in the city of Bonn via a Web API that conforms to the OGC API Features specification.",
-              "links": [
-                {
+              "links": [{
                   "href": "http://data.example.org/",
                   "rel": "self",
                   "type": "application/json",
@@ -3120,8 +3056,7 @@
                       },
                       "links": {
                         "type": "array",
-                        "example": [
-                          {
+                        "example": [{
                             "href": "http://data.example.com/buildings",
                             "rel": "item"
                           },
@@ -3262,8 +3197,7 @@
               }
             },
             "example": {
-              "links": [
-                {
+              "links": [{
                   "href": "http://data.example.org/collections.json",
                   "rel": "self",
                   "type": "application/json",
@@ -3289,59 +3223,56 @@
                   "length": 472546
                 }
               ],
-              "collections": [
-                {
-                  "id": "buildings",
-                  "title": "Buildings",
-                  "description": "Buildings in the city of Bonn.",
-                  "extent": {
-                    "spatial": {
-                      "bbox": [
-                        [
-                          7.01,
-                          50.63,
-                          7.22,
-                          50.78
-                        ]
+              "collections": [{
+                "id": "buildings",
+                "title": "Buildings",
+                "description": "Buildings in the city of Bonn.",
+                "extent": {
+                  "spatial": {
+                    "bbox": [
+                      [
+                        7.01,
+                        50.63,
+                        7.22,
+                        50.78
                       ]
-                    },
-                    "temporal": {
-                      "interval": [
-                        [
-                          "2010-02-15T12:34:56Z",
-                          null
-                        ]
-                      ]
-                    }
+                    ]
                   },
-                  "links": [
-                    {
-                      "href": "http://data.example.org/collections/buildings/items",
-                      "rel": "items",
-                      "type": "application/geo+json",
-                      "title": "Buildings"
-                    },
-                    {
-                      "href": "http://data.example.org/collections/buildings/items.html",
-                      "rel": "items",
-                      "type": "text/html",
-                      "title": "Buildings"
-                    },
-                    {
-                      "href": "https://creativecommons.org/publicdomain/zero/1.0/",
-                      "rel": "license",
-                      "type": "text/html",
-                      "title": "CC0-1.0"
-                    },
-                    {
-                      "href": "https://creativecommons.org/publicdomain/zero/1.0/rdf",
-                      "rel": "license",
-                      "type": "application/rdf+xml",
-                      "title": "CC0-1.0"
-                    }
-                  ]
-                }
-              ]
+                  "temporal": {
+                    "interval": [
+                      [
+                        "2010-02-15T12:34:56Z",
+                        null
+                      ]
+                    ]
+                  }
+                },
+                "links": [{
+                    "href": "http://data.example.org/collections/buildings/items",
+                    "rel": "items",
+                    "type": "application/geo+json",
+                    "title": "Buildings"
+                  },
+                  {
+                    "href": "http://data.example.org/collections/buildings/items.html",
+                    "rel": "items",
+                    "type": "text/html",
+                    "title": "Buildings"
+                  },
+                  {
+                    "href": "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "rel": "license",
+                    "type": "text/html",
+                    "title": "CC0-1.0"
+                  },
+                  {
+                    "href": "https://creativecommons.org/publicdomain/zero/1.0/rdf",
+                    "rel": "license",
+                    "type": "application/rdf+xml",
+                    "title": "CC0-1.0"
+                  }
+                ]
+              }]
             }
           },
           "text/html": {
@@ -3426,8 +3357,7 @@
                 },
                 "links": {
                   "type": "array",
-                  "example": [
-                    {
+                  "example": [{
                       "href": "http://data.example.com/buildings",
                       "rel": "item"
                     },
@@ -3588,8 +3518,7 @@
                   ]
                 }
               },
-              "links": [
-                {
+              "links": [{
                   "href": "http://data.example.org/collections/buildings/items",
                   "rel": "items",
                   "type": "application/geo+json",
@@ -3657,8 +3586,7 @@
                         ]
                       },
                       "geometry": {
-                        "oneOf": [
-                          {
+                        "oneOf": [{
                             "required": [
                               "coordinates",
                               "type"
@@ -3831,8 +3759,7 @@
                         "nullable": true
                       },
                       "id": {
-                        "oneOf": [
-                          {
+                        "oneOf": [{
                             "type": "string"
                           },
                           {
@@ -3932,8 +3859,7 @@
             },
             "example": {
               "type": "FeatureCollection",
-              "links": [
-                {
+              "links": [{
                   "href": "http://data.example.com/collections/buildings/items.json",
                   "rel": "self",
                   "type": "application/geo+json",
@@ -3955,8 +3881,7 @@
               "timeStamp": "2018-04-03T14:52:23Z",
               "numberMatched": 123,
               "numberReturned": 2,
-              "features": [
-                {
+              "features": [{
                   "type": "Feature",
                   "id": "123",
                   "geometry": {
@@ -4015,8 +3940,7 @@
                   ]
                 },
                 "geometry": {
-                  "oneOf": [
-                    {
+                  "oneOf": [{
                       "required": [
                         "coordinates",
                         "type"
@@ -4189,8 +4113,7 @@
                   "nullable": true
                 },
                 "id": {
-                  "oneOf": [
-                    {
+                  "oneOf": [{
                       "type": "string"
                     },
                     {
@@ -4236,8 +4159,7 @@
             },
             "example": {
               "type": "Feature",
-              "links": [
-                {
+              "links": [{
                   "href": "http://data.example.com/id/building/123",
                   "rel": "canonical",
                   "title": "canonical URI of the building"
