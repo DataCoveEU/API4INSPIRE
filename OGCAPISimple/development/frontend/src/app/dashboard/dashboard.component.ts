@@ -949,7 +949,7 @@ export class DashboardComponent implements OnInit {
 
     var json = {
       'id': this.selectedConnector.id,
-      'sql': this.sqlForm.value.sqlQuery,
+      'sql': this.query,
       'sqlName': this.idTableSelected,
       "newName": this.sqlForm.value.collectionId
     };  
