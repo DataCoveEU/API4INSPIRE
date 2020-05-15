@@ -178,8 +178,8 @@ public class SQLite implements DBConnector {
                 log.debug("Table: " + table);
                 try {
                     fc.add(getFeatureCollectionByName(config.get(table) != null ? config.get(table).getAlias() : table, true, 0, 0, null, null));
-                }catch (Throwable t){
-                    t.printStackTrace();
+                }catch (Exception t){
+                   return null;
                 }
         }
         return fc.toArray(new FeatureCollection[fc.size()]);
@@ -224,7 +224,8 @@ public class SQLite implements DBConnector {
             while (rs.next()) {
                 String table = rs.getString(3);
                 if (!table.contains("spatial_")) {
-                    out.add(table);
+                    if(getAllPrimaryKey(table).size() != 0)
+                        out.add(table);
                 }
             }
             for (Map.Entry<String, String> entry : sqlString.entrySet())
@@ -491,7 +492,6 @@ public class SQLite implements DBConnector {
             //Creating featureCollection with given name
             FeatureCollection fs = new FeatureCollection(alias, withSpatial);
             while (rs.next()) {
-                try {
                     Feature f = new Feature();
                     HashMap<String, Object> prop = new HashMap<>();
                     ResultSetMetaData md = rs.getMetaData();
@@ -562,9 +562,7 @@ public class SQLite implements DBConnector {
                     }
                     f.setProperties(prop);
                     fs.addFeature(f);
-                }catch (Exception e){
-                    log.error("Error occurred while converting sqlite table to feature collection.  Table: " + queryName);
-                }
+
             }
 
             ColumnConfig columnConfig = tc.getMap().get(geoCol);
@@ -630,13 +628,6 @@ public class SQLite implements DBConnector {
             ResultSet rs = dm.getIndexInfo(null, null, table, true, true);
             while(rs.next()) {
                 names.add(rs.getString("column_name"));
-            }
-            if(names.size() == 0) {
-                DatabaseMetaData md = c.getMetaData();
-                ResultSet rs1 = md.getPrimaryKeys(null, null, table);
-                while (rs1.next()) {
-                    names.add(rs1.getString(4).toUpperCase());
-                }
             }
         } catch (SQLException e) {
             return null;

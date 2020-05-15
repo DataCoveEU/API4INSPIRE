@@ -251,7 +251,7 @@ public class PostgreSQL implements DBConnector {
         try {
             return getFeatureCollectionByName(collectionName, withSpatial, limit, offset, bbox, filterParams);
         } catch (Exception e) {
-            log.error("Error occurred while getting FeatureCollection " + collectionName + ". Error: ", e);
+            //log.error("Error occurred while getting FeatureCollection " + collectionName + ". Error: ", e);
             return null;
         }
     }
@@ -339,7 +339,9 @@ public class PostgreSQL implements DBConnector {
             pr.setString(1, schema);
             ResultSet rs = pr.executeQuery();
             while (rs.next()) {
-                out.add(rs.getString(3));
+                String table = rs.getString(3);
+                if(getAllPrimaryKey(table).size() != 0)
+                    out.add(table);
             }
             for (Map.Entry<String, String> entry : sqlString.entrySet())
                 out.add(entry.getKey());
@@ -501,6 +503,8 @@ public class PostgreSQL implements DBConnector {
         if(c.isClosed()){
             updateConnector();
         }
+
+
 
         TableConfig tc = getConfByAlias(alias);
         String queryName = alias;
@@ -960,7 +964,7 @@ public class PostgreSQL implements DBConnector {
         log.debug("Get PrimaryKey for the table: " + table);
         try {
             DatabaseMetaData md = c.getMetaData();
-            ResultSet rs = md.getPrimaryKeys(null, schema, table);
+            ResultSet rs = md.getIndexInfo(null, schema, table, true, true);
             if (rs.next()) {
                 return rs.getString(4).toLowerCase();
             } else {
@@ -982,14 +986,6 @@ public class PostgreSQL implements DBConnector {
             ResultSet rs = dm.getIndexInfo(null, schema, table, true, true);
             while(rs.next()) {
                 names.add(rs.getString("column_name"));
-            }
-            if(names.size() == 0){
-                //Fallback
-                DatabaseMetaData md = c.getMetaData();
-                ResultSet rs1 = md.getPrimaryKeys(null, schema, table);
-                while (rs1.next()) {
-                    names.add(rs1.getString(4).toLowerCase());
-                }
             }
         } catch (SQLException e) {
             return null;
