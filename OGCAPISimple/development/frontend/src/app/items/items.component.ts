@@ -21,7 +21,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { isGeneratedFile } from '@angular/compiler/src/aot/util';
-import { parseTemplate } from '@angular/compiler';
+import { parseTemplate, parseHostBindings } from '@angular/compiler';
 
 @Component({
   selector: 'app-items',
@@ -76,7 +76,7 @@ export class ItemsComponent implements OnInit {
    */
   getItems(path: string, isNext, isBefore) {
     return new Promise((resolve, reject)=>{
-      this.httpClient.get(path + this.buildString(isNext, isBefore))
+      this.httpClient.get(this.buildString(isNext, isBefore, path))
       .subscribe((res)=>{
         resolve(res);
       }, (err)=>{
@@ -167,29 +167,20 @@ export class ItemsComponent implements OnInit {
    * @param isNext is the string needed for the next link
    * @param isBefore is the string needed for the previous lin 
    */
-  buildString(isNext, isBefore) {
+  buildString(isNext, isBefore, path) { 
+    var p = path;
+    if(path.includes("?")) {
+      p = path.split("?")[0];
+    }
     var filts = "";
     var params = new URLSearchParams(window.location.search);
     params.delete("f");
     var url = new URL(window.location.toString());
     filts = url.search = params.toString();
-    // if it is a next or previous link, then all the params are removed
-    // as they are already included in the next or previous link  
-    if(isNext || isBefore) {
-      if(params.toString().includes("&")) {
-        var pa = params.toString().split("&");
-        for(let i = 0; i < pa.length; i++) {
-          params.delete(pa[i].split("=")[0]);
-        }
-      } else {
-        params.delete(params.toString().split("=")[0]);
-      }
-      filts = url.search = params.toString();  
-    }
     if(filts.length != 0) {
-      return "?" + filts // + "&f=application/json";
+      return p + "?" + filts // + "&f=application/json";
     }  
-    return filts;
+    return p + filts;
   }
 
 }
