@@ -224,7 +224,7 @@ public class SQLite implements DBConnector {
             while (rs.next()) {
                 String table = rs.getString(3);
                 if (!table.contains("spatial_")) {
-                    if(getAllPrimaryKey(table).size() != 0)
+                    if(getAllPrimaryKey(table).size() == 1)
                         out.add(table);
                 }
             }
