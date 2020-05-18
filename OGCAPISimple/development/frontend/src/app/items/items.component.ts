@@ -87,7 +87,11 @@ export class ItemsComponent implements OnInit {
 
 
   async nextPage() {
-      this.items = await this.getItems(this.next, true, false);
+    console.log(this.next);
+    console.log(await this.getItems(this.next, true, false));
+    this.items = await this.getItems(this.next, true, false);
+    console.log("Items:" )
+    console.log(this.items);
     if(!this.containsLink("next", this.items)) {
       this.nextAv = false;
     } else {
@@ -169,6 +173,7 @@ export class ItemsComponent implements OnInit {
    */
   buildString(isNext, isBefore, path) { 
     var p = path;
+    console.log("Path: " + path);
     if(path.includes("?")) {
       p = path.split("?")[0];
     }
@@ -177,9 +182,23 @@ export class ItemsComponent implements OnInit {
     params.delete("f");
     var url = new URL(window.location.toString());
     filts = url.search = params.toString();
+
+    if(isNext || isBefore) {
+      /*console.log("Path v5: " + path);
+      console.log("Filters: " filts);
+      if(filts.length != 0) {
+        return path + "?" + filts;
+      }*/
+      return path;
+    } 
+
     if(filts.length != 0) {
+      console.log("filts 1:")
+      console.log(p + "?" + filts);
       return p + "?" + filts // + "&f=application/json";
-    }  
+    }
+    console.log("filts2")
+    console.log(p + filts);
     return p + filts;
   }
 
