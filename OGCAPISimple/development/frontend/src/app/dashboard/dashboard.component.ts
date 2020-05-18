@@ -447,7 +447,7 @@ export class DashboardComponent implements OnInit {
  /**
    * Reload the connectors and tables
    */
-  async reload(query) {
+  async reload() {
     this.connectors = await this.conService.getConnector();
 
     var select = document.getElementById("selectField") as HTMLSelectElement;
@@ -489,7 +489,7 @@ export class DashboardComponent implements OnInit {
       async ()=>{
         //Show info message
         errorText.innerHTML = this.messages(false, "SQL executed successful. The view has been added to the list of collections above", "INFORMATION");
-        this.reload(false);
+        this.reload();
 
       }
     ).catch((err)=>{
@@ -902,23 +902,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
- /* delSQL(name: string) {
-    var json = {
-      'name': name
-    };
-    var er = document.getElementById("infoField");
-    this.conService.deleteSQL(json).then(async ()=>{
-      er.style.marginTop = "2%";
-      er.innerHTML = this.messages(false, "Successfully removed", "INFORMATION");
-      this.idTableSelected = "";
-      await this.reload(true);
-      //this.queryName = "Lukas was here"
-    }, (err)=>{
-      er.style.marginTop = "2%";
-      er.innerHTML = this.messages(true, "Not removed", "ERROR");
-    })
-  }*/
-
 
   messages(isError:boolean, text: string, title: string):string {
     var erg = "";
@@ -946,20 +929,23 @@ export class DashboardComponent implements OnInit {
    * Update the a query
    */
   updateSQL() {
-
     var json = {
       'id': this.selectedConnector.id,
-      'sql': this.query,
+      'sql': this.query == this.sqlForm.value.sqlQuery ? this.query : this.sqlForm.value.sqlQuery,
       'sqlName': this.idTableSelected,
-      "newName": this.sqlForm.value.collectionId
+      "newName": this.sqlForm.value.collectionId.length > 0 ? this.sqlForm.value.collectionId : this.queryName
     };  
 
     var errorText = document.getElementById('sqlError');
-    this.conService.updateSQL(json).then(()=>{
+    this.conService.updateSQL(json).then(async ()=>{
       // Show success message
       errorText.innerHTML = this.messages(false, "SQL updated successful", "INFORMATION");
-      this.reload(false);
-      this.idTableSelected = this.sqlForm.value.collectionId;
+
+      this.reload();
+      this.idTableSelected = this.queryName;
+      this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table': this.idTableSelected});
+
+
     }).catch((err)=>{
       // Show error message
       errorText.innerHTML = this.messages(true, "SQL not updated successful", "INFORMATION");
@@ -975,7 +961,7 @@ export class DashboardComponent implements OnInit {
     this.conService.delSQL({"name": this.idTableSelected}).then(async ()=>{
         // Show success message
         errorText.innerHTML = this.messages(false, "SQL deleted successful", "INFORMATION");
-        await this.reload(false);
+        await this.reload();
         this.idTableSelected = "";
         this.tableSelect = false;
         this.columnNames = [];
