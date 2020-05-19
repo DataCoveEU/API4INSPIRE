@@ -175,13 +175,9 @@
                   "conformsTo": [
                     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
                     "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
-                    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"
+                    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson",
+                    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html"
                   ]
-                }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -204,11 +200,6 @@
                     }
                   },
                   "description": "Information about the exception: an error code plus an optional description."
-                }
-              },
-              "text/html": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -491,7 +482,7 @@
                           },
                           "type": {
                             "type": "string",
-                            "example": "application/geo+json"
+                            "example": "application/json"
                           }
                         }
                       }
@@ -555,7 +546,7 @@
                   "links": [{
                     "href": "http://data.example.org/collections/airspaces/items",
                     "rel": "items",
-                    "type": "application/geo+json"
+                    "type": "application/json"
                   }]
                 }
               }
@@ -1275,11 +1266,6 @@
                       "href": "http://data.example.com/collections/buildings/items/123?f=application/json",
                       "rel": "self",
                       "type": "application/geo+json"
-                    },
-                    {
-                      "href": "http://data.example.com/collections/buildings/items/123.html",
-                      "rel": "alternate",
-                      "type": "text/html"
                     },
                     {
                       "href": "http://data.example.com/collections/buildings",

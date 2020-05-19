@@ -25,6 +25,7 @@ import com.inspire.development.collections.FeatureCollection;
 import com.inspire.development.collections.FeatureWithLinks;
 import com.inspire.development.collections.Link;
 import com.inspire.development.config.DBConnectorList;
+import com.inspire.development.config.TableConfig;
 import com.inspire.development.core.Core;
 import com.inspire.development.database.DBConnector;
 import com.inspire.development.database.connector.PostgreSQL;
@@ -186,7 +187,9 @@ public class RESTController {
         String[] links = {
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
                 "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
-                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"};
+                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson",
+                "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html"
+        };
         return new ConformanceDeclaration(links);
     }
 
@@ -810,6 +813,9 @@ public class RESTController {
             db.getSqlString().put(sqlName,sql);
         }else {
             db.getSqlString().remove(sqlName);
+            TableConfig obj = db.getConfig().remove(sqlName);
+            obj.setAlias(newName);
+            db.getConfig().put(newName, obj);
             db.getSqlString().put(newName,sql);
         }
         return new ResponseEntity<>(HttpStatus.OK);

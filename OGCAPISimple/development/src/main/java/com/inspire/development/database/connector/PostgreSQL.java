@@ -340,7 +340,7 @@ public class PostgreSQL implements DBConnector {
             ResultSet rs = pr.executeQuery();
             while (rs.next()) {
                 String table = rs.getString(3);
-                if(getAllPrimaryKey(table).size() != 0)
+                if(getAllPrimaryKey(table).size() == 1)
                     out.add(table);
             }
             for (Map.Entry<String, String> entry : sqlString.entrySet())
