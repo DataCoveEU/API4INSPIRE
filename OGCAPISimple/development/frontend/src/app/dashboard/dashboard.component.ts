@@ -26,6 +26,7 @@ import { SqlService } from '../sql.service';
 import { FeatureService } from '../feature.service';
 import { HomeService } from '../home.service';
 import { async } from '@angular/core/testing';
+import { JsonpInterceptor } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
@@ -219,6 +220,7 @@ export class DashboardComponent implements OnInit {
     // you have to change the style
     if(this.tableSelect) {
       var change = document.getElementById(this.idTableSelected);
+      console.log("Changes: " + change);
       change.style.backgroundColor = "white";
       change.style.color = "black";
 
@@ -226,6 +228,7 @@ export class DashboardComponent implements OnInit {
       // then you have to deselect is
       if(this.columnSelected) {
         var col = document.getElementById(this.idColumnSelected)
+        console.log("Col: " + col);
         col.style.backgroundColor = "white";
         col.style.color = "black";
 
@@ -942,9 +945,10 @@ export class DashboardComponent implements OnInit {
       errorText.innerHTML = this.messages(false, "SQL updated successful", "INFORMATION");
 
       this.reload();
+      console.log("Connector: ");
+      console.log(this.selectedConnector);
+      this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table': json.sqlName});
       this.idTableSelected = this.queryName;
-      this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table': this.idTableSelected});
-
 
     }).catch((err)=>{
       // Show error message
