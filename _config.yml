@@ -1,0 +1,14 @@
+title: API4INSPIRE
+description: >- # this means to ignore newlines until "baseurl:"
+  Documentation of APIs for INSPIRE
+baseurl: "/API4INSPIRE" # the subpath of your site, e.g. /blog
+#url: "" # the base hostname & protocol for your site, e.g. http://example.com
+#github_username:  hylkevds
+
+# Build settings
+theme: jekyll-theme-leap-day
+#theme: jekyll-theme-cayman
+plugins:
+  - jekyll-feed
+  - jekyll-relative-links
+
