@@ -18,10 +18,10 @@ Within API4INSPIRE, an OGC API endpoint will be configured in parallel to the WF
 additionally, the stand-alone OGC API - Features implementation for provision of simple features corresponding to SF-0 will be deployed on this data source.
 Thus, participants will be able to experiment with diverse provision options and evaluate the strengths and weaknesses of each of the three different systems serving the same dataset.
 
-### Currently available endpoints:
+### Currently available endpoints
 
-* WFS2: https://sdigeo-free.austrocontrol.at/geoserver/tn-a/wfs?service=WFS&version=2.0.0&request=GetCapabilities 
-* OGC API: https://inspire.austrocontrol.at/ogcapi/ogc/features 
+* WFS2: [https://sdigeo-free.austrocontrol.at/geoserver/tn-a/wfs?service=WFS&version=2.0.0&request=GetCapabilities](https://sdigeo-free.austrocontrol.at/geoserver/tn-a/wfs?service=WFS&version=2.0.0&request=GetCapabilities)
+* OGC API: [https://inspire.austrocontrol.at/ogcapi/ogc/features](https://inspire.austrocontrol.at/ogcapi/ogc/features) 
 
 
 ## Zentralanstalt für Meteorologie und Geodynamik
@@ -38,7 +38,7 @@ As near-real-time Austrian air-quality data was already available in accordance 
 This endpoint is being dynamically extended as additional data sources become available from sources such as the European Environment Agency.
 Details are available at http://datacove.eu/ad-hoc-air-quality/ 
 
-### Currently available endpoints:
+### Currently available endpoints
 * STA: [https://airquality-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1](https://airquality-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1) 
 * Viewer: [https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/121/](https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/121/)
 * SOS for Measurements: [http://luft.umweltbundesamt.at/inspire/sos?service=SOS&version=2.0.0&request=getCapabilities](http://luft.umweltbundesamt.at/inspire/sos?service=SOS&version=2.0.0&request=getCapabilities) 

@@ -12,11 +12,17 @@ These range from car charging stations over the bike stations of “StadtRad” 
 A small selection:
 
 * Charging Stations:
+    ```
     https://iot.hamburg.de/v1.0/Things?$filter=substringof(%27Lade%27,name)&$expand=Locations,Datastreams/Observations($orderby=phenomenonTime%20desc;$top=1)&$count=true
+    ```
 * StadtRad Locations and available Bikes:
+    ```
     https://iot.hamburg.de/v1.0/Things?$filter=properties/serviceName%20eq%20%27STA%20StadtRad%27&$expand=Locations($select=location),Datastreams($expand=Observations($select=phenomenonTime,result;$orderby=phenomenonTime%20desc;$top=1);$filter=properties/type%20eq%202)&$count=true
+    ```
 * Data from the Energy Campus:
+    ```
     https://iot.hamburg.de/v1.0/Things?$filter=name%20eq%20%27Energie%20Campus%20Hamburg%20University%20of%20Applied%20Sciences%27&$expand=Locations,Datastreams
+    ```
 
 In addition, the City of Hamburg maintains over 400 spatial datasets, many already available online in various formats.
 As the Smart City Sensors would be very interesting in combination with routing information (and while INSPIRE TN-RO is available,
