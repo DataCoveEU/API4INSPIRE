@@ -4,6 +4,10 @@
 		"title": "Main"
 	},
 	{
+		"key": "data",
+		"title": "Data Nests"
+	},
+	{
 		"key": "STA",
 		"title": "SensorThings API HowTo"
 	}
