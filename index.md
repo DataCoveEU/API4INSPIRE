@@ -20,6 +20,7 @@ For cases where GeoServer is not used or where we do not have access to provider
 In addition, the OGC API – Simple server has been developed within the API4INSPIRE project; this simple implementation allows for provision of simple features in accordance with SF-0.
 For the provision of SensorThings API, we utilize the Fraunhofer Open Source SensorThings (FROST) Server.
 
+
 ## Data Providers
 
 Six data providers from Germany, France and Austria are contributing data, staff and infrastructure, and are well integrated with the core project team;
@@ -37,6 +38,15 @@ This data is openly available for exploration and application development.
 * Franco-Germanic Flows
   * Cross-border Water data providing alternative perspectives on the Rhine
   * Various other complementary French data sources
+
+
+## Deliverables
+
+The following deliverables have been created during this project:
+
+* [D0 Inception Report](files/D0-InceptionReport-v1.2.pdf)
+* [D1 Evaluation Methodology](files/D1-EvaluationMethodology_1.1.pdf)
+* [D2 Deployment Strategies](files/D2-DeploymentStrategy_1.1.pdf)
 
 
 ## ELISE
