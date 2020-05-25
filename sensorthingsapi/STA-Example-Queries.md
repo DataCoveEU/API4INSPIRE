@@ -5,7 +5,10 @@ category: STA
 order: 6
 ---
 
+# Example Queries
+
 All these examples are not urlencoded, for readability. If you use these examples, don't forget to urlencode.
+On the [Implementations](STA-Implementations) you can find demo services to try them out.
 
 ## Greater than and smaller than
 All things with an Id greater equal 5 and lessequal 20:
