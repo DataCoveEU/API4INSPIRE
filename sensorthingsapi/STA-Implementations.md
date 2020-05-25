@@ -9,14 +9,19 @@ order: 7
 
 Here are some server and client implementations, and some demo services to test your query foo!
 
+
 ## Demo Services
 
 * FROST-Server demo serice:
-  https://ogctest.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1/
-  Access: Read & Write
-
+  - https://ogctest.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1/
+  - Access: Read & Write
 * European air quality:
-  https://airquality-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1
+  - https://airquality-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1
+  - Access: Read Only
+* Rivers & Measuring points in Baden-Württemberg:  
+  This service has many non-point (line, polygon) Locations
+  - https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1/
+  - Access: Read Only
 
 
 ## Implementations
