@@ -28,15 +28,13 @@ Potential Use Cases in this context pertain mostly to flooding within the Rhine 
  but can also extend to navigability of French water transport networks based on water levels.
 
 ## Currently available endpoints:
-
+* Viewer: [https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/102/](https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/102/)
 * France
   * Ground Water STA: [https://sensorthings.brgm-rec.fr/SensorThingsGroundWater/v1.0/](https://sensorthings.brgm-rec.fr/SensorThingsGroundWater/v1.0/) 
   * Surface Quantity STA: [https://sensorthings.brgm-rec.fr/SensorThingsFlood/v1.0](https://sensorthings.brgm-rec.fr/SensorThingsFlood/v1.0)
   * Surface Quality STA: [https://sensorthings-wq.brgm-rec.fr/FROST-Server/v1.0](https://sensorthings-wq.brgm-rec.fr/FROST-Server/v1.0)
-  * Water Viewer: [https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/101/](https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/101/)
 * Germany
   * Water STA: [https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1](https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1)
-  * Water Viewer: [https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/114/](https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/114/)
 
 
 
