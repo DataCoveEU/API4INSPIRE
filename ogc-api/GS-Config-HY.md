@@ -34,6 +34,12 @@ As this configuration provides features under both the HY-N and TN-W namespaces,
 
 [App Schema Config TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingTNW.xml)
 
+## Example XML Files
+
+[hy-n:HydroNode](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/HydroNode.xml)
+
+[hy-n:WatercourseLink](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/WatercourseLink.xml)
+
 
 ## UML Overview of HY-N and TN-W
 
