@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:hy-n="http://inspire.ec.europa.eu/schemas/hy-n/4.0" xmlns:ad="http://inspire.ec.europa.eu/schemas/ad/4.0" xmlns:gn="http://inspire.ec.europa.eu/schemas/gn/4.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:cp="http://inspire.ec.europa.eu/schemas/cp/4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:hy="http://inspire.ec.europa.eu/schemas/hy/4.0" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:base2="http://inspire.ec.europa.eu/schemas/base2/2.0" xmlns:au="http://inspire.ec.europa.eu/schemas/au/4.0" xmlns:tn="http://inspire.ec.europa.eu/schemas/tn/4.0" xmlns:net="http://inspire.ec.europa.eu/schemas/net/4.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:gmd="http://www.isotc211.org/2005/gmd" numberMatched="unknown" numberReturned="5" timeStamp="2020-05-27T16:53:13.529Z" xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://inspire.ec.europa.eu/schemas/hy-n/4.0 https://inspire.ec.europa.eu/schemas/hy-n/4.0/HydroNetwork.xsd http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd">
+  <wfs:member>
+    <hy-n:HydroNode gml:id="_100010897">
+      <gml:metaDataProperty xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/"/>
+      <gml:identifier codeSpace="http://guid.datacove.eu/hyn">http://guid.datacove.eu/hyn/node/_100010897</gml:identifier>
+      <net:beginLifespanVersion>2020-03-17T20:00:00Z</net:beginLifespanVersion>
+      <net:inspireId>
+        <base:Identifier>
+          <base:localId>100010897</base:localId>
+          <base:namespace>http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/</base:namespace>
+          <base:versionId>1</base:versionId>
+        </base:Identifier>
+      </net:inspireId>
+      <net:inNetwork xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/TronconHydrograElt/"/>
+      <net:geometry>
+        <gml:Point gml:id="PT.100010897" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+          <gml:pos>50.10943858 4.19779032</gml:pos>
+        </gml:Point>
+      </net:geometry>
+      <hy-n:hydroNodeCategory xlink:href="http://inspire.ec.europa.eu/codelist/HydroNodeCategoryValue/boundary"/>
+    </hy-n:HydroNode>
+  </wfs:member>
+  <wfs:member>
+    <hy-n:HydroNode gml:id="_100010920">
+      <gml:metaDataProperty xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/"/>
+      <gml:identifier codeSpace="http://guid.datacove.eu/hyn">http://guid.datacove.eu/hyn/node/_100010920</gml:identifier>
+      <net:beginLifespanVersion>2020-03-17T20:00:00Z</net:beginLifespanVersion>
+      <net:inspireId>
+        <base:Identifier>
+          <base:localId>100010920</base:localId>
+          <base:namespace>http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/</base:namespace>
+          <base:versionId>1</base:versionId>
+        </base:Identifier>
+      </net:inspireId>
+      <net:inNetwork xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/TronconHydrograElt/"/>
+      <net:geometry>
+        <gml:Point gml:id="PT.100010920" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+          <gml:pos>50.10758165 4.21582966</gml:pos>
+        </gml:Point>
+      </net:geometry>
+      <hy-n:hydroNodeCategory xlink:href="http://inspire.ec.europa.eu/codelist/HydroNodeCategoryValue/source"/>
+    </hy-n:HydroNode>
+  </wfs:member>
+  <wfs:member>
+    <hy-n:HydroNode gml:id="_100010922">
+      <gml:metaDataProperty xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/"/>
+      <gml:identifier codeSpace="http://guid.datacove.eu/hyn">http://guid.datacove.eu/hyn/node/_100010922</gml:identifier>
+      <net:beginLifespanVersion>2020-03-17T20:00:00Z</net:beginLifespanVersion>
+      <net:inspireId>
+        <base:Identifier>
+          <base:localId>100010922</base:localId>
+          <base:namespace>http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/</base:namespace>
+          <base:versionId>1</base:versionId>
+        </base:Identifier>
+      </net:inspireId>
+      <net:inNetwork xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/TronconHydrograElt/"/>
+      <net:geometry>
+        <gml:Point gml:id="PT.100010922" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+          <gml:pos>50.10788178 4.18857373</gml:pos>
+        </gml:Point>
+      </net:geometry>
+      <hy-n:hydroNodeCategory xlink:href="http://inspire.ec.europa.eu/codelist/HydroNodeCategoryValue/source"/>
+    </hy-n:HydroNode>
+  </wfs:member>
+  <wfs:member>
+    <hy-n:HydroNode gml:id="_100010931">
+      <gml:metaDataProperty xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/"/>
+      <gml:identifier codeSpace="http://guid.datacove.eu/hyn">http://guid.datacove.eu/hyn/node/_100010931</gml:identifier>
+      <net:beginLifespanVersion>2020-03-17T20:00:00Z</net:beginLifespanVersion>
+      <net:inspireId>
+        <base:Identifier>
+          <base:localId>100010931</base:localId>
+          <base:namespace>http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/</base:namespace>
+          <base:versionId>1</base:versionId>
+        </base:Identifier>
+      </net:inspireId>
+      <net:inNetwork xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/TronconHydrograElt/"/>
+      <net:geometry>
+        <gml:Point gml:id="PT.100010931" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+          <gml:pos>50.10713222 4.19001282</gml:pos>
+        </gml:Point>
+      </net:geometry>
+      <hy-n:hydroNodeCategory xlink:href="http://inspire.ec.europa.eu/codelist/HydroNodeCategoryValue/source"/>
+    </hy-n:HydroNode>
+  </wfs:member>
+  <wfs:member>
+    <hy-n:HydroNode gml:id="_100010987">
+      <gml:metaDataProperty xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/"/>
+      <gml:identifier codeSpace="http://guid.datacove.eu/hyn">http://guid.datacove.eu/hyn/node/_100010987</gml:identifier>
+      <net:beginLifespanVersion>2020-03-17T20:00:00Z</net:beginLifespanVersion>
+      <net:inspireId>
+        <base:Identifier>
+          <base:localId>100010987</base:localId>
+          <base:namespace>http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/NoeudHydrographique/</base:namespace>
+          <base:versionId>1</base:versionId>
+        </base:Identifier>
+      </net:inspireId>
+      <net:inNetwork xlink:href="http://services.sandre.eaufrance.fr/telechargement/geo/ETH/BDCarthage/FXX/2017/Bassins/TronconHydrograElt/"/>
+      <net:geometry>
+        <gml:Point gml:id="PT.100010987" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+          <gml:pos>50.10081866 4.20018015</gml:pos>
+        </gml:Point>
+      </net:geometry>
+      <hy-n:hydroNodeCategory xlink:href="http://inspire.ec.europa.eu/codelist/HydroNodeCategoryValue/source"/>
+    </hy-n:HydroNode>
+  </wfs:member>
+</wfs:FeatureCollection>
