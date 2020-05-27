@@ -21,7 +21,8 @@ The following image provides an overview of how these classes are interlinked
 A note of warning - as both hy-n and tn-w are based on the underlying network model, some aspects of this configuration pertain to both namespaces
 
 ## Database Creation SQL
-
+The following sql will create all tables required for the provision of the HY-N and TN-W FTs being described here
+[SQL for HY-N and TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/hy-n.sql)
 
 
 ## App Schema Config
