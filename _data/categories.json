@@ -8,6 +8,10 @@
 		"title": "Data Nests"
 	},
 	{
+		"key": "ogc-api",
+		"title": "OGC API - GeoServer"
+	},
+	{
 		"key": "STA",
 		"title": "SensorThings API HowTo"
 	}
