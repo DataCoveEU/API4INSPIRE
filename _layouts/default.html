@@ -46,29 +46,7 @@
 {% for category in site.data.categories %}
 	<li class="tag-h1">{{ category.title }}
 		<ul>
-			{% for catItem in mydocs %}
-				{% if catItem.name == category.key %}
-					{% assign items = catItem.items | sort: 'order' %}
-					{% for item in items %}
-						<li class="tag-h2"><a href="{{ site.baseurl }}{{ item.url }}">{{ item.title }}</a>
-							{% if item.childCategory %}
-								<ul>
-
-								{% for subcatItem in mydocs %}
-									{% if subcatItem.name == item.childCategory %}
-										{% assign subitems = subcatItem.items | sort: 'order' %}
-										{% for subitem in subitems %}
-											<li class="tag-h3"><a href="{{ site.baseurl }}{{ subitem.url }}">{{ subitem.title }}</a></li>
-										{% endfor %}
-									{%endif%}
-								{% endfor %}
-									
-								</ul>
-							{%endif%}
-						</li>
-					{% endfor %}
-				{%endif%}
-			{% endfor %}
+			{% include toc.html mydocs=mydocs catKey=category.key %}
 		</ul>
 	</li>
 {% endfor %}
