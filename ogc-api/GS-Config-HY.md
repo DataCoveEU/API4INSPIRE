@@ -7,6 +7,16 @@ order: 1
 
 # Configuration information for HY-N and TN-W
 
+## 
+While the INSPIRE HY-N and TN-W cover many classes, within this project, we have only implemented the classes we need, that are as follows:
+* hy-n:HydroNode
+* hy-n:WatercourseLink
+* tn-w:PortNode
+* tn-w:WaterwayLink
+* tn-w:InlandWaterway
+
+The following image provides an overview of how these classes are interlinked
+![Implemented Classes and Links HY-N and TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/tnw-classes-pidc.png)
 
 ## UML Overview of HY-N and TN-W
 
