@@ -22,4 +22,8 @@ Each configuration consists of the following two sections:
 * SQL for creating the DB tables in accordance with the target data model
 * App Schema configuration files aligning these DB tables with the target data model
 
-This undertaking is still a work-in-progress - first configs will appear here shortly!
+This undertaking is still a work-in-progress - more will appear here shortly!
+
+## Configuration for HY-N and TN-W
+
+[HY-N and TN-W](https://datacoveeu.github.io/API4INSPIRE/ogc-api/GS-Config-HY.html)
