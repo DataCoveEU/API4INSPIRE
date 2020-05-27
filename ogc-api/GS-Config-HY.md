@@ -18,6 +18,8 @@ While the INSPIRE HY-N and TN-W cover many classes, within this project, we have
 The following image provides an overview of how these classes are interlinked
 ![Implemented Classes and Links HY-N and TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/tnw-classes-pidc.png)
 
+A note of warning - as both hy-n and tn-w are based on the underlying network model, some aspects of this configuration pertain to both namespaces
+
 ## Database Creation SQL
 
 
