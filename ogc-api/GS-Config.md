@@ -2,6 +2,7 @@
 title: Preconfigured GeoServer "Black Boxes"
 layout: default
 category: ogc-api
+childCategory: GC-BB
 order: 2
 ---
 
