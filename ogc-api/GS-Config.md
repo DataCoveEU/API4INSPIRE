@@ -1,3 +1,10 @@
+---
+title: Preconfigured GeoServer "Black Boxes"
+layout: default
+category: ogc-api
+order: 2
+---
+
 # Preconfigured GeoServer "Black Boxes"
 In order to ease uptake of GeoServer utilizing App Schema, we will be providing the configurations created within the API4INSPIRE project for wider reuse.
 
