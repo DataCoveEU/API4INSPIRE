@@ -9,3 +9,4 @@ order: 1
 
 TODO: Add content...
 
+For the moment, see the main [Geoserver Pages](http://geoserver.org/)
