@@ -40,3 +40,6 @@ As this configuration provides features under both the HY-N and TN-W namespaces,
 As it is often difficult to gain an overview of class attributes and associations within HY-N and TN-W due to the multi-level model, I've often found this UML overview that brings all levels together useful. The coloring pertains to the source model.
 
 ![UML Overview of HY-N and TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Water%20Transport.png)
+
+## Warning to XMLSpy users
+A note of warning to XMLSpy users, while usually this SW is quite stable, it does NOT like the HY-N schema. Result is that it will claim that your files are invalid, but in this case, it's XMLSpy that's being invalid.
