@@ -28,6 +28,13 @@ The following sql will create all tables required for the provision of the HY-N 
 
 ## App Schema Config
 
+As this configuration provides features under both the HY-N and TN-W namespaces, two App Schema configuration files are required. In addition, you must make sure that the base namespaces HY and TN are correctly configured on your GeoServer
+
+[App Schema Config HY-N](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingHYN.xml)
+
+[App Schema Config TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingTNW.xml)
+
+
 ## UML Overview of HY-N and TN-W
 
 As it is often difficult to gain an overview of class attributes and associations within HY-N and TN-W due to the multi-level model, I've often found this UML overview that brings all levels together useful. The coloring pertains to the source model.
