@@ -18,43 +18,43 @@ The OGC API Standard consists of the following sections
 
 ### Landing page, Base URI for API:
 
-`https://.../ogcapi/ogc/features`
+https://.../ogcapi/ogc/features
 
 [`https://inspire.austrocontrol.at/ogcapi/ogc/features`](https://inspire.austrocontrol.at/ogcapi/ogc/features)
 
 ### API Definition - Current swagger documentation:
 
-`https://.../ogcapi/ogc/features/api`
+https://.../ogcapi/ogc/features/api
 
 [`https://inspire.austrocontrol.at/ogcapi/ogc/features/api`](https://inspire.austrocontrol.at/ogcapi/ogc/features/api)
 
 ### API Conformance - Conformance to specifications:
 
-`https://.../ogcapi/ogc/features/conformance`
+https://.../ogcapi/ogc/features/conformance
 
 [`https://inspire.austrocontrol.at/ogcapi/ogc/features/conformance`](https://inspire.austrocontrol.at/ogcapi/ogc/features/conformance)
 
 ### API Collections - All Datasets:
 
-`https://.../ogcapi/ogc/features/collections`
+https://.../ogcapi/ogc/features/collections
 
 [`https://inspire.austrocontrol.at/ogcapi/ogc/features/collections`](https://inspire.austrocontrol.at/ogcapi/ogc/features/collections)
 
 ### Specific Collection –Dataset Description
 
-`https://.../ogcapi/ogc/features/collections/{collectionId}`
+https://.../ogcapi/ogc/features/collections/{collectionId}
 
 [```https://inspire.austrocontrol.at/ogcapi/ogc/features/collections/tn-a:AerodromeNode```](https://inspire.austrocontrol.at/ogcapi/ogc/features/collections/tn-a:AerodromeNode)
 
 ### All Items of a Collection –Dataset 
 
-`https://.../ogcapi/ogc/features/collections/{collectionId}/items`
+https://.../ogcapi/ogc/features/collections/{collectionId}/items
 
 [```https://inspire.austrocontrol.at/ogcapi/ogc/features/collections/tn-a:AerodromeNode/items?f=application%2Fgeo%2Bjson&limit=50```](https://inspire.austrocontrol.at/ogcapi/ogc/features/collections/tn-a:AerodromeNode/items?f=application%2Fgeo%2Bjson&limit=50)
 
 ### Specific Item – Feature 
 
-`https://.../ogcapi/ogc/features/collections/{collectionId}/items/{featureId}`
+https://.../ogcapi/ogc/features/collections/{collectionId}/items/{featureId}
 
 [```https://inspire.austrocontrol.at/ogcapi/ogc/features/collections/tn-a:AerodromeNode/items/AT.0012.6bed1778-d6bf-11e8-9f8b-f2801f1b9fd1.tn-a.AerodromeNode.115?f=application%2Fgeo%2Bjson```](https://inspire.austrocontrol.at/ogcapi/ogc/features/collections/tn-a:AerodromeNode/items/AT.0012.6bed1778-d6bf-11e8-9f8b-f2801f1b9fd1.tn-a.AerodromeNode.115?f=application%2Fgeo%2Bjson)
 
