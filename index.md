@@ -28,14 +28,14 @@ together, these data providers manage data from 14 INSPIRE themes.
 Together with our data providers, we have provided various related datasets via OGC API – Features and SensorThings API endpoints.
 This data is openly available for exploration and application development.
 
-* Airy Austria
+* [Airy Austria](datanests/airy-austria.md)
   * Air Transport Network plus Meteorological Conditions
   * Air Quality via SensorThings
   * Compare and merge OGC API - Features and SensorThings API
-* Urban Data Plattform Hamburg
+* [Urban Data Plattform Hamburg](datanests/hamburg.md)
   * Lots of sensor and geo data on the bottom, cool applications on the top, and some juicy APIs in between.
   * One possible use-case here is combining the locations of the electro rollers with the road network data, i.e. determine the fastest route to a juicy burger.
-* Franco-Germanic Flows
+* [Franco-Germanic Flows](datanests/franco-germanic-flow.md)
   * Cross-border Water data providing alternative perspectives on the Rhine
   * Various other complementary French data sources
 
@@ -44,9 +44,9 @@ This data is openly available for exploration and application development.
 
 The following deliverables have been created during this project:
 
-* [D0 Inception Report](files/D0-InceptionReport-v1.2.pdf)
-* [D1 Evaluation Methodology](files/D1-EvaluationMethodology_1.1.pdf)
-* [D2 Deployment Strategies](files/D2-DeploymentStrategy_1.1.pdf)
+* [D0 Inception Report](files/D0-InceptionReport-v1.2.pdf) provides the reader with an overview of the API4INSPIRE project. 
+* Within [D1 Evaluation Methodology](files/D1-EvaluationMethodology_1.1.pdf), the methodology by with we shall evaluate the potential of the APIs under evaluation is described including all evaluation criteria. At the same time, we show how this methodology is embedded within the wider context of the evaluation process.
+* For the deployment of the APIs under evaluation by our associated data providers, we have developed a set of deployment strategies that have been documented within [D2 Deployment Strategies](files/D2-DeploymentStrategy_1.1.pdf). This document provides details on both the software utilized as well as approaches for efficiently configuring these systems based on the data providers requirements.
 
 
 ## ELISE
