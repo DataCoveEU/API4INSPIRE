@@ -10,15 +10,15 @@ order: 1
 # API4INSPIRE
 
 The EC has a long history of promoting open access to public data across Europe, breaking down electronic barriers at national borders through the creation of common data and service models, as well as through the provision of accompanying legislation facilitating such endeavours.
-The INSPIRE Directive has been a core building block in this work, which has been further elaborated within the “European Union Location Framework (EULF)” and “A Reusable INSPIRE Reference Platform (ARe3NA)”
+The [INSPIRE Directive](https://inspire.ec.europa.eu/) has been a core building block in this work, which has been further elaborated within the [“European Union Location Framework (EULF)”](https://joinup.ec.europa.eu/collection/european-union-location-framework-eulf/about) and [“A Reusable INSPIRE Reference Platform (ARe3NA)”](https://joinup.ec.europa.eu/collection/are3na)
 
-API4INSPIRE serves to investigate new developments in geospatial standards and technologies, foremost the new OGC API – Features and SensorThings API standards, together with the outcomes of the INSPIRE MIG Action 2017.2 on alternative encodings for INSPIRE data.
+API4INSPIRE serves to investigate new developments in geospatial standards and technologies, foremost the new [OGC API – Features](https://www.ogc.org/standards/ogcapi-features) and [SensorThings API](https://www.ogc.org/standards/sensorthings) standards, together with the outcomes of the [INSPIRE MIG Action 2017.2 on alternative encodings for INSPIRE data](https://github.com/INSPIRE-MIF/2017.2).
 For this purpose, an evaluation strategy has been developed suited to determine how these new and emerging standards can best be utilized to leverage existing investments by EU Member States in the INSPIRE implementation.
 
-For the provision of data via OGC API – Features, our most common deployment option is GeoServer with the OGC API extension.
-For cases where GeoServer is not used or where we do not have access to provider infrastructure, LD-Proxy is utilized to transform data available via WFS2.
+For the provision of data via OGC API – Features, our most common deployment option is [GeoServer](http://geoserver.org/) with the OGC API extension.
+For cases where GeoServer is not used or where we do not have access to provider infrastructure, [LD-Proxy](https://interactive-instruments.github.io/ldproxy/) is utilized to transform data available via WFS2.
 In addition, the OGC API – Simple server has been developed within the API4INSPIRE project; this simple implementation allows for provision of simple features in accordance with SF-0.
-For the provision of SensorThings API, we utilize the Fraunhofer Open Source SensorThings (FROST) Server.
+For the provision of SensorThings API, we utilize the [Fraunhofer Open Source SensorThings (FROST) Server](https://www.iosb.fraunhofer.de/servlet/is/82077/).
 
 
 ## Data Providers
