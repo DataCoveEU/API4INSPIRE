@@ -226,6 +226,8 @@ public class SQLite implements DBConnector {
                 if (!table.contains("spatial_")) {
                     if(getAllPrimaryKey(table).size() == 1)
                         out.add(table);
+                    else
+                        log.info("Table " + table + " has more than 1 unique columns, it will not be included in the api");
                 }
             }
             for (Map.Entry<String, String> entry : sqlString.entrySet())
@@ -564,8 +566,9 @@ public class SQLite implements DBConnector {
                     fs.addFeature(f);
 
             }
-
-            ColumnConfig columnConfig = tc.getMap().get(geoCol);
+            ColumnConfig columnConfig = null;
+            if(tc != null && tc.getMap() != null)
+                columnConfig = tc.getMap().get(geoCol);
 
             if (geoCol != null && withSpatial && (columnConfig == null || (columnConfig != null && !columnConfig.isExclude()))) {
                 log.debug("Getting Bounding Box for Table: " + queryName);
@@ -705,9 +708,7 @@ public class SQLite implements DBConnector {
                     sql = sql.substring(0, sql.length() - 4);
             }
 
-            if(limit == -1){
-                sql+=" OFFSET ?";
-            }else{
+            if(limit != -1){
                 sql+=" LIMIT ? OFFSET ?";
             }
 
@@ -739,20 +740,12 @@ public class SQLite implements DBConnector {
             rs = ps.executeQuery();
         }else {
 
-            if(limit == -1){
-                sql+=" OFFSET ?";
-            }else{
-                sql+=" LIMIT ? OFFSET ?";
+            if(limit != -1){
+                sql+=" LIMIT " + limit + " OFFSET " + offset;
             }
 
             PreparedStatement ps = c.prepareStatement(sql);
 
-            if(limit == -1){
-                ps.setInt(1,offset);
-            }else{
-                ps.setInt(1,limit);
-                ps.setInt(2,offset);
-            }
             //Executing sql
             rs = ps.executeQuery();
         }

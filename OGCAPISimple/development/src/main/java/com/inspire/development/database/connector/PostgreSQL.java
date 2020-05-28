@@ -342,6 +342,8 @@ public class PostgreSQL implements DBConnector {
                 String table = rs.getString(3);
                 if(getAllPrimaryKey(table).size() == 1)
                     out.add(table);
+                else
+                    log.info("Table " + table + " has more than 1 unique columns, it will not be included in the api");
             }
             for (Map.Entry<String, String> entry : sqlString.entrySet())
                 out.add(entry.getKey());
