@@ -1,4 +1,11 @@
-#OGC API - Features Overview
+---
+title: OGC API - Features Overview
+layout: default
+category: ogc-api
+order: 1
+---
+
+# OGC API - Features Overview
 
 ## OGC API Standard
 
