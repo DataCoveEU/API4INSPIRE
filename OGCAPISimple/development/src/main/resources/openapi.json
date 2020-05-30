@@ -1253,7 +1253,7 @@
                           },
                           "type": {
                             "type": "string",
-                            "example": "application/geo+json"
+                            "example": "application/json"
                           }
                         }
                       }
@@ -1265,12 +1265,12 @@
                   "links": [{
                       "href": "http://data.example.com/collections/buildings/items/123?f=application/json",
                       "rel": "self",
-                      "type": "application/geo+json"
+                      "type": "application/json"
                     },
                     {
                       "href": "http://data.example.com/collections/buildings",
                       "rel": "collection",
-                      "type": "application/geo+json"
+                      "type": "application/json"
                     }
                   ],
                   "id": "123",
