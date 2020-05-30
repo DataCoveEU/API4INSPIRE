@@ -379,7 +379,7 @@
                     "links": [{
                         "href": "http://data.example.org/collections/airspaces/items",
                         "rel": "items",
-                        "type": "application/geo+json"
+                        "type": "application/json"
                       },
                       {
                         "href": "http://data.example.org/collections/buildings/items.html",
@@ -640,7 +640,7 @@
           "200": {
             "description": "The response is a document consisting of features in the collection.\nThe features included in the response are determined by the server\nbased on the query parameters of the request. To support access to\nlarger collections without overloading the client, the API supports\npaged access with links to the next page, if more features are selected\nthat the page size.\n\nThe `bbox` parameter can be used to select only a\nsubset of the features in the collection (the features that are in the\nbounding box ). The `bbox` parameter matches all features\nin the collection that are not associated with a location, too.\n\nThe `limit` parameter may be used to control the subset of the\nselected features that should be returned in the response, the page size.",
             "content": {
-              "application/geo+json": {
+              "application/json": {
                 "schema": {
                   "required": [
                     "features",
@@ -913,7 +913,7 @@
                     {
                       "href": "http://data.example.com/collections/buildings/items.json&offset=10&limit=10",
                       "rel": "next",
-                      "type": "application/geo+json",
+                      "type": "application/json",
                       "title": "next page"
                     }
                   ],
@@ -1038,7 +1038,7 @@
           "200": {
             "description": "fetch the feature with id `featureId` in the feature collection\nwith id `collectionId`",
             "content": {
-              "application/geo+json": {
+              "application/json": {
                 "schema": {
                   "required": [
                     "geometry",
