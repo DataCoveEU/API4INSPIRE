@@ -648,60 +648,63 @@ public class SQLite implements DBConnector {
      * @return Geometry object if string is valid, else null
      */
     static public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
-        List<Position> positions = new ArrayList<>();
+            List<Position> positions = new ArrayList<>();
 
-        int x = 1;
+            if(geom.numPoints() != 1) {
+                int x = 1;
 
-        org.postgis.Point p = geom.getFirstPoint();
-        do {
-            positions.add(new Position(p.getX(), p.getY()));
-            p = geom.getPoint(x);
-            x++;
-        } while ((!p.equals(geom.getLastPoint())));
+                org.postgis.Point p = geom.getFirstPoint();
+                do {
+                    positions.add(new Position(p.getX(), p.getY()));
+                    p = geom.getPoint(x);
+                    x++;
+                } while (!(p.equals(geom.getFirstPoint())));
+            }else{
+                positions.add(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
+            }
 
-        switch (geom.getType()){
-            case 1:
-                return new mil.nga.sf.geojson.Point(positions.get(0));
-            case 2:
-                return new LineString(positions);
-            case 3:
-                List<List<Position>> position = new ArrayList<>();
-                position.add(positions);
-                return new Polygon(position);
-            case 4:
-                return new MultiPoint(positions);
-            case 5:
-                List<List<Position>> points = new ArrayList<>();
-                List<Position> oneDimension = new ArrayList<>();
-                int oldDim = geom.getPoint(0).dimension;
-                for(int i = 0; i < geom.numPoints(); i++){
-                    org.postgis.Point point = geom.getPoint(x);
-                    if(oldDim != point.dimension){
-                        oldDim = point.dimension;
-                        points.add(oneDimension);
-                        oneDimension.clear();
+            switch (geom.getType()) {
+                case 1:
+                    return new mil.nga.sf.geojson.Point(positions.get(0));
+                case 2:
+                    return new LineString(positions);
+                case 3:
+                    List<List<Position>> polygonPositions = new ArrayList<>();
+                    polygonPositions.add(positions);
+                    return new Polygon(polygonPositions);
+                case 4:
+                    return new MultiPoint(positions);
+                case 5:
+                    List<List<Position>> points = new ArrayList<>();
+                    List<Position> oneDimension = new ArrayList<>();
+                    int oldDim = geom.getPoint(0).dimension;
+                    for (int i = 0; i < geom.numPoints(); i++) {
+                        org.postgis.Point point = geom.getPoint(i);
+                        if (oldDim != point.dimension) {
+                            oldDim = point.dimension;
+                            points.add(oneDimension);
+                            oneDimension.clear();
+                        }
+                        oneDimension.add(new Position(point.getX(), point.getY()));
                     }
-                    oneDimension.add(new Position(point.getX(), point.getY()));
-                }
-                return new MultiLineString(points);
-            case 6:
-                List<List<List<Position>>> pointsPoly = new ArrayList<>();
-                List<Position> oneDimensionPoly = new ArrayList<>();
-                int oldDimPoly = geom.getPoint(0).dimension;
-                for(int i = 0; i < geom.numPoints(); i++){
-                    org.postgis.Point point = geom.getPoint(x);
-                    if(oldDimPoly != point.dimension){
-                        oldDimPoly = point.dimension;
-                        List<List<Position>> multi = new ArrayList<>();
-                        multi.add(oneDimensionPoly);
-                        pointsPoly.add(multi);
-                        oneDimensionPoly.clear();
+                    return new MultiLineString(points);
+                case 6:
+                    List<List<List<Position>>> pointsPoly = new ArrayList<>();
+                    List<Position> oneDimensionPoly = new ArrayList<>();
+                    int oldDimPoly = geom.getPoint(0).dimension;
+                    for (int i = 0; i < geom.numPoints(); i++) {
+                        org.postgis.Point point = geom.getPoint(i);
+                        if (oldDimPoly != point.dimension) {
+                            oldDimPoly = point.dimension;
+                            List<List<Position>> multi = new ArrayList<>();
+                            multi.add(oneDimensionPoly);
+                            pointsPoly.add(multi);
+                            oneDimensionPoly.clear();
+                        }
+                        oneDimensionPoly.add(new Position(point.getX(), point.getY()));
                     }
-                    oneDimensionPoly.add(new Position(point.getX(), point.getY()));
-                }
-                return new MultiPolygon(pointsPoly);
-        }
-
+                    return new MultiPolygon(pointsPoly);
+            }
         return null;
     }
 
