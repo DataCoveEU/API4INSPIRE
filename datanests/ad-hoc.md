@@ -40,7 +40,7 @@ The Covid-STA endpoint was created by Joe Thunyathep Santhanavanich from the Hoc
 The data is accessed from various sources including the repository provided by Johns Hopkins University and the Robert Koch Institute.
 
 ### Currently available endpoints
-* Viewer: [https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/114/](https://wg-brgm.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/114/)
+* Dashboard: [http://www.covid19dashboard.org/](http://www.covid19dashboard.org/)
 * STA: [http://covidsta.hft-stuttgart.de/server/v1.1](http://covidsta.hft-stuttgart.de/server/v1.1) 
 
 ## Demography Things
