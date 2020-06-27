@@ -2,6 +2,7 @@
 title: GeoServer
 layout: default
 category: ogc-api
+childCategory: GC-AppSchema
 order: 2
 ---
 
