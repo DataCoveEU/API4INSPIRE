@@ -13,6 +13,23 @@ order: 1
 ### ER Diagram of table dummy1
 ![Dummy1 ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Dummy1_ER.png)
 
+### Example XML Output
+```
+<dm1:Dummy1 gml:id="D1">
+  <dm1:name>Dummy1</dm1:name>
+  <dm1:code xlink:href="http://codes.datacove.eu/D1"/>
+  <dm1:geometry>
+	<gml:Point gml:id="PT_D1" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+	  <gml:pos>48.064544 15.28787</gml:pos>
+	</gml:Point>
+  </dm1:geometry>
+</dm1:Dummy1>
+```
+
+### Schema file
+
+The Schema file for Dummy1 is available at [https://schema.datacove.eu/Dummy1.xsd](https://schema.datacove.eu/Dummy1.xsd)
+
 ## Namespaces
 All namespaces used in the App Schema Mapping must be declared together with their prefixes in the **namespaces** section.
 ```
