@@ -159,7 +159,7 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <label style="width: 100%">
-                            <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" value="{{ queryName }}" id="queryName"/>
+                            <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" value="{{ queryName }}" id="queryName" (input)="nameChanged()"/>
                             <div *ngIf="sqlSubmitted && sqlForm.controls.collectionId.errors" class="error">
                                 <div *ngIf="sqlForm.controls.collectionId.errors.required">A collection name is required</div>
                             </div>
