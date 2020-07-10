@@ -26,6 +26,8 @@ One interesting aspect of this combination of datasets will pertain to the overl
 
 Potential Use Cases in this context pertain mostly to flooding within the Rhine catchment area, including both surface and ground water,
  but can also extend to navigability of French water transport networks based on water levels.
+ 
+Some simple use cases pertain to creating the necessary links between the French and German rivers. At present the identifiers are national, the only link between these feature sets are spatial. An application that tries to extract corresponding features between these two datasets would be highly valuable.
 
 ## Currently available endpoints:
 * Viewer: [https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/102/](https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/102/)
