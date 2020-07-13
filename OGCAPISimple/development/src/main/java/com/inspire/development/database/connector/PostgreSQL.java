@@ -590,7 +590,7 @@ public class PostgreSQL implements DBConnector {
                         if(columnConfig == null || (columnConfig != null && !columnConfig.isExclude())) {
                             PGgeometry geom = (PGgeometry) rs.getObject(x);
                             if (geom != null) {
-                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom.getGeometry());
+                                mil.nga.sf.geojson.Geometry geo = SQLite.EWKBtoGeo(geom.getGeometry());
                                 f.setGeometry(geo);
                             }
                         }
@@ -605,7 +605,7 @@ public class PostgreSQL implements DBConnector {
                             setGeo(queryName, col);
                             PGgeometry geom = (PGgeometry) rs.getObject(x);
                             if (geom != null) {
-                                mil.nga.sf.geojson.Geometry geo = EWKBtoGeo(geom.getGeometry());
+                                mil.nga.sf.geojson.Geometry geo = SQLite.EWKBtoGeo(geom.getGeometry());
                                 f.setGeometry(geo);
                             }
                             continue;
@@ -836,39 +836,7 @@ public class PostgreSQL implements DBConnector {
         return names;
     }
 
-    /**
-     * Converts Geometry Object to a Geometry Object
-     * @param geom Geometry Object
-     * @return Geometry object if string is valid, else null
-     */
-    public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
-        if (geom != null) {
-            log.debug("Converting EWKB to Geometry");
 
-            //Type is Polygon
-            if (geom.getType() == 3) {
-                List<List<Position>> l = new ArrayList<>();
-                ArrayList<Position> li = new ArrayList<>();
-
-                int x = 1;
-                org.postgis.Point p = geom.getFirstPoint();
-                do {
-                    li.add(new Position(p.getX(), p.getY()));
-                    p = geom.getPoint(x);
-                    x++;
-                } while ((!p.equals(geom.getLastPoint())));
-                l.add(li);
-                Polygon p1 = new Polygon(l);
-                return p1;
-            }
-            //Type is Point
-            if (geom.getType() == 1) {
-                return new mil.nga.sf.geojson.Point(
-                        new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
-            }
-        }
-        return null;
-    }
 
 
     /**

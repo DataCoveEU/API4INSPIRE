@@ -38,6 +38,10 @@ import java.sql.Statement;
 import java.util.*;
 
 import mil.nga.sf.geojson.Feature;
+import mil.nga.sf.geojson.LineString;
+import mil.nga.sf.geojson.MultiLineString;
+import mil.nga.sf.geojson.MultiPoint;
+import mil.nga.sf.geojson.MultiPolygon;
 import mil.nga.sf.geojson.Point;
 import mil.nga.sf.geojson.Polygon;
 import mil.nga.sf.geojson.Position;
@@ -643,32 +647,64 @@ public class SQLite implements DBConnector {
      * @param geom Geometry Object
      * @return Geometry object if string is valid, else null
      */
-    public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
+    static public mil.nga.sf.geojson.Geometry EWKBtoGeo(Geometry geom) {
+            List<Position> positions = new ArrayList<>();
 
-        //Type is Polygon
-        if (geom.getType() == 3) {
-            List<List<Position>> l = new ArrayList<>();
-            ArrayList<Position> li = new ArrayList<>();
+            if(geom.numPoints() != 1) {
+                int x = 1;
 
-            int x = 1;
-            org.postgis.Point p = geom.getFirstPoint();
-            do {
-                li.add(new Position(p.getX(), p.getY()));
-                p = geom.getPoint(x);
-                x++;
-            } while ((!p.equals(geom.getLastPoint())));
-            l.add(li);
-            Polygon p1 = new Polygon(l);
-            return p1;
-        }
-        //Type is Point
-        if (geom.getType() == 1) {
-            double x = geom.getFirstPoint().getX();
-            double y = geom.getFirstPoint().getY();
-            Point p = new mil.nga.sf.geojson.Point(new Position(x, y));
-            p.setBbox(new double[]{x, y, x, y});
-            return p;
-        }
+                org.postgis.Point p = geom.getFirstPoint();
+                do {
+                    positions.add(new Position(p.getX(), p.getY()));
+                    p = geom.getPoint(x);
+                    x++;
+                } while (!(p.equals(geom.getFirstPoint())));
+            }else{
+                positions.add(new Position(geom.getFirstPoint().getX(), geom.getFirstPoint().getY()));
+            }
+
+            switch (geom.getType()) {
+                case 1:
+                    return new mil.nga.sf.geojson.Point(positions.get(0));
+                case 2:
+                    return new LineString(positions);
+                case 3:
+                    List<List<Position>> polygonPositions = new ArrayList<>();
+                    polygonPositions.add(positions);
+                    return new Polygon(polygonPositions);
+                case 4:
+                    return new MultiPoint(positions);
+                case 5:
+                    List<List<Position>> points = new ArrayList<>();
+                    List<Position> oneDimension = new ArrayList<>();
+                    int oldDim = geom.getPoint(0).dimension;
+                    for (int i = 0; i < geom.numPoints(); i++) {
+                        org.postgis.Point point = geom.getPoint(i);
+                        if (oldDim != point.dimension) {
+                            oldDim = point.dimension;
+                            points.add(oneDimension);
+                            oneDimension.clear();
+                        }
+                        oneDimension.add(new Position(point.getX(), point.getY()));
+                    }
+                    return new MultiLineString(points);
+                case 6:
+                    List<List<List<Position>>> pointsPoly = new ArrayList<>();
+                    List<Position> oneDimensionPoly = new ArrayList<>();
+                    int oldDimPoly = geom.getPoint(0).dimension;
+                    for (int i = 0; i < geom.numPoints(); i++) {
+                        org.postgis.Point point = geom.getPoint(i);
+                        if (oldDimPoly != point.dimension) {
+                            oldDimPoly = point.dimension;
+                            List<List<Position>> multi = new ArrayList<>();
+                            multi.add(oneDimensionPoly);
+                            pointsPoly.add(multi);
+                            oneDimensionPoly.clear();
+                        }
+                        oneDimensionPoly.add(new Position(point.getX(), point.getY()));
+                    }
+                    return new MultiPolygon(pointsPoly);
+            }
         return null;
     }
 

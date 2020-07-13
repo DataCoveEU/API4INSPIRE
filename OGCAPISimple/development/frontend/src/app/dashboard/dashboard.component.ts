@@ -106,6 +106,8 @@ export class DashboardComponent implements OnInit {
   queryName = "";
   query = "";
 
+  nameInputChanged: boolean = false;
+
   constructor(  private formBuilder: FormBuilder,
                 private conService: ConnectorService,
                 private featureService: FeatureService,
@@ -208,8 +210,8 @@ export class DashboardComponent implements OnInit {
    * @param name the name or the id of the table row that has been clicked
    */
   async onClickTableName(name: string) {
-    console.log("NAME:" + name);
     if(this.selectedConnector.sqlString[name] != undefined) {
+      this.sqlForm.value.collectionId = name;
       this.queryName = name;
       this.query = this.selectedConnector.sqlString[name];
     } else {
@@ -220,10 +222,7 @@ export class DashboardComponent implements OnInit {
     // If a "table name row" is already selected, then
     // you have to change the style
     if(this.tableSelect) {
-      console.log("Tableselect:" + this.tableSelect);
-      console.log("ID: " + this.idTableSelected);
       var change = document.getElementById(this.idTableSelected);
-      console.log("Changes: " + change);
       change.style.backgroundColor = "white";
       change.style.color = "black";
 
@@ -231,7 +230,6 @@ export class DashboardComponent implements OnInit {
       // then you have to deselect is
       if(this.columnSelected) {
         var col = document.getElementById(this.idColumnSelected)
-        console.log("Col: " + col);
         col.style.backgroundColor = "white";
         col.style.color = "black";
 
@@ -243,8 +241,6 @@ export class DashboardComponent implements OnInit {
     // Change the style of the selected row
     // and save the id of it
     var row = document.getElementById(name);
-    console.log("ROW:" );
-    console.log(row);
     row.style.color = "white";
     row.style.backgroundColor = "#0069D9";
     this.showRenameTable = true;
@@ -498,11 +494,6 @@ export class DashboardComponent implements OnInit {
         //Show info message
         errorText.innerHTML = this.messages(false, "SQL executed successful. The view has been added to the list of collections above", "INFORMATION");
         await this.reload().then(()=>{
-          console.log("tablenames");
-          console.log(this.tableNames);
-          console.log("Rowsss:");
-          console.log(document.getElementById(json.collectionName));
-          console.log(json);
           this.onClickTableName(json.collectionName);
         });
         
@@ -937,7 +928,7 @@ export class DashboardComponent implements OnInit {
                 </div>
               </div>`;
     }
-    return erg;
+    return erg;  
   }
 
   /**
@@ -948,7 +939,7 @@ export class DashboardComponent implements OnInit {
       'id': this.selectedConnector.id,
       'sql': this.query == this.sqlForm.value.sqlQuery ? this.query : this.sqlForm.value.sqlQuery,
       'sqlName': this.idTableSelected,
-      "newName": this.sqlForm.value.collectionId.length > 0 ? this.sqlForm.value.collectionId : this.queryName
+      "newName": this.sqlForm.value.collectionId.length > 0 && this.nameInputChanged ? this.sqlForm.value.collectionId : this.queryName
     };  
 
     var errorText = document.getElementById('sqlError');
@@ -969,7 +960,8 @@ export class DashboardComponent implements OnInit {
       // Show error message
       errorText.innerHTML = this.messages(true, "SQL not updated successful", "INFORMATION");
     })
-    
+    this.sqlForm.value.collectionId = "";
+    this.nameInputChanged = false;
   }
 
   /**
@@ -994,5 +986,8 @@ export class DashboardComponent implements OnInit {
       })
   }
 
+  nameChanged() {
+    this.nameInputChanged = true;
+  }
   
 }
