@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+GeoServer configuration brought to you courtesy of DataCove.EU
+www.datacove.eu 
+-->
+<as:AppSchemaDataAccess xmlns:as="http://www.geotools.org/app-schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.geotools.org/app-schema AppSchemaDataAccess.xsd">
+  <namespaces>
+	<Namespace>
+		<prefix>am</prefix>
+		<uri>http://inspire.ec.europa.eu/schemas/am/4.0</uri>
+	</Namespace>  
+
+	<Namespace>
+		<prefix>ad</prefix>
+		<uri>http://inspire.ec.europa.eu/schemas/ad/4.0</uri>
+	</Namespace>  
+
+	<Namespace>
+		<prefix>gn</prefix>
+		<uri>http://inspire.ec.europa.eu/schemas/gn/4.0</uri>
+	</Namespace>  
+
+
+
+    <Namespace>
+      <prefix>gco</prefix>
+      <uri>http://www.isotc211.org/2005/gco</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>xlink</prefix>
+      <uri>http://www.w3.org/1999/xlink</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>base</prefix>
+      <uri>http://inspire.ec.europa.eu/schemas/base/3.3</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>base2</prefix>
+      <uri>http://inspire.ec.europa.eu/schemas/base2/2.0</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>gmd</prefix>
+      <uri>http://www.isotc211.org/2005/gmd</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>xsi</prefix>
+      <uri>http://www.w3.org/2001/XMLSchema-instance</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>gml</prefix>
+      <uri>http://www.opengis.net/gml/3.2</uri>
+    </Namespace>
+  </namespaces>
+  <includedTypes>
+    <!--    <Include>../../au/AU/MappingAU.xml</Include>
+
+-->
+  </includedTypes>
+  <sourceDataStores>
+    <DataStore>
+      <id>idDataStoreInsp</id>
+      <parameters>
+        <Parameter>
+          <name>dbtype</name>
+          <value>postgisng</value>
+        </Parameter>
+        <Parameter>
+          <name>jndiReferenceName</name>
+          <value>jdbc/tnw</value>
+        </Parameter>
+        <Parameter>
+          <name>Expose primary keys</name>
+          <value>true</value>
+        </Parameter>
+      </parameters>
+    </DataStore>
+  </sourceDataStores>
+  <!--    <catalog>...</catalog>-->
+  <targetTypes>
+    <FeatureType>
+
+		
+	  <schemaUri>https://inspire.ec.europa.eu/schemas/am/4.0/AreaManagementRestrictionRegulationZone.xsd</schemaUri>
+    </FeatureType>
+  </targetTypes>
+  <typeMappings>
+  
+
+
+	
+    <FeatureTypeMapping>
+      <sourceDataStore>idDataStoreInsp</sourceDataStore>
+      <sourceType>am_mgmt_zone</sourceType>
+      <targetElement>am:ManagementRestrictionOrRegulationZone</targetElement>
+      <attributeMappings>
+        <AttributeMapping>
+          <targetAttribute>am:ManagementRestrictionOrRegulationZone</targetAttribute>
+          <idExpression>
+            <OCQL>gmlid</OCQL>
+          </idExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>gml:identifier</targetAttribute>
+          <sourceExpression>
+            <OCQL>strconcat('http://guid.datacove.eu/am/MgmtZone/', localid)</OCQL>
+          </sourceExpression>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>codeSpace</name>
+            <value>'http://guid.datacove.eu/am/MgmtZone/'</value>
+          </ClientProperty>
+        </AttributeMapping>		
+        <AttributeMapping>
+          <targetAttribute>am:inspireId/base:Identifier/base:localId</targetAttribute>
+          <sourceExpression>
+            <OCQL>localid</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:inspireId/base:Identifier/base:namespace</targetAttribute>
+          <sourceExpression>
+            <OCQL>namespace</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <!--		
+		<AttributeMapping>
+			<targetAttribute>nz:inspireId/base:Identifier/base:versionId</targetAttribute>
+			<sourceExpression>
+				<OCQL>version</OCQL>
+			</sourceExpression>
+		</AttributeMapping>
+		-->
+        <AttributeMapping>
+          <targetAttribute>am:beginLifespanVersion</targetAttribute>
+          <sourceExpression>
+            <OCQL>beginlsv</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:endLifespanVersion</targetAttribute>
+          <sourceExpression>
+            <OCQL>endlsv</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:thematicId/base2:ThematicIdentifier/base2:identifier</targetAttribute>
+          <sourceExpression>
+            <OCQL>themid</OCQL>
+          </sourceExpression>
+        </AttributeMapping>		
+        <AttributeMapping>
+          <targetAttribute>am:thematicId/base2:ThematicIdentifier/base2:identifierScheme</targetAttribute>
+          <sourceExpression>
+            <OCQL>themidscheme</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+	
+        <AttributeMapping>
+          <targetAttribute>am:name/gn:GeographicalName/gn:language</targetAttribute>
+          <sourceExpression>
+            <OCQL>'fre'</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+		<AttributeMapping>
+			<targetAttribute>am:name/gn:GeographicalName/gn:nativeness</targetAttribute>
+			<ClientProperty>
+				<name>xsi:nil</name>
+				<value>'true'</value>
+			</ClientProperty>
+			<ClientProperty>
+				<name>nilReason</name>
+				<value>'Unpopulated'</value>
+			</ClientProperty>
+		</AttributeMapping>
+		<AttributeMapping>
+			<targetAttribute>am:name/gn:GeographicalName/gn:nameStatus</targetAttribute>
+			<ClientProperty>
+				<name>xsi:nil</name>
+				<value>'true'</value>
+			</ClientProperty>
+			<ClientProperty>
+				<name>nilReason</name>
+				<value>'Unpopulated'</value>
+			</ClientProperty>
+		</AttributeMapping>
+		<AttributeMapping>
+			<targetAttribute>am:name/gn:GeographicalName/gn:sourceOfName</targetAttribute>
+			<ClientProperty>
+				<name>xsi:nil</name>
+				<value>'true'</value>
+			</ClientProperty>
+			<ClientProperty>
+				<name>nilReason</name>
+				<value>'Unpopulated'</value>
+			</ClientProperty>
+		</AttributeMapping>
+		<AttributeMapping>
+			<targetAttribute>am:name/gn:GeographicalName/gn:pronunciation</targetAttribute>
+			<ClientProperty>
+				<name>xsi:nil</name>
+				<value>'true'</value>
+			</ClientProperty>
+			<ClientProperty>
+				<name>nilReason</name>
+				<value>'Unpopulated'</value>
+			</ClientProperty>
+		</AttributeMapping>
+
+        <AttributeMapping>
+          <targetAttribute>am:name/gn:GeographicalName/gn:spelling/gn:SpellingOfName/gn:text</targetAttribute>
+          <sourceExpression>
+            <OCQL>gnname</OCQL>
+          </sourceExpression>
+        </AttributeMapping>	
+		<AttributeMapping>
+			<targetAttribute>am:name/gn:GeographicalName/gn:spelling/gn:SpellingOfName/gn:script</targetAttribute>
+			<sourceExpression>
+				<OCQL>'Latin'</OCQL>
+			</sourceExpression>
+		</AttributeMapping>
+
+        <AttributeMapping>
+          <targetAttribute>am:zoneType</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>xlink:href</name>
+            <value>zone_type</value>
+          </ClientProperty>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:specialisedZoneType</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>xlink:href</name>
+            <value>spec_zone_type</value>
+          </ClientProperty>
+        </AttributeMapping>		
+        <AttributeMapping>
+          <targetAttribute>am:designationPeriod/gml:TimePeriod</targetAttribute>
+          <ClientProperty>
+            <name>gml:id</name>
+            <value>strconcat('DTP_', localid)</value>
+          </ClientProperty>		  
+        </AttributeMapping>	
+        <AttributeMapping>
+          <targetAttribute>am:designationPeriod/gml:TimePeriod/gml:beginPosition</targetAttribute>
+          <sourceExpression>
+            <OCQL>begindes</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:designationPeriod/gml:TimePeriod/gml:endPosition</targetAttribute>
+          <sourceExpression>
+            <OCQL>enddes</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+		
+
+        <AttributeMapping>
+          <targetAttribute>am:environmentalDomain</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>xlink:href</name>
+            <value>env_domain</value>
+          </ClientProperty>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:plan</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>xlink:href</name>
+            <value>plan</value>
+          </ClientProperty>
+        </AttributeMapping>		
+		
+        <AttributeMapping>
+          <targetAttribute>am:competentAuthority</targetAttribute>
+          <sourceExpression>
+            <OCQL>id</OCQL>
+            <linkElement>base2:RelatedParty</linkElement>
+            <linkField>FEATURE_LINK</linkField>
+          </sourceExpression>
+        </AttributeMapping>
+		
+		
+		
+        <AttributeMapping>
+          <targetAttribute>am:legalBasis/base2:LegislationCitation</targetAttribute>
+          <ClientProperty>
+            <name>gml:id</name>
+            <value>strconcat('LEG_', localid)</value>
+          </ClientProperty>	
+        </AttributeMapping>		
+        <AttributeMapping>
+          <targetAttribute>am:legalBasis/base2:LegislationCitation/base2:name</targetAttribute>
+          <sourceExpression>
+            <OCQL>legal_name</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:legalBasis/base2:LegislationCitation/base2:date/gmd:CI_Date/gmd:date/gco:Date</targetAttribute>
+          <sourceExpression>
+            <OCQL>legal_date</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>am:legalBasis[1]/base2:LegislationCitation/base2:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>codeListValue</name>
+            <value>legal_datetype</value>
+          </ClientProperty>
+          <ClientProperty>
+            <name>codeList</name>
+            <value>legal_datetype_cl</value>
+          </ClientProperty>
+        </AttributeMapping>			
+        <AttributeMapping>
+          <targetAttribute>am:legalBasis/base2:LegislationCitation/base2:link</targetAttribute>
+          <sourceExpression>
+            <OCQL>legal_link</OCQL>
+          </sourceExpression>
+        </AttributeMapping>	
+        <AttributeMapping>
+          <targetAttribute>am:legalBasis/base2:LegislationCitation/base2:level</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>xlink:href</name>
+            <value>legal_level</value>
+          </ClientProperty>
+        </AttributeMapping>		
+
+        <AttributeMapping>
+          <targetAttribute>am:geometry</targetAttribute>
+          <idExpression>
+            <OCQL>strconcat('GM_', localid)</OCQL>
+          </idExpression>
+          <sourceExpression>
+            <OCQL>geom</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+		
+
+      </attributeMappings>
+    </FeatureTypeMapping>
+	
+	
+	
+	
+  </typeMappings>
+</as:AppSchemaDataAccess>
