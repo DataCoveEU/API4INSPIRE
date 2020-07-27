@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+GeoServer configuration brought to you courtesy of DataCove.EU
+www.datacove.eu 
+-->
+<as:AppSchemaDataAccess xmlns:as="http://www.geotools.org/app-schema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.geotools.org/app-schema AppSchemaDataAccess.xsd">
+	<namespaces>
+		<Namespace>
+			<prefix>ef</prefix>
+			<uri>http://inspire.ec.europa.eu/schemas/ef/4.0</uri>
+		</Namespace>
+		<Namespace>
+			<prefix>au</prefix>
+			<uri>http://inspire.ec.europa.eu/schemas/au/4.0</uri>
+		</Namespace>	
+
+		<Namespace>
+			<prefix>gn</prefix>
+			<uri>http://inspire.ec.europa.eu/schemas/gn/4.0</uri>
+		</Namespace>
+		<Namespace>
+			<prefix>ad</prefix>
+			<uri>http://inspire.ec.europa.eu/schemas/ad/4.0</uri>
+		</Namespace>
+		<Namespace>
+			<prefix>gco</prefix>
+			<uri>http://www.isotc211.org/2005/gco</uri>
+		</Namespace>
+
+		<Namespace>
+			<prefix>ugs</prefix>
+			<uri>http://inspire.ec.europa.eu/schemas/us-govserv/4.0</uri>
+		</Namespace>
+
+		<Namespace>
+			<prefix>xlink</prefix>
+			<uri>http://www.w3.org/1999/xlink</uri>
+		</Namespace>
+
+		<Namespace>
+			<prefix>base</prefix>
+			<uri>http://inspire.ec.europa.eu/schemas/base/3.3</uri>
+		</Namespace>
+
+		<Namespace>
+			<prefix>base2</prefix>
+			<uri>http://inspire.ec.europa.eu/schemas/base2/2.0</uri>
+		</Namespace>
+
+		<Namespace>
+			<prefix>gmd</prefix>
+			<uri>http://www.isotc211.org/2005/gmd</uri>
+		</Namespace>
+
+		<Namespace>
+			<prefix>xsi</prefix>
+			<uri>http://www.w3.org/2001/XMLSchema-instance</uri>
+		</Namespace>
+
+		<Namespace>
+			<prefix>gml</prefix>
+			<uri>http://www.opengis.net/gml/3.2</uri>
+		</Namespace>
+	</namespaces>
+	<includedTypes>
+		<!--    <Include>../../au/AU/MappingAU.xml</Include>
+
+-->
+	</includedTypes>
+
+  <sourceDataStores>
+    <DataStore>
+      <id>idDataStoreInsp</id>
+      <parameters>
+        <Parameter>
+          <name>dbtype</name>
+          <value>postgisng</value>
+        </Parameter>
+        <Parameter>
+          <name>jndiReferenceName</name>
+          <value>jdbc/tnw</value>
+        </Parameter>
+        <Parameter>
+          <name>Expose primary keys</name>
+          <value>true</value>
+        </Parameter>
+      </parameters>
+    </DataStore>
+  </sourceDataStores>	
+	
+	<!--    <catalog>...</catalog>-->
+	<targetTypes>
+		<FeatureType>
+			<schemaUri>http://inspire.ec.europa.eu/schemas/base2/2.0/BaseTypes2.xsd</schemaUri>
+
+		</FeatureType>
+	</targetTypes>
+	<typeMappings>
+
+ 
+		<FeatureTypeMapping>
+			<sourceDataStore>idDataStoreInsp</sourceDataStore>	
+			<sourceType>bs2_contact</sourceType> 
+			<targetElement>base2:RelatedParty</targetElement>	
+			<attributeMappings>	
+
+				<AttributeMapping>
+					<targetAttribute>FEATURE_LINK</targetAttribute>
+					<sourceExpression>
+						<OCQL>conid</OCQL>
+					</sourceExpression>
+				</AttributeMapping>
+
+				<AttributeMapping>
+					<targetAttribute>base2:individualName/gmd:LocalisedCharacterString</targetAttribute>
+					<sourceExpression>
+						<OCQL>individualname</OCQL>
+					</sourceExpression>
+				</AttributeMapping>
+				<AttributeMapping>
+					<targetAttribute>base2:organisationName/gmd:LocalisedCharacterString</targetAttribute>
+					<sourceExpression>
+						<OCQL>organisationname</OCQL>
+					</sourceExpression>
+				</AttributeMapping>
+				<AttributeMapping>
+					<targetAttribute>base2:contact/base2:Contact/base2:website</targetAttribute>
+					<sourceExpression>
+						<OCQL>web</OCQL>
+					</sourceExpression>
+				</AttributeMapping>
+
+				<AttributeMapping>
+					<targetAttribute>base2:role</targetAttribute>
+					<ClientProperty>
+						<name>xlink:href</name>
+						<value>role</value>
+					</ClientProperty>
+				</AttributeMapping>	
+
+			</attributeMappings>
+		</FeatureTypeMapping>
+
+			
+			
+	</typeMappings>
+		
+</as:AppSchemaDataAccess>
