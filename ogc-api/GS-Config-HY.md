@@ -50,4 +50,7 @@ As it is often difficult to gain an overview of class attributes and association
 ![UML Overview of HY-N and TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Water%20Transport.png)
 
 ## Warning to XMLSpy users
-A note of warning to XMLSpy users, while usually this SW is quite stable, it does NOT like the HY-N schema. Result is that it will claim that your files are invalid, but in this case, it's XMLSpy that's being invalid.
+A note of warning to XMLSpy users, while usually this SW is quite stable, it does NOT like the HY-N schema. 
+This has to do with the fact that the underlying UML data models utilize multiple inheritance, that is not supported in XML.
+GML Mixin technology enables provision of such UML models, but requires cyclic includes.
+Result is that it will claim that your files are invalid, but in this case, it's XMLSpy that's being invalid.
