@@ -27,3 +27,12 @@ This undertaking is still a work-in-progress - more will appear here shortly!
 ## Configuration for HY-N and TN-W
 
 [HY-N and TN-W](https://datacoveeu.github.io/API4INSPIRE/ogc-api/GS-Config-HY.html)
+
+## Configuration for SU-V
+
+[SU-V](https://datacoveeu.github.io/API4INSPIRE/ogc-api/GS-Config-SUV.html)
+
+
+## Configuration for AM
+
+[AM](https://datacoveeu.github.io/API4INSPIRE/ogc-api/GS-Config-AM.html)
