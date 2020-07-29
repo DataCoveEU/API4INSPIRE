@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:base2="http://inspire.ec.europa.eu/schemas/base2/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:nz="http://inspire.ec.europa.eu/schemas/nz-core/4.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" numberMatched="unknown" numberReturned="1" timeStamp="2020-07-29T13:58:07.261Z" xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://inspire.ec.europa.eu/schemas/nz-core/4.0 https://inspire.ec.europa.eu/schemas/nz-core/4.0/NaturalRiskZonesCore.xsd http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd">
+  <wfs:member>
+    <nz:HazardArea gml:id="_1">
+      <gml:identifier codeSpace="http://guid.datacove.eu/nz/HazardArea/">http://guid.datacove.eu/nz/HazardArea/1</gml:identifier>
+      <nz:beginLifeSpanVersion>2017-11-09T23:00:00Z</nz:beginLifeSpanVersion>
+      <nz:determinationMethod>modelling</nz:determinationMethod>
+      <nz:endLifeSpanVersion>2019-11-09T23:00:00Z</nz:endLifeSpanVersion>
+      <nz:inspireId>
+        <base:Identifier>
+          <base:localId>1</base:localId>
+          <base:namespace>namespace</base:namespace>
+        </base:Identifier>
+      </nz:inspireId>
+      <nz:typeOfHazard>
+        <nz:NaturalHazardClassification>
+          <nz:hazardCategory xlink:href="haz_category"/>
+          <nz:specificHazardType xlink:href="haz_type"/>
+        </nz:NaturalHazardClassification>
+      </nz:typeOfHazard>
+      <nz:geometry>
+        <gml:Polygon gml:id="GM_1" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+          <gml:exterior>
+            <gml:LinearRing>
+              <gml:posList>42.39029097 -71.17765851 42.39037017 -71.17768203 42.39038257 -71.1776063 42.39030337 -71.17758266 42.39029097 -71.17765851</gml:posList>
+            </gml:LinearRing>
+          </gml:exterior>
+        </gml:Polygon>
+      </nz:geometry>
+      <nz:likelihoodOfOccurrence>
+        <nz:LikelihoodOfOccurrence>
+          <nz:qualitativeLikelihood>likelihood_qual</nz:qualitativeLikelihood>
+          <nz:quantitativeLikelihood>
+            <nz:QuantitativeLikelihood>
+              <nz:probabilityOfOccurrence>0.25</nz:probabilityOfOccurrence>
+              <nz:returnPeriod>4.0</nz:returnPeriod>
+            </nz:QuantitativeLikelihood>
+          </nz:quantitativeLikelihood>
+          <nz:assessmentMethod>
+            <base2:DocumentCitation>
+              <base2:name>likelihood_name</base2:name>
+              <base2:date>
+                <gmd:CI_Date>
+                  <gmd:date>
+                    <gco:Date>2017-11-09Z</gco:Date>
+                  </gmd:date>
+                  <gmd:dateType>
+                    <gmd:CI_DateTypeCode codeList="likelihood_datetype_cl" codeListValue="likelihood_datetype"/>
+                  </gmd:dateType>
+                </gmd:CI_Date>
+              </base2:date>
+              <base2:link>likelihood_link</base2:link>
+            </base2:DocumentCitation>
+          </nz:assessmentMethod>
+        </nz:LikelihoodOfOccurrence>
+      </nz:likelihoodOfOccurrence>
+      <nz:magnitudeOrIntensity>
+        <nz:LevelOrIntensity>
+          <nz:qualitativeValue>magnitude_qual</nz:qualitativeValue>
+          <nz:quantitativeValue uom="magnitude_quant_uom">123.0</nz:quantitativeValue>
+          <nz:assessmentMethod>
+            <base2:DocumentCitation>
+              <base2:name>magnitude_name</base2:name>
+              <base2:date>
+                <gmd:CI_Date>
+                  <gmd:date>
+                    <gco:Date>2017-11-09Z</gco:Date>
+                  </gmd:date>
+                  <gmd:dateType>
+                    <gmd:CI_DateTypeCode codeList="magnitude_datetype_cl" codeListValue="magnitude_datetype"/>
+                  </gmd:dateType>
+                </gmd:CI_Date>
+              </base2:date>
+              <base2:link>magnitude_link</base2:link>
+            </base2:DocumentCitation>
+          </nz:assessmentMethod>
+        </nz:LevelOrIntensity>
+      </nz:magnitudeOrIntensity>
+    </nz:HazardArea>
+  </wfs:member>
+</wfs:FeatureCollection>

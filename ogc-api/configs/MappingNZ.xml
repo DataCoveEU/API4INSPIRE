@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+GeoServer configuration brought to you courtesy of DataCove.EU
+www.datacove.eu 
+-->
+<as:AppSchemaDataAccess xmlns:as="http://www.geotools.org/app-schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.geotools.org/app-schema AppSchemaDataAccess.xsd">
+  <namespaces>
+	<Namespace>
+		<prefix>nz</prefix>
+		<uri>http://inspire.ec.europa.eu/schemas/nz-core/4.0</uri>
+	</Namespace>  
+
+    <Namespace>
+      <prefix>gco</prefix>
+      <uri>http://www.isotc211.org/2005/gco</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>xlink</prefix>
+      <uri>http://www.w3.org/1999/xlink</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>base</prefix>
+      <uri>http://inspire.ec.europa.eu/schemas/base/3.3</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>base2</prefix>
+      <uri>http://inspire.ec.europa.eu/schemas/base2/2.0</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>gmd</prefix>
+      <uri>http://www.isotc211.org/2005/gmd</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>xsi</prefix>
+      <uri>http://www.w3.org/2001/XMLSchema-instance</uri>
+    </Namespace>
+    <Namespace>
+      <prefix>gml</prefix>
+      <uri>http://www.opengis.net/gml/3.2</uri>
+    </Namespace>
+  </namespaces>
+  <includedTypes>
+    <!--    <Include>../../au/AU/MappingAU.xml</Include>
+
+-->
+  </includedTypes>
+  <sourceDataStores>
+    <DataStore>
+      <id>idDataStoreInsp</id>
+      <parameters>
+        <Parameter>
+          <name>dbtype</name>
+          <value>postgisng</value>
+        </Parameter>
+        <Parameter>
+          <name>jndiReferenceName</name>
+          <value>jdbc/tnw</value>
+        </Parameter>
+        <Parameter>
+          <name>Expose primary keys</name>
+          <value>true</value>
+        </Parameter>
+      </parameters>
+    </DataStore>
+  </sourceDataStores>
+  <!--    <catalog>...</catalog>-->
+  <targetTypes>
+    <FeatureType>
+
+		
+	  <schemaUri>https://inspire.ec.europa.eu/schemas/nz-core/4.0/NaturalRiskZonesCore.xsd</schemaUri>
+    </FeatureType>
+  </targetTypes>
+  <typeMappings>
+  
+
+
+	
+    <FeatureTypeMapping>
+      <sourceDataStore>idDataStoreInsp</sourceDataStore>
+      <sourceType>nz_hazardarea</sourceType>
+      <targetElement>nz:HazardArea</targetElement>
+      <attributeMappings>
+        <AttributeMapping>
+          <targetAttribute>nz:HazardArea</targetAttribute>
+          <idExpression>
+            <OCQL>gmlid</OCQL>
+          </idExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>gml:identifier</targetAttribute>
+          <sourceExpression>
+            <OCQL>strconcat('http://guid.datacove.eu/nz/HazardArea/', localid)</OCQL>
+          </sourceExpression>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>codeSpace</name>
+            <value>'http://guid.datacove.eu/nz/HazardArea/'</value>
+          </ClientProperty>
+        </AttributeMapping>		
+        <AttributeMapping>
+          <targetAttribute>nz:inspireId/base:Identifier/base:localId</targetAttribute>
+          <sourceExpression>
+            <OCQL>localid</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:inspireId/base:Identifier/base:namespace</targetAttribute>
+          <sourceExpression>
+            <OCQL>namespace</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <!--		
+		<AttributeMapping>
+			<targetAttribute>nz:inspireId/base:Identifier/base:versionId</targetAttribute>
+			<sourceExpression>
+				<OCQL>version</OCQL>
+			</sourceExpression>
+		</AttributeMapping>
+		-->
+        <AttributeMapping>
+          <targetAttribute>nz:beginLifeSpanVersion</targetAttribute>
+          <sourceExpression>
+            <OCQL>beginlsv</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:endLifeSpanVersion</targetAttribute>
+          <sourceExpression>
+            <OCQL>endlsv</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:determinationMethod</targetAttribute>
+          <sourceExpression>
+            <OCQL>det_method</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:typeOfHazard/nz:NaturalHazardClassification/nz:hazardCategory</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>xlink:href</name>
+            <value>haz_category</value>
+          </ClientProperty>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:typeOfHazard/nz:NaturalHazardClassification/nz:specificHazardType</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>xlink:href</name>
+            <value>haz_type</value>
+          </ClientProperty>
+        </AttributeMapping>		
+
+        <AttributeMapping>
+          <targetAttribute>nz:likelihoodOfOccurrence/nz:LikelihoodOfOccurrence/nz:qualitativeLikelihood</targetAttribute>
+          <sourceExpression>
+            <OCQL>likelihood_qual</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:likelihoodOfOccurrence/nz:LikelihoodOfOccurrence/nz:quantitativeLikelihood/nz:QuantitativeLikelihood/nz:probabilityOfOccurrence</targetAttribute>
+          <sourceExpression>
+            <OCQL>likelihood_prob</OCQL>
+          </sourceExpression>
+        </AttributeMapping>		
+
+        <AttributeMapping>
+          <targetAttribute>nz:likelihoodOfOccurrence/nz:LikelihoodOfOccurrence/nz:quantitativeLikelihood/nz:QuantitativeLikelihood/nz:returnPeriod</targetAttribute>
+          <sourceExpression>
+            <OCQL>likelihood_return</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:likelihoodOfOccurrence/nz:LikelihoodOfOccurrence/nz:assessmentMethod/base2:DocumentCitation/base2:name</targetAttribute>
+          <sourceExpression>
+            <OCQL>likelihood_name</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:likelihoodOfOccurrence/nz:LikelihoodOfOccurrence/nz:assessmentMethod/base2:DocumentCitation/base2:date/gmd:CI_Date/gmd:date/gco:Date</targetAttribute>
+          <sourceExpression>
+            <OCQL>likelihood_date</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:likelihoodOfOccurrence/nz:LikelihoodOfOccurrence/nz:assessmentMethod/base2:DocumentCitation/base2:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>codeListValue</name>
+            <value>likelihood_datetype</value>
+          </ClientProperty>
+          <ClientProperty>
+            <name>codeList</name>
+            <value>likelihood_datetype_cl</value>
+          </ClientProperty>
+        </AttributeMapping>			
+        <AttributeMapping>
+          <targetAttribute>nz:likelihoodOfOccurrence/nz:LikelihoodOfOccurrence/nz:assessmentMethod/base2:DocumentCitation/base2:link</targetAttribute>
+          <sourceExpression>
+            <OCQL>likelihood_link</OCQL>
+          </sourceExpression>
+        </AttributeMapping>		
+
+
+        <AttributeMapping>
+          <targetAttribute>nz:magnitudeOrIntensity/nz:LevelOrIntensity/nz:qualitativeValue</targetAttribute>
+          <sourceExpression>
+            <OCQL>magnitude_qual</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:magnitudeOrIntensity/nz:LevelOrIntensity/nz:quantitativeValue</targetAttribute>
+          <sourceExpression>
+            <OCQL>magnitude_quant_val</OCQL>
+          </sourceExpression>
+          <ClientProperty>
+            <name>uom</name>
+            <value>magnitude_quant_uom</value>
+          </ClientProperty>		  
+        </AttributeMapping>		
+        <AttributeMapping>
+          <targetAttribute>nz:magnitudeOrIntensity/nz:LevelOrIntensity/nz:assessmentMethod/base2:DocumentCitation/base2:name</targetAttribute>
+          <sourceExpression>
+            <OCQL>magnitude_name</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:magnitudeOrIntensity/nz:LevelOrIntensity/nz:assessmentMethod/base2:DocumentCitation/base2:date/gmd:CI_Date/gmd:date/gco:Date</targetAttribute>
+          <sourceExpression>
+            <OCQL>magnitude_date</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+        <AttributeMapping>
+          <targetAttribute>nz:magnitudeOrIntensity/nz:LevelOrIntensity/nz:assessmentMethod/base2:DocumentCitation/base2:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode</targetAttribute>
+          <encodeIfEmpty>true</encodeIfEmpty>
+          <ClientProperty>
+            <name>codeListValue</name>
+            <value>magnitude_datetype</value>
+          </ClientProperty>
+          <ClientProperty>
+            <name>codeList</name>
+            <value>magnitude_datetype_cl</value>
+          </ClientProperty>
+        </AttributeMapping>			
+        <AttributeMapping>
+          <targetAttribute>nz:magnitudeOrIntensity/nz:LevelOrIntensity/nz:assessmentMethod/base2:DocumentCitation/base2:link</targetAttribute>
+          <sourceExpression>
+            <OCQL>magnitude_link</OCQL>
+          </sourceExpression>
+        </AttributeMapping>	
+
+        <AttributeMapping>
+          <targetAttribute>nz:geometry</targetAttribute>
+          <idExpression>
+            <OCQL>strconcat('GM_', localid)</OCQL>
+          </idExpression>
+          <sourceExpression>
+            <OCQL>geom</OCQL>
+          </sourceExpression>
+        </AttributeMapping>
+		
+
+      </attributeMappings>
+    </FeatureTypeMapping>
+	
+	
+	
+	
+  </typeMappings>
+</as:AppSchemaDataAccess>
