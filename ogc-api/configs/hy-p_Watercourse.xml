@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:hy-n="http://inspire.ec.europa.eu/schemas/hy-n/4.0" xmlns:ad="http://inspire.ec.europa.eu/schemas/ad/4.0" xmlns:hy-p="http://inspire.ec.europa.eu/schemas/hy-p/4.0" xmlns:gn="http://inspire.ec.europa.eu/schemas/gn/4.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:cp="http://inspire.ec.europa.eu/schemas/cp/4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:hy="http://inspire.ec.europa.eu/schemas/hy/4.0" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:base2="http://inspire.ec.europa.eu/schemas/base2/2.0" xmlns:au="http://inspire.ec.europa.eu/schemas/au/4.0" xmlns:tn="http://inspire.ec.europa.eu/schemas/tn/4.0" xmlns:net="http://inspire.ec.europa.eu/schemas/net/4.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3" xmlns:gmd="http://www.isotc211.org/2005/gmd" numberMatched="unknown" numberReturned="1" timeStamp="2020-08-16T19:03:48.905Z" xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://inspire.ec.europa.eu/schemas/hy-p/4.0 https://inspire.ec.europa.eu/schemas/hy-p/4.0/HydroPhysicalWaters.xsd http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd">
+  <wfs:member>
+    <hy-p:Watercourse gml:id="id">
+      <gml:metaDataProperty xlink:href="metadata"/>
+      <gml:identifier codeSpace="http://service.datacove.eu/geoserver/ogc/features/collections/hy-n:HydroNode/items/_">http://service.datacove.eu/geoserver/ogc/features/collections/hy-n:HydroNode/items/_localid</gml:identifier>
+      <hy-p:geographicalName>
+        <gn:GeographicalName>
+          <gn:language>FR</gn:language>
+          <gn:nativeness xsi:nil="true" nilReason="Unpopulated"/>
+          <gn:nameStatus xsi:nil="true" nilReason="Unpopulated"/>
+          <gn:sourceOfName xsi:nil="true" nilReason="Unpopulated"/>
+          <gn:pronunciation xsi:nil="true" nilReason="Unpopulated"/>
+          <gn:spelling>
+            <gn:SpellingOfName>
+              <gn:text>geoname</gn:text>
+              <gn:script>Latin</gn:script>
+            </gn:SpellingOfName>
+          </gn:spelling>
+        </gn:GeographicalName>
+      </hy-p:geographicalName>
+      <hy-p:hydroId>
+        <hy:HydroIdentifier>
+          <hy:classificationScheme>hydroidclass</hy:classificationScheme>
+          <hy:localId>hydroid</hy:localId>
+          <hy:namespace>hydroidns</hy:namespace>
+        </hy:HydroIdentifier>
+      </hy-p:hydroId>
+      <hy-p:relatedHydroObject xlink:href="related"/>
+      <hy-p:beginLifespanVersion>2017-11-09T23:00:00Z</hy-p:beginLifespanVersion>
+      <hy-p:endLifespanVersion>2019-11-09T23:00:00Z</hy-p:endLifespanVersion>
+      <hy-p:geometry/>
+      <hy-p:inspireId>
+        <base:Identifier>
+          <base:localId>localid</base:localId>
+          <base:namespace>namespace</base:namespace>
+          <base:versionId>version</base:versionId>
+        </base:Identifier>
+      </hy-p:inspireId>
+      <hy-p:levelOfDetail>
+        <gmd:MD_Resolution>
+          <gmd:distance>
+            <gco:Distance/>
+          </gmd:distance>
+        </gmd:MD_Resolution>
+      </hy-p:levelOfDetail>
+      <hy-p:localType xlink:href="localtype_url">
+        <gmd:LocalisedCharacterString>localtype</gmd:LocalisedCharacterString>
+      </hy-p:localType>
+      <hy-p:origin>origin</hy-p:origin>
+      <hy-p:persistence xlink:href="persistence"/>
+      <hy-p:tidal>false</hy-p:tidal>
+      <hy-p:bank xlink:href="bank"/>
+      <hy-p:drainsBasin xlink:href="drains_basin"/>
+      <hy-p:neighbour xlink:href="neighbour"/>
+      <hy-p:condition xlink:href="conditionurl"/>
+      <hy-p:delineationKnown>true</hy-p:delineationKnown>
+      <hy-p:length uom="totlength_uom">110.0</hy-p:length>
+      <hy-p:level>level_val</hy-p:level>
+      <hy-p:width>
+        <hy-p:WidthRange>
+          <hy-p:lower uom="lower_width_uom">0.0</hy-p:lower>
+          <hy-p:upper uom="upper_width_uom">0.0</hy-p:upper>
+        </hy-p:WidthRange>
+      </hy-p:width>
+    </hy-p:Watercourse>
+  </wfs:member>
+</wfs:FeatureCollection>
