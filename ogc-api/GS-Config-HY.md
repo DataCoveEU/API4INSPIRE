@@ -5,12 +5,13 @@ category: GC-BB
 order: 1
 ---
 
-# Configuration information for HY-N and TN-W
+# Configuration information for HY-N, HY-P and TN-W
 
 ## Implemented Classes
 While the INSPIRE HY-N and TN-W cover many classes, within this project, we have only implemented the classes we need, that are as follows:
 * hy-n:HydroNode
 * hy-n:WatercourseLink
+* hy-p:Watercourse
 * tn-w:PortNode
 * tn-w:WaterwayLink
 * tn-w:InlandWaterway
@@ -25,12 +26,16 @@ The following sql will create all tables required for the provision of the HY-N 
 
 [SQL for HY-N and TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/hy-n.sql)
 
+[SQL for HY-P](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/hyp_watercourse_create.sql)
+
 
 ## App Schema Config
 
 As this configuration provides features under both the HY-N and TN-W namespaces, two App Schema configuration files are required. In addition, you must make sure that the base namespaces HY and TN are correctly configured on your GeoServer
 
 [App Schema Config HY-N](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingHYN.xml)
+
+[App Schema Config TN-P](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingHYP.xml)
 
 [App Schema Config TN-W](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingTNW.xml)
 
@@ -39,6 +44,8 @@ As this configuration provides features under both the HY-N and TN-W namespaces,
 [hy-n:HydroNode](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/HydroNode.xml)
 
 [hy-n:WatercourseLink](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/WatercourseLink.xml)
+
+[hy-p:Watercourse](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/hy-p_Watercourse.xml)
 
 
 ## UML Overview of HY-N and TN-W
