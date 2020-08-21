@@ -24,7 +24,9 @@ order: 2
 	</base:Identifier>
   </ex:inspireId>
   <ex:name>ft_name</ex:name>
-  <ex:code xlink:href="http://codes.datacove.eu/cpde"/>
+  <ex:code xlink:href="http://codes.datacove.eu/code"/>
+  <ex:codeMultiple xlink:href="http://codes.datacove.eu/codeMultiple1"/>
+  <ex:codeMultiple xlink:href="http://codes.datacove.eu/codeMultiple2"/>
   <ex:nestedDT>
 	<ex:NestedDT>
 	  <ex:name>nested_dt_name</ex:name>
