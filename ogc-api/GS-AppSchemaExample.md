@@ -77,4 +77,4 @@ order: 2
 
 ### Schema file
 
-The Schema file for Dummy1 is available at [https://schema.datacove.eu/Example.xsd](https://schema.datacove.eu/Example.xsd)
+The Schema file for the types used in this example is available at [https://schema.datacove.eu/Example.xsd](https://schema.datacove.eu/Example.xsd)
