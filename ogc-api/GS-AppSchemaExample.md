@@ -11,7 +11,7 @@ order: 2
 ![Dummy1 UML](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_Types.png)
 
 ## ER Diagram of table dummy1
-![Dummy1 ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example1_ER.png)
+![Dummy1 ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_ER.png)
 
 ## Example XML Output
 ```
