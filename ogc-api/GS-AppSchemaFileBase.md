@@ -5,7 +5,7 @@ category: GC-AppSchema
 order: 3
 ---
 
-## Namespaces
+# Namespaces
 All namespaces used in the App Schema Mapping must be declared together with their prefixes in the **namespaces** section.
 ```
 <Namespace>
@@ -16,14 +16,14 @@ All namespaces used in the App Schema Mapping must be declared together with the
 
 *Note: with All we really mean **ALL!** A common error is caused by missing a required namespace, this often happens with nested namespaces such as xlink or gmd*
 
-## Database Configuration
+# Database Configuration
 GeoServer App Schema allows for various database configuration options. In order to allow great flexibility, the individual **DataStore** sections within the **sourceDataStores** utilize the Parameter Type that provides name/value pairs. The **name** element provides the individual configuration concept, while the **value** element provides the value to be used for this concept.
 
 Regardless of configuration type, the identifier for a **DataStore** is always provided by the **id** element. This name must be provided within subsequent configuration sections to assign the correct data source to the attribute mapping.
 
 Please note that in this tutorial we rely souly on PostGIS databases. For other configuration options, please see the full documentation available for [GeoServer](http://geoserver.org/).
 
-### JNDI/JDBC Data Store
+## JNDI/JDBC Data Store
 The simplest is to utilize an existing jdbc connection available on the server running GeoServer as a JNDI connection. 
 For this purpose, the following parameters must be set within the **sourceDataStores DataStore**
 * **dbtype**: For a JNDI datastore utilizing JDBC on PostGIS, specify the type 'postgisng'
@@ -52,7 +52,7 @@ For this purpose, the following parameters must be set within the **sourceDataSt
 </sourceDataStores>
 ```
 
-### Direct Data Store
+## Direct Data Store
 Alternatively, one can specify the database connection directly. The values can be either listed directly within the App Schema config file, or taken from a properties file for better security.
 For this purpose, the following parameters must be set within the **sourceDataStores DataStore**
 * **dbtype**: For a datastore on PostGIS, specify the type 'postgisng'
@@ -112,7 +112,7 @@ For this purpose, the following parameters must be set within the **sourceDataSt
 </sourceDataStores>
 ```
 
-#### Properties
+### Properties
 
 Under Debian, the app-schema.properties file can be found under the geoserver directory at the relative path ./WEB-INF/classes/app-schema.properties. The properties variables set in this file can be utilized within the app schema configuration as shown above.
 
@@ -124,7 +124,7 @@ inspire.passwd = my_password
 
 ```
 
-## Configure Source for Feature Types
+# Configure Source for Feature Types
 The location of the xsd file where the description of the Feature Types to be mapped is provided in the **schemaUri** in the **targetTypes** section.
 
 ```
@@ -135,7 +135,7 @@ The location of the xsd file where the description of the Feature Types to be ma
 </targetTypes>
 ```
 
-## Feature Mapping
+# Feature Mapping
 For each Feature Type being mapped, basic information on the data source must be provided as follows.
 
 Under **sourceDataStore**, the name of the data store configured in the Database Configuration must be provided.
