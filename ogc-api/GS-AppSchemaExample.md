@@ -1,6 +1,6 @@
 ---
 layout: default
-title: GeoServer App Schema Mapping - Example Overview
+title: Mapping - Example Overview
 category: GC-AppSchema
 order: 2
 ---
