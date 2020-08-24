@@ -8,10 +8,16 @@ order: 2
 # Example FeatureType and Database
 
 ## UML for Example FeatureTypes
-![Dummy1 UML](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_Types.png)
 
-## ER Diagram of DB tables required for Example FeatureTypes
-![Dummy1 ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_ER.png)
+The UML diagram below shows the featureType and dataTypes defined for this tutorial, together with the associations defined between these types.
+
+![Example UML](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_Types.png)
+
+## ER Diagram of DB Tables
+
+The ER diagram below shows the database tables required for provision of the Example FeatureTypes
+
+![Example ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_ER.png)
 
 ## Example XML Output
 ```
