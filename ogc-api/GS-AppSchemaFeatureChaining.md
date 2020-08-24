@@ -55,3 +55,16 @@ Once the dataType to be nested has been configured as described above, one must 
   </sourceExpression>
 </AttributeMapping>	
 ```
+
+
+## Feature Chaining of featureTypes
+The same principle as described above can also be applied to featureTypes. The only addition is the provision of an **idExpression** within the **FeatureTypeMapping** of the linked featureType.
+
+```
+<AttributeMapping>
+  <targetAttribute>ex:NestedFT</targetAttribute>
+  <idExpression>
+    <OCQL>gmlid</OCQL>
+  </idExpression>
+</AttributeMapping>
+```
