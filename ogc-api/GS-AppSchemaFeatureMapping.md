@@ -1,3 +1,10 @@
+---
+layout: default
+title: GeoServer App Schema Mapping Feature Mapping
+category: GC-AppSchema
+order: 4
+---
+
 # Feature Mapping
 For each Feature Type being mapped, basic information on the data source must be provided as follows.
 
