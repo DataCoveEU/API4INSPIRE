@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Simple Feature Mapping
+title: Basic Feature Mapping
 category: GC-AppSchema
 order: 4
 ---
