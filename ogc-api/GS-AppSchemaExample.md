@@ -5,15 +5,15 @@ category: GC-AppSchema
 order: 2
 ---
 
-## Example FeatureType and Database
+# Example FeatureType and Database
 
-### UML for Example FeatureTypes
+## UML for Example FeatureTypes
 ![Dummy1 UML](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_Types.png)
 
-### ER Diagram of DB tables required for Example FeatureTypes
+## ER Diagram of DB tables required for Example FeatureTypes
 ![Dummy1 ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_ER.png)
 
-### Example XML Output
+## Example XML Output
 ```
 <ex:MainFT gml:id="gmlid1">
   <ex:inspireId>
@@ -75,6 +75,6 @@ order: 2
 </ex:MainFT>
 ```
 
-### Schema file
+## Schema file
 
 The Schema file for the types used in this example is available at [https://schema.datacove.eu/Example.xsd](https://schema.datacove.eu/Example.xsd)
