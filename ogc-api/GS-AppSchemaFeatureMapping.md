@@ -1,6 +1,6 @@
 ---
 layout: default
-title: GeoServer App Schema Mapping Feature Mapping
+title: Simple Feature Mapping
 category: GC-AppSchema
 order: 4
 ---
@@ -113,7 +113,7 @@ Under **sourceExpression**, provide the DB Column name which provides the value 
 ```
 
 
-## Mapping to elements of a featureType or dataType (singular)
+## Mapping to elements of a nested featureType or dataType (singular)
 When mapping to elements of featureTypes or dataTypes with a maximum cardinality of one, one can explicitely map to the individual elements of this included type by specifying the full xpath to this element. Both **sourceExpression** for element content as well as **ClientProperty** for mapping to element attributes can be utilized in this context. As already mentioned above under **Mapping to attributes**, if the element itself may be empty, one must set **encodeIfEmpty** to **true**.
 
 This approach to mapping can be utilized regardless of if the included type is a featureType or a dataType.
@@ -157,4 +157,25 @@ The following configuration section assigns the content of the database column n
 </AttributeMapping>
 ```
 
+## Mapping to explicit elements of a nested featureType or dataType (multiple)
+When mapping to elements of featureTypes or dataTypes with a maximum cardinality of more than one, one can explicitely map to the individual elements of this included type by specifying the full xpath **including the index** to this element. Both **sourceExpression** for element content as well as **ClientProperty** for mapping to element attributes can be utilized in this context. As already mentioned above under **Mapping to attributes**, if the element itself may be empty, one must set **encodeIfEmpty** to **true**.
 
+This approach to mapping can be utilized regardless of if the included type is a featureType or a dataType. All elements of **AttributeMapping** are to be provided as described in the sections above.
+
+The following configuration segment assigns the content of the database columns counted_dt_name1 and counted_dt_name2 to the ex:name element of the nested dataType ex:OtherDT, that is provided under the ex:countedDT element of ex:mainFT. In contrast to the examples above, the XPath provided within the **targetAttribute** element includes the index of the **ex:countedDT** to be mapped to. Thus, the value of the database column counted_dt_name1 is provided as ex:name in the first instance of ex:OtherDT (specified by the index value of '1'), while the value of the database column counted_dt_name2 is provided as ex:name in the second instance of ex:OtherDT (specified by the index value of '2')
+```
+<AttributeMapping>
+  <targetAttribute>ex:countedDT[1]/ex:OtherDT/ex:name</targetAttribute>
+  <sourceExpression>
+	<OCQL>counted_dt_name1</OCQL>
+  </sourceExpression>
+</AttributeMapping>
+
+<AttributeMapping>
+  <targetAttribute>ex:countedDT[2]/ex:OtherDT/ex:name</targetAttribute>
+  <sourceExpression>
+	<OCQL>counted_dt_name2</OCQL>
+  </sourceExpression>
+</AttributeMapping>
+
+```
