@@ -20,9 +20,9 @@ Under **defaultGeometry**, the location of the Feature geometry can be be provid
 ```
 <FeatureTypeMapping>
 	<sourceDataStore>idDataStoreInsp</sourceDataStore>
-	<sourceType>dummy1</sourceType>
-	<targetElement>dm1:Dummy1</targetElement>
-	<defaultGeometry>dm1:geometry</defaultGeometry> 
+	<sourceType>ex_mainft</sourceType>
+	<targetElement>ex:MainFT</targetElement>
+	<defaultGeometry>ex:geometry</defaultGeometry> 
 ```
 
 ## AttributeMapping
@@ -45,9 +45,9 @@ Under **idExpression**, provide the DB Column name which provides the value for 
 
 ```
 <AttributeMapping>
-	<targetAttribute>dm1:Dummy1</targetAttribute>
+	<targetAttribute>ex:MainFT</targetAttribute>
 	<idExpression>
-		<OCQL>id</OCQL>
+		<OCQL>gmlid</OCQL>
 	</idExpression>
 </AttributeMapping>
 ```
@@ -59,11 +59,13 @@ Under **targetAttribute**, provide the name of the element you're mapping to inc
 
 Under **sourceExpression**, provide the DB Column name which provides the value for this element.
 
+*Note: in this example the type of the attribute is string, the DB column of type varchar. The same principle works for other datatypes, e.g. date, whereby the DB column must be of the appropriate type*
+
 ```
 <AttributeMapping>
-	<targetAttribute>dm1:name</targetAttribute>
+	<targetAttribute>ex:name</targetAttribute>
 	<sourceExpression>
-		<OCQL>name</OCQL>
+		<OCQL>ft_name</OCQL>
 	</sourceExpression>
 </AttributeMapping>
 ```
@@ -76,6 +78,8 @@ Under **targetAttribute**, provide the name of the element you're mapping to inc
 Include **encodeIfEmpty** set to true if only the attributes will contain content. Otherwise GeoServer will only encode this element if the element itself contains content.
 
 Under **ClientProperty**, under **name** provide the name of the attribute to be mapped to, under **value** provide the DB Column name which provides the value for this element.
+
+*Note: both **sourceExpression** and **ClientProperty** can be utilized in the same **AttributeMapping** section if one wants to provide content both to the XML Element itself as well as to attributes of this element*
 
 ```
 <AttributeMapping>
