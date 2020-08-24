@@ -5,155 +5,38 @@ category: GC-AppSchema
 order: 1
 ---
 
-## Example FeatureType and Database
+In order to simplify the often painful process of App Schema configuration, we have created a tutorial based on a simple example that serves to illustrate the various options available without burdoning the user with a complex data model as often utilized in such tutorials. The individual sections of this tutorial are described below
 
-### UML for Dummy1 FeatureType
-![Dummy1 UML](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Dummy1.png)
+# Example FeatureType and Database
 
-### ER Diagram of table dummy1
-![Dummy1 ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Dummy1_ER.png)
+For the purpose of this tutorial, we have created a set of GML featureTypes and dataTypes with various associations between them. These serve to illustrate the various options available within GeoServer App Schema configuration.
 
-### Example XML Output
-```
-<dm1:Dummy1 gml:id="D1">
-  <dm1:name>Dummy1</dm1:name>
-  <dm1:code xlink:href="http://codes.datacove.eu/D1"/>
-  <dm1:geometry>
-	<gml:Point gml:id="PT_D1" srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
-	  <gml:pos>48.064544 15.28787</gml:pos>
-	</gml:Point>
-  </dm1:geometry>
-</dm1:Dummy1>
-```
+This example consists of:
+* The UML Specification for the GML featureTypes and dataTypes with their associations
+* SQL for the creation of a database providing the data for these GML featureTypes and dataTypes
+* An example XML output for these GML featureTypes including the nested featureTypes and dataTypes
+* The underlying XML Schema file
 
-### Schema file
+All information available under (Example FeatureType and Database)[https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaExample.md]
 
-The Schema file for Dummy1 is available at [https://schema.datacove.eu/Dummy1.xsd](https://schema.datacove.eu/Dummy1.xsd)
+# App Schema Base
 
-## Namespaces
-All namespaces used in the App Schema Mapping must be declared together with their prefixes in the **namespaces** section.
-```
-<Namespace>
-	<prefix>dm1</prefix>
-	<uri>https://schema.datacove.eu/Dummy1</uri>
-</Namespace>		
-```
+The base information within the App Schema configuration always follows the same pattern, providing information on the following concepts:
+* Namespaces: all namespaces used within the final output XML must be configured
+* Database: location and authentication information for the source database
+* Source: source schema for the featureTypes to be provided
+* Feature Mapping: mapping information for each individual featureType to be provided
 
-## Database Configuration
-Tricky! Later!!!
-
-## Configure Source for Feature Types
-The location of the xsd file where the description of the Feature Types to be mapped is provided in the **schemaUri** in the **targetTypes** section.
-
-```
-<targetTypes>
-	<FeatureType>
-		<schemaUri>https://schema.datacove.eu/Dummy1.xsd</schemaUri>
-	</FeatureType>
-</targetTypes>
-```
-
-## Feature Mapping
-For each Feature Type being mapped, basic information on the data source must be provided as follows.
-
-Under **sourceDataStore**, the name of the data store configured in the Database Configuration must be provided.
-
-Under **sourceType**, the name of the data table in which the data for the Feature Type is stored must be provided.
-
-Under **targetElement**, the name of the Feature Type to be configured must be provided.
-
-Under **defaultGeometry**, the location of the Feature geometry can be be provided. While this is not essential, it is recommended in cases where the geometry is nested within the Feature.
+All information available under (App Schema Base)[https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFileBase.md]
 
 
-```
-<FeatureTypeMapping>
-	<sourceDataStore>idDataStoreInsp</sourceDataStore>
-	<sourceType>dummy1</sourceType>
-	<targetElement>dm1:Dummy1</targetElement>
-	<defaultGeometry>dm1:geometry</defaultGeometry> 
-```
+# AttributeMapping
 
-## AttributeMapping
-In the **attributeMappings** section, the data source for each element of the Feature Type being mapped is configured within a **AttributeMapping** section.
-```
-<attributeMappings>
-	<AttributeMapping>
-		...
-	</AttributeMapping>
-</attributeMappings>
-```
+Within the Feature Mapping section of the App Schema configuration one must specify the source for each individual element and attribute within the target XML. GeoServer App Schema configuration supports a wide range of options depending on the user requirements, e.g. pertaining to the cardinality of nested types.
 
-### Mapping gml:id
-
-Under **targetAttribute**, provide the name of the FeatureType you're mapping to including the namespace
-
-Under **idExpression**, provide the DB Column name which provides the value for the gml:id.
-
-*Note of caution pertaining to gml:id, gml:id cannot start with a number. It must be a letter or underscore “_”, after this characters may be letters, numbers or one of “_”, “-“, “.”*
-
-```
-<AttributeMapping>
-	<targetAttribute>dm1:Dummy1</targetAttribute>
-	<idExpression>
-		<OCQL>id</OCQL>
-	</idExpression>
-</AttributeMapping>
-```
+All information available under (Attribute Mapping)[https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFeatureMapping.md]
 
 
-### Mapping simple element
 
-Under **targetAttribute**, provide the name of the element you're mapping to including the namespace
-
-Under **sourceExpression**, provide the DB Column name which provides the value for this element.
-
-```
-<AttributeMapping>
-	<targetAttribute>dm1:name</targetAttribute>
-	<sourceExpression>
-		<OCQL>name</OCQL>
-	</sourceExpression>
-</AttributeMapping>
-```
-
-
-### Mapping to attributes such as xlink:href
-
-Under **targetAttribute**, provide the name of the element you're mapping to including the namespace
-
-Include **encodeIfEmpty** set to true if only the attributes will contain content. Otherwise GeoServer will only encode this element if the element itself contains content.
-
-Under **ClientProperty**, under **name** provide the name of the attribute to be mapped to, under **value** provide the DB Column name which provides the value for this element.
-
-```
-<AttributeMapping>
-	<targetAttribute>dm1:code</targetAttribute>
-	<encodeIfEmpty>true</encodeIfEmpty>
-	<ClientProperty>
-		<name>xlink:href</name>
-		<value>strconcat('http://codes.datacove.eu/', code)</value>
-	</ClientProperty>
-</AttributeMapping>					
-```
-
-### Mapping to geometry
-
-Under **targetAttribute**, provide the name of the geometry element you're mapping to including the namespace. Do **NOT** include the geometry type, Geoserver will figure this out itself depending on the database geometry type.
-
-Under **idExpression**, provide the DB Column name which provides the value for the gml:id of the geometry.
-
-Under **sourceExpression**, provide the DB Column name which provides the value for the geometry.
-
-```
-<AttributeMapping>
-	<targetAttribute>dm1:geometry</targetAttribute>
-	<idExpression>
-		<OCQL>strconcat('PT_', id)</OCQL>
-	</idExpression>
-	<sourceExpression>
-		<OCQL>geom</OCQL>
-	</sourceExpression>
-</AttributeMapping>	
-```
 
 
