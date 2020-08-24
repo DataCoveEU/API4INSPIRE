@@ -5,15 +5,15 @@ category: GC-AppSchema
 order: 2
 ---
 
-# Example FeatureType and Database
+## Example FeatureType and Database
 
-## UML for Dummy1 FeatureType
+### UML for Example FeatureTypes
 ![Dummy1 UML](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_Types.png)
 
-## ER Diagram of table dummy1
+### ER Diagram of DB tables required for Example FeatureTypes
 ![Dummy1 ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_ER.png)
 
-## Example XML Output
+### Example XML Output
 ```
 <ex:MainFT gml:id="gmlid1">
   <ex:inspireId>
