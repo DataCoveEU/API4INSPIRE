@@ -5,7 +5,7 @@ category: GC-AppSchema
 order: 4
 ---
 
-# Feature Mapping
+## Feature Mapping
 For each Feature Type being mapped, basic information on the data source must be provided as follows.
 
 Under **sourceDataStore**, the name of the data store configured in the Database Configuration must be provided.
@@ -25,7 +25,7 @@ Under **defaultGeometry**, the location of the Feature geometry can be be provid
 	<defaultGeometry>dm1:geometry</defaultGeometry> 
 ```
 
-# AttributeMapping
+## AttributeMapping
 In the **attributeMappings** section, the data source for each element of the Feature Type being mapped is configured within a **AttributeMapping** section.
 ```
 <attributeMappings>
@@ -53,7 +53,7 @@ Under **idExpression**, provide the DB Column name which provides the value for 
 ```
 
 
-## Mapping simple element
+### Mapping simple element
 
 Under **targetAttribute**, provide the name of the element you're mapping to including the namespace
 
@@ -69,7 +69,7 @@ Under **sourceExpression**, provide the DB Column name which provides the value 
 ```
 
 
-## Mapping to attributes such as xlink:href
+### Mapping to attributes such as xlink:href
 
 Under **targetAttribute**, provide the name of the element you're mapping to including the namespace
 
@@ -88,7 +88,7 @@ Under **ClientProperty**, under **name** provide the name of the attribute to be
 </AttributeMapping>					
 ```
 
-## Mapping to geometry
+### Mapping to geometry
 
 Under **targetAttribute**, provide the name of the geometry element you're mapping to including the namespace. Do **NOT** include the geometry type, Geoserver will figure this out itself depending on the database geometry type.
 
