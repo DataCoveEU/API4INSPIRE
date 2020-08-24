@@ -5,9 +5,10 @@ category: GC-AppSchema
 order: 1
 ---
 
+# GeoServer App Schema Configuration
 In order to simplify the often painful process of App Schema configuration, we have created a tutorial based on a simple example that serves to illustrate the various options available without burdoning the user with a complex data model as often utilized in such tutorials. The individual sections of this tutorial are described below
 
-# Example FeatureType and Database
+## Example FeatureType and Database
 
 For the purpose of this tutorial, we have created a set of GML featureTypes and dataTypes with various associations between them. These serve to illustrate the various options available within GeoServer App Schema configuration.
 
@@ -19,7 +20,7 @@ This example consists of:
 
 All information available under [Example FeatureType and Database](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaExample.md)
 
-# App Schema Base
+## App Schema Base
 
 The base information within the App Schema configuration always follows the same pattern, providing information on the following concepts:
 * Namespaces: all namespaces used within the final output XML must be configured
@@ -30,11 +31,11 @@ The base information within the App Schema configuration always follows the same
 All information available under [App Schema Base](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFileBase.md)
 
 
-# AttributeMapping
+## AttributeMapping
 
 Within the Feature Mapping section of the App Schema configuration one must specify the source for each individual element and attribute within the target XML. GeoServer App Schema configuration supports a wide range of options depending on the user requirements, e.g. pertaining to the cardinality of nested types.
 
-All information available under [Attribute Mapping](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFeatureMapping.md)
+All information for basic feature mapping available under [Basic Feature Mapping](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFeatureMapping.md)
 
 
 
