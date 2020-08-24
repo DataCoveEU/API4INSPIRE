@@ -19,6 +19,8 @@ All namespaces used in the App Schema Mapping must be declared together with the
 # Database Configuration
 GeoServer App Schema allows for various database configuration options. In order to allow great flexibility, the individual **DataStore** sections within the **sourceDataStores** utilize the Parameter Type that provides name/value pairs. The **name** element provides the individual configuration concept, while the **value** element provides the value to be used for this concept.
 
+Regardless of configuration type, the identifier for a **DataStore** is always provided by the **id** element. This name must be provided within subsequent configuration sections to assign the correct data source to the attribute mapping.
+
 Please note that in this tutorial we rely souly on PostGIS databases. For other configuration options, please see the full documentation available for [GeoServer](http://geoserver.org/).
 
 ## JNDI/JDBC Data Store
@@ -84,7 +86,7 @@ For this purpose, the following parameters must be set within the **sourceDataSt
 			</Parameter>
 			<Parameter>
 				<name>database</name>
-				<!--<value>myInspireDatabase</value>-->
+				<!--<value>my_inspire_database</value>-->
 				<value>${inspire.database}</value>
 			</Parameter>
 			<Parameter>
@@ -93,12 +95,12 @@ For this purpose, the following parameters must be set within the **sourceDataSt
 			</Parameter>
 			<Parameter>
 				<name>user</name>
-				<!--<value>myUser</value>-->
+				<!--<value>my_user</value>-->
 				<value>${inspire.user}</value>
 			</Parameter>
 			<Parameter>
 				<name>passwd</name>
-				<!--<value>myPassword</value>-->
+				<!--<value>my_password</value>-->
 				<value>${inspire.passwd}</value>
 			</Parameter>
 			<Parameter>
@@ -116,9 +118,9 @@ Under Debian, the app-schema.properties file can be found under the geoserver di
 
 ```
 inspire.host = 192.12.34.56
-inspire.database = myInspireDatabase
-inspire.user = myUser
-inspire.passwd = myPassword
+inspire.database = my_inspire_database
+inspire.user = my_user
+inspire.passwd = my_password
 
 ```
 
@@ -147,9 +149,9 @@ Under **defaultGeometry**, the location of the Feature geometry can be be provid
 ```
 <FeatureTypeMapping>
 	<sourceDataStore>idDataStoreInsp</sourceDataStore>
-	<sourceType>dummy1</sourceType>
-	<targetElement>dm1:Dummy1</targetElement>
-	<defaultGeometry>dm1:geometry</defaultGeometry> 
+	<sourceType>ex_mainft</sourceType>
+	<targetElement>ex:MainFT</targetElement>
+	<defaultGeometry>ex:geometry</defaultGeometry> 
 ```
 
 Further details on [Feature Mapping](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFeatureMapping.md)
