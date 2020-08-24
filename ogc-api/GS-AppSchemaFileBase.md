@@ -1,6 +1,6 @@
 ---
 layout: default
-title: GeoServer App Schema Mapping File Base
+title: Mapping File Base
 category: GC-AppSchema
 order: 3
 ---
