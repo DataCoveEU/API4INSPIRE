@@ -31,12 +31,18 @@ The base information within the App Schema configuration always follows the same
 All information available under [App Schema Base](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFileBase.md)
 
 
-## AttributeMapping
+## Attribute Mapping
 
-Within the Feature Mapping section of the App Schema configuration one must specify the source for each individual element and attribute within the target XML. GeoServer App Schema configuration supports a wide range of options depending on the user requirements, e.g. pertaining to the cardinality of nested types.
+Within the Feature Mapping section of the App Schema configuration one must specify the source for each individual element and attribute within the target XML. GeoServer App Schema configuration supports a wide range of options depending on the user requirements, e.g. pertaining to the cardinality of nested types. In the following section, we provide basic configuration options.
 
 All information for basic feature mapping available under [Basic Feature Mapping](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFeatureMapping.md)
 
+
+## Feature Chaining
+
+Feature Chaining is the mechanism for more complex mapping within GeoServer App Schema. This is utilized when one feature includes or references multiple instances of a different featureType or dataType as well as in those cases where two featureTypes are provided individually, but with reference to the other.
+
+All information for mapping utilizing feature chaining available under [Feature Chaining Mapping](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFeatureChaining.md)
 
 
 
