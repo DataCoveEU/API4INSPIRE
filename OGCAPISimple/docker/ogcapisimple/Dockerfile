@@ -1,23 +1,28 @@
-ARG IMAGE_VERSION=8u232-jdk-stretch
+ARG IMAGE_VERSION=8u265-jdk-slim
 FROM openjdk:$IMAGE_VERSION
 
 #--------- OGC API Simple Environment settings ----------------
 #test or prod
 ARG ACG_SDI_ENV=dev
 ARG TC_MAJOR=8
-ARG TC_VER=8.5.53
+ARG TC_VER=8.5.57
 ENV ACGSDI=${ACG_SDI_ENV}
 ENV CATALINA_HOME="/opt/tc-${ACGSDI}"
 #download links
 ENV TOMCAT_MAJOR=$TC_MAJOR
 ENV TOMCAT_VERSION=${TC_VER}
 ENV TOMCAT_DOWNLOAD=http://mirror.klaus-uwe.me/apache/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+
 #--------- Tomcat Base image for OGC API Simple ------------
 LABEL maintainer="Klaus Gäbler <klaus.gaebler@austrocontrol.at>"
 WORKDIR /opt
 #ACGSDI usr configuration
 RUN groupadd tomcat \
     && useradd -g tomcat -M donked
+
+# in the OpenJDK Image "slim" wget and unzip are not included
+RUN apt-get update \
+    && apt-get install -y wget unzip
 
 # TOMCAT
 #download, unpack, remove unnecessary files
