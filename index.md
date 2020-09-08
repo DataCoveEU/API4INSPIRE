@@ -40,6 +40,13 @@ This data is openly available for exploration and application development.
   * Various other complementary French data sources
 
 
+## Presentations
+
+Here are the conference presentations given about this project.
+
+* [GeoSpatial Sensing Conference 2020](files/API4INSPIRE-GeoSpatial_Sensing_Conf_v03.pdf)
+
+
 ## Deliverables
 
 The following deliverables have been created during this project:
