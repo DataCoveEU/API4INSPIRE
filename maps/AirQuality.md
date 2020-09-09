@@ -36,6 +36,11 @@ Data from the European Environmental Agency.
 			select: null,
 			expand: null,
 			top: 0
+		},
+		plot: {
+			startDate: new Date(Date.now() - 1000*60*60*24*30),
+			offset: 0,
+			endDate: new Date()
 		}
 	}).addTo(mymap);
 </script>
