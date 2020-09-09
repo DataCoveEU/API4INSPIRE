@@ -14,5 +14,9 @@
 	{
 		"key": "STA",
 		"title": "SensorThings API HowTo"
+	},
+	{
+		"key": "maps",
+		"title": "Demo Maps"
 	}
 ]
