@@ -91,17 +91,17 @@ String matches are case sensitive.
 
 Function | Description <br/> Example
 --- | --- 
-`substringof(s1, s2)` <br/> bool | Returns true if s1 is a substring of s2 <br/> `Things?$filter=substringof('room', name)` matches `livingroom` and `room S01`
-`endswith(s1, s2)` <br/> bool | Returns true if s1 ends with s2 <br/> `Things?$filter=endswith(name, 'room')` matches `livingroom` but not `room S01`
-`startswith(s1, s2)` <br/> bool | Returns true if s1 starts with s2 <br/> `Things?$filter=endswith(name, 'room')` matches `room S01` but not `livingroom`
-`substring(s1, i1)` <br/> string | Returns the substring of s1, starting at position i1 <br/> substring(description,1) eq 'ensor Things'
-`substring(s1,i1,i2)` <br/> string | Returns the substring of s1, starting at position i1, with length i2 <br/> substring(description,2,4) eq 'nsor'
+`substringof(s1, s2)` <br/> bool | Returns true if s1 is a substring of s2 <br/> `Things?$filter=substringof('room', name)` matches `livingroom` and `room S01`
+`endswith(s1, s2)` <br/> bool | Returns true if s1 ends with s2 <br/> `Things?$filter=endswith(name, 'room')` matches `livingroom` but not `room S01`
+`startswith(s1, s2)` <br/> bool | Returns true if s1 starts with s2 <br/> `Things?$filter=endswith(name, 'room')` matches `room S01` but not `livingroom`
+`substring(s1, i1)` <br/> string | Returns the substring of s1, starting at position i1 <br/> substring(description,1) eq 'ensor Things'
+`substring(s1, i1, i2)` <br/> string | Returns the substring of s1, starting at position i1, with length i2 <br/> substring(description,2,4) eq 'nsor'
 `length(s1)` <br/> int | Returns the length of string s1 <br/> length(description) eq 13
-`indexof(s1, s2)` <br/> int | Returns the index of s2 in s1 <br/> indexof(description,'Sensor') eq 1
+`indexof(s1, s2)` <br/> int | Returns the index of s2 in s1 <br/> indexof(description,'Sensor') eq 1
 `tolower(s1)` <br/> string | Returns the lower case version of s1 <br/> tolower(description) eq 'sensor things'
 `toupper(s1)` <br/> string | Returns the upper case version of s1 <br/> toupper(description) eq 'SENSOR THINGS'
 `trim(s1)` <br/> string | Returns the string s1, with whitespace trimmed from start and end <br/> trim(description) eq 'Sensor Things'
-`concat(s1, s2)` <br/> string | Returns a string composed of s2 added to the end of s1 <br/> concat(concat(unitOfMeasurement/symbol,', '), unitOfMeasurement/name) eq 'degree, Celsius'
+`concat(s1, s2)` <br/> string | Returns a string composed of s2 added to the end of s1 <br/> concat(concat(unitOfMeasurement/symbol,', '), unitOfMeasurement/name) eq 'degree, Celsius'
 
 
 ### Mathematical Functions
@@ -128,18 +128,18 @@ Geospatial constants can be specified by using WKT enclosed in `geography'...'`,
 
 Function | Description <br/> Example
 --- | ---
-`geo.intersects(g1, g2)` <br/> bool | Returns true if g1 intersects g2 <br/> `geo.intersects(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
+`geo.intersects(g1, g2)` <br/> bool | Returns true if g1 intersects g2 <br/> `geo.intersects(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
 `geo.length(g1)` <br/> number | Returns the length of geometry g1  <br/> `geo.length(location) lt 2` matches all locations that are linestrings with a length less than 2 degrees
-`geo.distance(g1, g2)` <br/> number | Returns the distance between g1 and g2 in the units of the server (generally degrees) <br/> `geo.distance(location, geography'POINT (30 10)') lt 1`
-`st_equals(g1, g2)` <br/> bool | Returns true if g1 is the same as g2 <br/> `st_equals(location, geography'POINT (30 10)')`
-`st_disjoint(g1, g2)` <br/> bool | Returns true if g1 is separated from g2 <br/> `st_disjoint(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
-`st_touches(g1, g2)` <br/> bool | Returns true if g1 touches g2 <br/> `st_touches(location, geography'LINESTRING (30 10, 10 30, 40 40)')`
-`st_within(g1, g2)` <br/> bool | Returns true if g1 is within g2 <br/> `st_within(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
-`st_overlaps(g1, g2)` <br/> bool | Returns true if g1 overlaps g2 <br/> `st_overlaps(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
-`st_crosses(g1, g2)` <br/> bool | Returns true if g1 crosses g2 <br/> `st_crosses(location, geography'LINESTRING (30 10, 10 30, 40 40)')`
-`st_intersects(g1, g2)` <br/> bool | Returns true if g1 intersects g2 <br/> `st_intersects(location, geography'LINESTRING (30 10, 10 30, 40 40)')`
-`st_contains(g1, g2)` <br/> bool | Returns true if g1 contains g2 <br/> `st_contains(location, geography'POINT (30 10)')`
-`st_relate(g1, g2, s1)` <br/> bool | Returns true if g1 has a relation with g2 given the [intersecion matrix pattern](https://en.wikipedia.org/wiki/DE-9IM) s1 <br/> `st_relate(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))', 'T********')`
+`geo.distance(g1, g2)` <br/> number | Returns the distance between g1 and g2 in the units of the server (generally degrees) <br/> `geo.distance(location, geography'POINT (30 10)') lt 1`
+`st_equals(g1, g2)` <br/> bool | Returns true if g1 is the same as g2 <br/> `st_equals(location, geography'POINT (30 10)')`
+`st_disjoint(g1, g2)` <br/> bool | Returns true if g1 is separated from g2 <br/> `st_disjoint(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
+`st_touches(g1, g2)` <br/> bool | Returns true if g1 touches g2 <br/> `st_touches(location, geography'LINESTRING (30 10, 10 30, 40 40)')`
+`st_within(g1, g2)` <br/> bool | Returns true if g1 is within g2 <br/> `st_within(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
+`st_overlaps(g1, g2)` <br/> bool | Returns true if g1 overlaps g2 <br/> `st_overlaps(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')`
+`st_crosses(g1, g2)` <br/> bool | Returns true if g1 crosses g2 <br/> `st_crosses(location, geography'LINESTRING (30 10, 10 30, 40 40)')`
+`st_intersects(g1, g2)` <br/> bool | Returns true if g1 intersects g2 <br/> `st_intersects(location, geography'LINESTRING (30 10, 10 30, 40 40)')`
+`st_contains(g1, g2)` <br/> bool | Returns true if g1 contains g2 <br/> `st_contains(location, geography'POINT (30 10)')`
+`st_relate(g1, g2, s1)` <br/> bool | Returns true if g1 has a relation with g2 given the [intersecion matrix pattern](https://en.wikipedia.org/wiki/DE-9IM) s1 <br/> `st_relate(location, geography'POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))', 'T********')`
 
 
 ### Temporal Functions
