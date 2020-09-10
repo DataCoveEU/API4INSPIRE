@@ -18,7 +18,7 @@ Data from [Eurostat](https://ec.europa.eu/eurostat/de/web/gisco/geodata/referenc
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 <script  src="https://unpkg.com/sta-map@1.2.0/dist/stam.min.js"></script>
 <script type="text/javascript">
-	var mymap = L.map('mapid').setView([48.5, 9.00], 8);
+	var mymap = L.map('mapid').setView([51.505, 8.0], 4);
 	mymap.addControl(new L.Control.Fullscreen());
 	L.tileLayer('https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png', {
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
