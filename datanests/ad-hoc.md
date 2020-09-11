@@ -49,7 +49,8 @@ Based on our recent success in reproviding European air quality data via the OGC
 and further inspired by recent work on enabling access to Covid-19 data via this API Standard, 
 we created a first prototype of DemographyThings, exposing European Demography data pertaining to NUTS regions from Eurostat in a simple and reusable manner.
 
-* STA: [http://service.datacove.eu/DemographyThings/v1.1](http://service.datacove.eu/DemographyThings/v1.1) 
+* STA: [https://service.datacove.eu/DemographyThings/v1.1](https://service.datacove.eu/DemographyThings/v1.1) 
+* STA alternative: [https://demography.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1](https://demography.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1) 
 
 Details of how to formulate a request to this API are available from the API4INSPIRE project web site, but this one, providing the population for all European countries as GeoJSON is just too cool not to share:
 
