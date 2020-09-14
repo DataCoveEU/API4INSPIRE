@@ -16,7 +16,7 @@ Data from the European Environmental Agency.
 <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
-<script  src="https://unpkg.com/sta-map@1.2.1/dist/stam.min.js"></script>
+<script  src="https://unpkg.com/sta-map@1.2.2/dist/stam.min.js"></script>
 <script type="text/javascript">
 	var mymap = L.map('mapid').setView([51.505, 8.0], 4);
 	mymap.addControl(new L.Control.Fullscreen());
