@@ -1,11 +1,11 @@
 ---
-title: NUTS Regions
+title: Demography Nuts
 layout: default
 category: maps
 order: 2
 ---
 
-# NUTS Regions
+# Demography data for NUTS Regions
 
 Data from [Eurostat](https://ec.europa.eu/eurostat/de/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts).
 
