@@ -28,6 +28,7 @@ For more information, please see the following sections:
 * [Filtering](STA-Filtering)
 * [Expading](STA-Expading)
 * [Example Queries](STA-Example-Queries)
+* [Creating entities](STA-Creating-Entities)
 * [Implementations](STA-Implementations)
 
 
