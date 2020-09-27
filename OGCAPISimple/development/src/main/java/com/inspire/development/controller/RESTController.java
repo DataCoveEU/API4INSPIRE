@@ -815,6 +815,7 @@ public class RESTController {
             db.getSqlString().remove(sqlName);
             TableConfig obj = db.getConfig().remove(sqlName);
             obj.setAlias(newName);
+            obj.setTable(newName);
             db.getConfig().put(newName, obj);
             db.getSqlString().put(newName,sql);
         }

@@ -75,14 +75,22 @@ public class Core {
         observer.addListener(new FileAlterationListenerAdaptor() {
             @Override
             public void onFileCreate(File file) {
-                config.getConnectors().add(new SQLite(file.getPath(), file.getName()));
-                writeConfig(config.getConfigPath(), config.getConnectionPath());
+                try {
+                    config.getConnectors().add(new SQLite(file.getPath(), file.getName()));
+                    writeConfig(config.getConfigPath(), config.getConnectionPath());
+                }catch (Exception e){
+                    log.error("An exception occurred while adding a sqlite database", e);
+                }
             }
 
             @Override
             public void onFileDelete(File file) {
-                deleteByPath(file.getPath());
-                writeConfig(config.getConfigPath(), config.getConnectionPath());
+                try {
+                    deleteByPath(file.getPath());
+                    writeConfig(config.getConfigPath(), config.getConnectionPath());
+                }catch (Exception e){
+                    log.error("An exception occurred while adding a sqlite database", e);
+                }
             }
         });
         monitor = new FileAlterationMonitor(500, observer);
@@ -235,14 +243,14 @@ public class Core {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         HashMap<String, ConfigSql> configs = new HashMap<>();
         ArrayList<DBConnector> dbConnectors = config.getConnectors();
-        for(DBConnector db:dbConnectors){
-            configs.put(db.getId(),new ConfigSql(db.getConfig(), db.getSqlString()));
+        for(DBConnector db:dbConnectors) {
+            configs.put(db.getId(), new ConfigSql(db.getConfig(), db.getSqlString()));
         }
         try {
             File fConnections = new File(connectionPath);
             File fConfig = new File(configPath);
             objectMapper.writeValue(fConnections, config);
-            objectMapper.writerWithView(Views.Public.class).writeValue(fConfig,configs);
+            objectMapper.writeValue(fConfig,configs);
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
