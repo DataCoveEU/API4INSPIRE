@@ -242,7 +242,7 @@ public class Core {
             File fConnections = new File(connectionPath);
             File fConfig = new File(configPath);
             objectMapper.writeValue(fConnections, config);
-            objectMapper.writerWithView(Views.Public.class).writeValue(fConfig,configs);
+            objectMapper.writeValue(fConfig,configs);
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
