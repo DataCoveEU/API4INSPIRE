@@ -935,6 +935,11 @@ export class DashboardComponent implements OnInit {
    * Update the a query
    */
   updateSQL() {
+    this.sqlSubmitted = true;
+    if(this.sqlForm.invalid) {
+      return;
+    }
+               
     var json = {
       'id': this.selectedConnector.id,
       'sql': this.query == this.sqlForm.value.sqlQuery ? this.query : this.sqlForm.value.sqlQuery,
