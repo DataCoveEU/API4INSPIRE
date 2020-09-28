@@ -261,10 +261,16 @@ public class RESTController {
             FeatureCollection fc = core.get(id, false, limit, offset, bbox, filterParams, host);
             if (fc != null) {
 
-                String params = linkParams.entrySet().stream()
+                //Add bbox to params
+                if(linkParams.get("bbox") != null) filterParams.put("bbox", linkParams.get(("bbox")));
+
+                String params = filterParams.entrySet().stream()
                     .map(p -> urlEncodeUTF8(p.getKey()) + "=" + urlEncodeUTF8(p.getValue()))
                     .reduce((p1, p2) -> p1 + "&" + p2)
                     .orElse("");
+
+                //Remove for later usage
+                filterParams.remove("bbox");
 
                 if(params != "")
                     params = "&" + params;
@@ -815,6 +821,7 @@ public class RESTController {
             db.getSqlString().remove(sqlName);
             TableConfig obj = db.getConfig().remove(sqlName);
             obj.setAlias(newName);
+            obj.setTable(newName);
             db.getConfig().put(newName, obj);
             db.getSqlString().put(newName,sql);
         }
