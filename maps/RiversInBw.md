@@ -25,7 +25,7 @@ Data from the [LUBW](https://www.lubw.baden-wuerttemberg.de).
 		maxZoom: 18
 	}).addTo(mymap);
 	L.stam({
-		baseUrl: "https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1",
+		baseUrl: "https://lubw.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1",
 		MarkerStyle: "yellow",
 		clusterMin: 20,
 		queryObject: {

@@ -25,7 +25,7 @@ Data from the European Environmental Agency.
 		maxZoom: 18
 	}).addTo(mymap);
 	L.stam({
-		baseUrl: "https://airquality-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1",
+		baseUrl: "https://airquality-frost.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1",
 		MarkerStyle: "yellow",
 		clusterMin: 20,
 		queryObject: {

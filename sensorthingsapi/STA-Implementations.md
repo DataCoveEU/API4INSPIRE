@@ -13,14 +13,14 @@ Here are some server and client implementations, and some demo services to test 
 ## Demo Services
 
 * FROST-Server demo serice:
-  - https://ogctest.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1/
+  - https://ogctest.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1/
   - Access: Read & Write
 * European air quality:
-  - https://airquality-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1
+  - https://airquality-frost.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1
   - Access: Read Only
 * Rivers & Measuring points in Baden-Württemberg:  
   This service has many non-point (line, polygon) Locations
-  - https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1/
+  - https://lubw.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1/
   - Access: Read Only
 
 

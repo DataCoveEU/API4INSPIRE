@@ -34,7 +34,7 @@ Potential Use Cases in this context pertain to Smart City applications, e.g. pro
 
 ## Currently available endpoints:
 * STA: [https://iot.hamburg.de/v1.0](https://iot.hamburg.de/v1.0) 
-* Viewer: [https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/150/](https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/150/) 
+* Viewer: [https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/103/](https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/103/) 
 
 
 

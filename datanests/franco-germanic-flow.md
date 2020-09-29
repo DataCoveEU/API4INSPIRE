@@ -30,13 +30,13 @@ Potential Use Cases in this context pertain mostly to flooding within the Rhine 
 Some simple use cases pertain to creating the necessary links between the French and German rivers. At present the identifiers are national, the only link between these feature sets are spatial. An application that tries to extract corresponding features between these two datasets would be highly valuable.
 
 ## Currently available endpoints:
-* Viewer: [https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/102/](https://api4inspire.docker01.ilt-dmz.iosb.fraunhofer.de/servlet/is/102/)
+* Viewer: [https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/107/](https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/107/)
 * France
   * Ground Water STA: [https://sensorthings.brgm-rec.fr/SensorThingsGroundWater/v1.0](https://sensorthings.brgm-rec.fr/SensorThingsGroundWater/v1.0) 
   * Surface Quantity STA: [https://iddata.eaufrance.fr/api/stapiHydrometry/v1.1](https://iddata.eaufrance.fr/api/stapiHydrometry/v1.1)
   * Surface Quality STA: [https://sensorthings-wq.brgm-rec.fr/FROST-Server/v1.0](https://sensorthings-wq.brgm-rec.fr/FROST-Server/v1.0)
 * Germany
-  * Water STA: [https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1](https://lubw-frost.docker01.ilt-dmz.iosb.fraunhofer.de/v1.1)
+  * Water STA: [https://lubw.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1](https://lubw.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1)
 
 
 
