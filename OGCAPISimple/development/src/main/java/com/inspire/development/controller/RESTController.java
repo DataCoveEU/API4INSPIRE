@@ -561,7 +561,7 @@ public class RESTController {
                     if (db != null) {
                         boolean check = (Boolean) input.get("check");
                         try {
-                            FeatureCollection fc = db.execute(sql, collectionName, check);
+                            FeatureCollection fc = db.execute(sql.replace(";",""), collectionName, check);
                             core.writeConfig(core.getConfigPath(), core.getConnectionPath());
                             return new ResponseEntity<>(fc, HttpStatus.OK);
                         } catch (Exception e) {
@@ -816,14 +816,14 @@ public class RESTController {
         if(sqlName == null) return new ResponseEntity<>("SQLName is null", HttpStatus.BAD_REQUEST);
         String newName = (String )input.get("newName");
         if(newName == null){
-            db.getSqlString().put(sqlName,sql);
+            db.getSqlString().put(sqlName,sql.replace(";",""));
         }else {
             db.getSqlString().remove(sqlName);
             TableConfig obj = db.getConfig().remove(sqlName);
             obj.setAlias(newName);
             obj.setTable(newName);
             db.getConfig().put(newName, obj);
-            db.getSqlString().put(newName,sql);
+            db.getSqlString().put(newName,sql.replace(";",""));
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
