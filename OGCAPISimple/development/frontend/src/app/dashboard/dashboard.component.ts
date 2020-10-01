@@ -108,6 +108,9 @@ export class DashboardComponent implements OnInit {
 
   nameInputChanged: boolean = false;
 
+  sqlNameError: boolean = false;
+  sqlQueryError: boolean = false;
+
   constructor(  private formBuilder: FormBuilder,
                 private conService: ConnectorService,
                 private featureService: FeatureService,
@@ -155,7 +158,7 @@ export class DashboardComponent implements OnInit {
     this.indexSelectedConnector = 0;
     //Load the table names from the selected connector
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id });
-    
+
 
     //Event when another connector in the dropdown is selected
     select.onchange = async (event: any)=>{
@@ -218,7 +221,7 @@ export class DashboardComponent implements OnInit {
       this.queryName = "";
       this.query = "";
     }
-    
+
     // If a "table name row" is already selected, then
     // you have to change the style
     if(this.tableSelect) {
@@ -251,8 +254,8 @@ export class DashboardComponent implements OnInit {
     this.columnNames = await this.conService.getColumn({'id': this.selectedConnector.id, 'table':''+name});
     this.availableAsGeoColumn = await this.conService.getGeoColumns({'id': this.selectedConnector.id, 'table':''+name});
     this.availableAsIdColumn = await this.conService.getIdColumns({'id': this.selectedConnector.id, 'table':''+name});
-      
-    
+
+
     if(this.selectedConnector.config[name] == undefined) {
 //      console.log("Connector for this table is undefined")
       this.geoColumn = "";
@@ -297,7 +300,7 @@ export class DashboardComponent implements OnInit {
     } else {
       this.canBeUsedAsIdColumn = false;
     }
-   
+
 
     // If a "column name row" is already selected
     // it has to be deselected
@@ -459,7 +462,7 @@ export class DashboardComponent implements OnInit {
 
     this.tableNames = await this.conService.getTables({'id': this.selectedConnector.id }); //{'id':'Inspire'}
 
- 
+
   }
 
   /**
@@ -476,17 +479,21 @@ export class DashboardComponent implements OnInit {
    * Handle the "execute" event for the sql query
    */
   executeSQL() {
-    this.sqlSubmitted = true;
-    if(this.sqlForm.invalid) {
+    if(this.sqlformValidation() == false){
       return;
     }
 
+    const queryNameField = document.getElementById("queryName") as HTMLInputElement;
+    const queryQueryField = document.getElementById("queryQuery") as HTMLTextAreaElement;
+
     var json = {
       'id': this.selectedConnector.id,
-      'sql': this.sqlForm.value.sqlQuery,
-      'collectionName': this.sqlForm.value.collectionId,
+      'sql': this.sqlForm.invalid ? queryQueryField.value : this.sqlForm.value.sqlQuery,
+      'collectionName': this.sqlForm.invalid ? queryNameField.value : this.sqlForm.value.collectionId,
       'check': false
     };
+
+
 
     var errorText = document.getElementById('sqlError');
     this.sqlService.executeSQL(json).then(
@@ -496,7 +503,7 @@ export class DashboardComponent implements OnInit {
         await this.reload().then(()=>{
           this.onClickTableName(json.collectionName);
         });
-        
+
       }
     ).catch((err)=>{
       this.sqlNotSuccess = true;
@@ -510,15 +517,17 @@ export class DashboardComponent implements OnInit {
    * Handle the "test SQL" button click event
    */
   testSQL() {
-    this.sqlSubmitted = true;
-    if(this.sqlForm.invalid) {
+    if(this.sqlformValidation() == false){
       return;
     }
 
+    const queryNameField = document.getElementById("queryName") as HTMLInputElement;
+    const queryQueryField = document.getElementById("queryQuery") as HTMLTextAreaElement;
+
     var json = {
       'id': this.selectedConnector.id,
-      'sql': this.sqlForm.value.sqlQuery,
-      'collectionName': this.sqlForm.value.collectionId,
+      'sql': this.sqlForm.invalid ? queryQueryField.value : this.sqlForm.value.sqlQuery,
+      'collectionName': this.sqlForm.invalid ? queryNameField.value : this.sqlForm.value.collectionId,
       'check': true
     };
 
@@ -663,7 +672,7 @@ export class DashboardComponent implements OnInit {
         er.style.marginTop = "2%";
         er.innerHTML = this.messages(true, "Not selected as ID column", "ERROR");
     });
-    
+
   }
 
   /**
@@ -714,8 +723,8 @@ export class DashboardComponent implements OnInit {
       } else {
         //is now geo col
          er.style.marginTop = "2%";
-         er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION") 
- 
+         er.innerHTML = this.messages(false, `${this.idColumnSelected} is now the GEO column`, "INFORMATION")
+
          var indx = this.indexSelectedConnector;
          await this.reloadWithOutChange();
          var select = document.getElementById("selectField") as HTMLSelectElement;
@@ -928,24 +937,26 @@ export class DashboardComponent implements OnInit {
                 </div>
               </div>`;
     }
-    return erg;  
+    return erg;
   }
 
   /**
    * Update the a query
    */
   updateSQL() {
-    this.sqlSubmitted = true;
-    if(this.sqlForm.invalid) {
+    if(this.sqlformValidation() == false){
       return;
     }
-               
+
+    const queryNameField = document.getElementById("queryName") as HTMLInputElement;
+    const queryQueryField = document.getElementById("queryQuery") as HTMLTextAreaElement;
+
     var json = {
       'id': this.selectedConnector.id,
-      'sql': this.query == this.sqlForm.value.sqlQuery ? this.query : this.sqlForm.value.sqlQuery,
+      'sql': this.sqlForm.invalid ? queryQueryField.value : this.sqlForm.value.sqlQuery,
       'sqlName': this.idTableSelected,
-      "newName": this.sqlForm.value.collectionId.length > 0 && this.nameInputChanged ? this.sqlForm.value.collectionId : this.queryName
-    };  
+      "newName": this.sqlForm.invalid ? queryNameField.value : this.sqlForm.value.collectionId,
+    };
 
     var errorText = document.getElementById('sqlError');
     this.conService.updateSQL(json).then(async ()=>{
@@ -959,7 +970,7 @@ export class DashboardComponent implements OnInit {
           this.onClickTableName(json.newName);
         });
       });
-      
+
 
     }).catch((err)=>{
       // Show error message
@@ -994,5 +1005,40 @@ export class DashboardComponent implements OnInit {
   nameChanged() {
     this.nameInputChanged = true;
   }
-  
+
+  sqlformValidation() :boolean {
+    if(this.sqlForm.valid) {
+      this.sqlNameError = false;
+      this.sqlQueryError = false;
+      return true;
+    } else {
+      if( this.selectedConnector != null &&
+          this.selectedConnector.sqlString[this.idTableSelected]) {
+
+            const queryNameField = document.getElementById("queryName") as HTMLInputElement;
+            const queryQueryField = document.getElementById("queryQuery") as HTMLTextAreaElement;
+            var isError : boolean = false;
+            if(queryNameField.value.length == 0) {
+              this.sqlNameError = true;
+              isError = true;
+            }
+
+            if(queryQueryField.value.length == 0) {
+              this.sqlQueryError = true;
+              isError = true;
+            }
+
+            if(isError) { return false; }
+
+            this.sqlNameError = false;
+            this.sqlQueryError = false;
+            return true;
+      }
+
+      this.sqlForm.value.sqlQuery.length == 0 ? this.sqlQueryError = true : this.sqlQueryError = false;
+      this.sqlForm.value.collectionId.length == 0 ? this.sqlNameError = true : this.sqlNameError = false;
+      return false;
+    }
+  }
+
 }
