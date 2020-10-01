@@ -79,7 +79,7 @@
                 <tbody *ngIf="showCols">
                     <tr *ngFor="let colname of columnNames; let i = index;" class="tableRow" (click)="onClickColumn(colname)" [attr.id]=colname>
                         <th scope="row">{{ i+1 }}</th>
-                        <td>{{ colname }} 
+                        <td>{{ colname }}
                             <!-- The icons need to be here 2 times because once for the views and once for the tables. The first 2 are for the views -->
                             <i class="material-icons used" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected] && this.selectedConnector?.config[this.idTableSelected]?.idCol == colname">vpn_key</i>
                             <i class="material-icons used" *ngIf="this.selectedConnector?.sqlString[this.idTableSelected] && this.selectedConnector?.config[this.idTableSelected]?.geoCol == colname">public</i>
@@ -160,16 +160,16 @@
                     <div class="col-sm-6">
                         <label style="width: 100%">
                             <input type="text" formControlName="collectionId" class="form-control" placeholder="Collection name" value="{{ queryName }}" id="queryName" (input)="nameChanged()"/>
-                            <div *ngIf="sqlSubmitted && sqlForm.controls.collectionId.errors" class="error">
-                                <div *ngIf="sqlForm.controls.collectionId.errors.required">A collection name is required</div>
+                            <div *ngIf="sqlNameError" class="error">
+                                <div>A collection name is required</div>
                             </div>
                         </label>
                     </div>
                 </div>
                 <label style="width: 100%;">
-                    <textarea class="form-control" formControlName="sqlQuery" rows="5" placeholder="Write and execute sql here"  value="{{ query }}"></textarea>
-                    <div *ngIf="sqlSubmitted && sqlForm.controls.sqlQuery.errors" class="error">
-                        <div *ngIf="sqlForm.controls.sqlQuery.errors.required">A sql query is required</div>
+                    <textarea id="queryQuery"  class="form-control" formControlName="sqlQuery" rows="5" placeholder="Write and execute sql here"  value="{{ query }}"></textarea>
+                    <div *ngIf="sqlQueryError" class="error">
+                        <div>A sql query is required</div>
                     </div>
                 </label>
                 <br />
