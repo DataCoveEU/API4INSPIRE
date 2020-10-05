@@ -723,7 +723,12 @@ public class SQLite implements DBConnector {
     public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table, int limit ,int offset) throws SQLException{
         ResultSet rs;
         if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
-            sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox, AsEWKB(" + geoCol+ ") as ogc_ewkb FROM (" + sql + ") as tabula";
+            if(geoCol == null){
+                sql = "SELECT * FROM (" + sql + ") as tabula";
+            }else{
+                sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox, AsEWKB(" + geoCol+ ") as ogc_ewkb FROM (" + sql + ") as tabula";
+            }
+
 
             if(bbox != null || (filterParams != null && filterParams.size() > 0))
                 sql += " where ";
