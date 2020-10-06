@@ -31,7 +31,6 @@ Details are available at http://datacove.eu/ad-hoc-air-quality/
 ### Currently available endpoints
 * Viewer: [https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/127/](https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/127/)
 * STA: [https://airquality-frost.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1](https://airquality-frost.k8s.ilt-dmz.iosb.fraunhofer.de/v1.1) 
-* OGC API - Features: [https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/ldpmanager/manager/#/services/luft-umweltbundesamt-at](https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/ldpmanager/manager/#/services/luft-umweltbundesamt-at)
 * SOS for Measurements: [http://luft.umweltbundesamt.at/inspire/sos?service=SOS&version=2.0.0&request=getCapabilities](http://luft.umweltbundesamt.at/inspire/sos?service=SOS&version=2.0.0&request=getCapabilities) 
 * WFS2 for Stations and the like: [http://luft.umweltbundesamt.at/inspire/wfs?service=WFS&version=2.0.0&request=getCapabilities](http://luft.umweltbundesamt.at/inspire/wfs?service=WFS&version=2.0.0&request=getCapabilities) 
 
