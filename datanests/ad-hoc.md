@@ -40,6 +40,7 @@ The data is accessed from various sources including the repository provided by J
 
 ### Currently available endpoints
 * Dashboard: [http://www.covid19dashboard.org/](http://www.covid19dashboard.org/)
+* Alternative Map viewer: [https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/190/](https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/190/)
 * STA: [http://covidsta.hft-stuttgart.de/server/v1.1](http://covidsta.hft-stuttgart.de/server/v1.1) 
 
 ## Demography Things
