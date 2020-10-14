@@ -487,11 +487,7 @@ public class SQLite implements DBConnector {
 
         //Checking if table is a view
         String sql = sqlString.get(queryName);
-       /* if(geoCol != null){
-            sql = sql != null ? sql : "SELECT *, AsEWKB(" + geoCol + ") as ogc_ewkb FROM " + queryName;
-        }else {
-            sql = sql != null ? sql : "SELECT * FROM " + queryName;
-        }*/
+        sql = sql != null ? sql : "SELECT * FROM " + queryName;
 
             log.debug("Converting table: " + queryName + " to featureCollection");
             ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
