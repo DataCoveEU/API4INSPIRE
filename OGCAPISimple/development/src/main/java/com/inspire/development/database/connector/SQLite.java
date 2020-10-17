@@ -487,11 +487,7 @@ public class SQLite implements DBConnector {
 
         //Checking if table is a view
         String sql = sqlString.get(queryName);
-       /* if(geoCol != null){
-            sql = sql != null ? sql : "SELECT *, AsEWKB(" + geoCol + ") as ogc_ewkb FROM " + queryName;
-        }else {
-            sql = sql != null ? sql : "SELECT * FROM " + queryName;
-        }*/
+        sql = sql != null ? sql : "SELECT * FROM " + queryName;
 
             log.debug("Converting table: " + queryName + " to featureCollection");
             ResultSet rs = SqlWhere(sql, filterParams, bbox, geoCol,queryName, limit, offset);
@@ -723,7 +719,12 @@ public class SQLite implements DBConnector {
     public ResultSet SqlWhere(String sql, Map<String,String> filterParams, double[] bbox, String geoCol, String table, int limit ,int offset) throws SQLException{
         ResultSet rs;
         if((filterParams != null && filterParams.size() > 0) || bbox != null || geoCol != null){
-            sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox, AsEWKB(" + geoCol+ ") as ogc_ewkb FROM (" + sql + ") as tabula";
+            if(geoCol == null){
+                sql = "SELECT * FROM (" + sql + ") as tabula";
+            }else{
+                sql = "SELECT *, AsEWKB(Envelope(" + geoCol + ")) as ogc_bbox, AsEWKB(" + geoCol+ ") as ogc_ewkb FROM (" + sql + ") as tabula";
+            }
+
 
             if(bbox != null || (filterParams != null && filterParams.size() > 0))
                 sql += " where ";
