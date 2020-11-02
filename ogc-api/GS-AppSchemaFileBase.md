@@ -4,6 +4,9 @@ title: Mapping File Base
 category: GC-AppSchema
 order: 3
 ---
+# App Schema Schema
+While this file should be available from elsewhere, it's currently not, thus this link for the moment:
+https://schema.datacove.eu/AppSchemaDataAccess.xsd
 
 # Namespaces
 All namespaces used in the App Schema Mapping must be declared together with their prefixes in the **namespaces** section.
