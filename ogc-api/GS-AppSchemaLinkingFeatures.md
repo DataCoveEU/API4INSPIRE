@@ -24,7 +24,7 @@ Within the **attributeMappings**, two **AttributeMapping** blocks must be provid
   * sourceExpression/OCQL: in this element, the column providing the foreign key to the main table must be entered. In this example "mainid".
   * targetAttribute: this element one only needs to enter "FEATURE_LINK".
 * Second **AttributeMapping**
-  * targetAttribute: the element from the main featureType that will be providing the xlink
+  * targetAttribute: the element from the main featureType that will be providing the xlink (*Note: this is the one tricky bit as usually **FeatureTypeMapping** only contains elements from the **nested** feature, whereas here the element provided is from the **main** feature*)
 
 ```
 <FeatureTypeMapping>
