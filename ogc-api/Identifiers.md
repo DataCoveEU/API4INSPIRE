@@ -2,7 +2,7 @@
 layout: default
 title: Identifiers
 category: GC-AppSchema
-order: 6
+order: 7
 ---
 
 While the provision of resolvable identifiers will become simpler due to the introduction of APIs within INSPIRE, 
