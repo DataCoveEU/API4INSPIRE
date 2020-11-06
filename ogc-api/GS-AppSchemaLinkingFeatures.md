@@ -13,9 +13,15 @@ Usually, feature chaining is used to include additional features with a multipli
 
 ## Setting up the Link
 
+
+In our example, links to the featureType **OtherFT** (data contained in *ex_mainft*) are provided by xlinks within the ex:other attribute of the **MainFT** (data contained in *ex_otherft*), with a cardinality of 0..* . The association table *ex_main_other_as* provides the links between between the tables, (2 attributes, mainid and otherid).
+
+The header section of the **FeatureTypeMapping** is the same as for normal chained features, described in the previous section in more detail. In this example, we provide the **mappingName** *_main_to_other. 
+The association table *ex_main_other_as* providing information on the link between **MainFT** and **OtherFT** is provided in the **sourceType** element
+
 ```
 <FeatureTypeMapping>
-  <mappingName>_main_to_other_</mappingName>
+  <mappingName>_main_to_other</mappingName>
   <sourceDataStore>idDataStoreInsp</sourceDataStore>
   <sourceType>ex_main_other_as</sourceType>
   <targetElement>ex:OtherFT</targetElement>
@@ -42,13 +48,16 @@ Usually, feature chaining is used to include additional features with a multipli
   <targetAttribute>ex:other</targetAttribute>
   <encodeIfEmpty>true</encodeIfEmpty>
   <sourceExpression>
+    <!-- PK in main table, what the FK in the linked table links to -->
     <OCQL>gmlid</OCQL>
-    <linkElement>_main_to_other_</linkElement>
+    <linkElement>_main_to_other</linkElement>
     <linkField>FEATURE_LINK</linkField>
   </sourceExpression>
   <isMultiple>true</isMultiple>
   <ClientProperty>
     <name>xlink:href</name>
+    <!-- here we can now access fields from the linked table. -->
+    <!-- otherid is from the table ex_main_other_as referenced in the FeatureTypeMapping _main_to_other -->
     <value>strconcat(strconcat('https://service.datacove.eu/geoserver/ogc/features/collections/ex:OtherFT/items/', otherid), '?f=application%2Fgeo%2Bjson')</value>
   </ClientProperty>
 </AttributeMapping>					
