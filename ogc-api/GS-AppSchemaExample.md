@@ -95,3 +95,9 @@ The ER diagram below shows the database tables required for provision of the Exa
 ## Schema file
 
 The Schema file for the types used in this example is available at [https://schema.datacove.eu/Example.xsd](https://schema.datacove.eu/Example.xsd)
+
+## SQL and App Schema Mapping files for Example DB
+
+[SQL for Example DB](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/Example.sql)
+
+[App Schema Mapping for Example DB](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingEX.xml)
