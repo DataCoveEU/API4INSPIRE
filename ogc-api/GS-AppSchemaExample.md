@@ -19,7 +19,7 @@ The ER diagram below shows the database tables required for provision of the Exa
 
 ![Example ER](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/images/Example_ER.png)
 
-## Example XML Output
+## Example XML Output MainFT
 ```
 <ex:MainFT gml:id="gmlid1">
   <ex:inspireId>
@@ -78,7 +78,18 @@ The ER diagram below shows the database tables required for provision of the Exa
 	  <gml:pos>48.022078 -1.505727</gml:pos>
 	</gml:Point>
   </ex:geometry>
+  <ex:other xlink:href="http://service.datacove.eu/example/other/ID2"/>
 </ex:MainFT>
+```
+
+## Example XML Output MainFT
+```
+<ex:OtherFT gml:id="ID2">
+  <ex:name>OtherFT</ex:name>
+  <ex:main xlink:href="http://service.datacove.eu/example/main/ID1"/>
+  <ex:main xlink:href="http://service.datacove.eu/example/main/ID3"/>
+</ex:OtherFT>
+
 ```
 
 ## Schema file
