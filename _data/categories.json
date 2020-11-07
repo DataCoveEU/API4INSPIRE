@@ -8,6 +8,10 @@
 		"title": "Data Nests"
 	},
 	{
+		"key": "dissemination",
+		"title": "Dissemination"
+	},
+	{
 		"key": "ogc-api",
 		"title": "OGC API - Features"
 	},
