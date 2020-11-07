@@ -20,6 +20,10 @@ This example consists of:
 
 All information available under [Example FeatureType and Database](https://datacoveeu.github.io/API4INSPIRE/ogc-api/GS-AppSchemaExample.html)
 
+Here two endpoints providing the OGC API - Features output of the Example types:
+* MainFT: [https://service.datacove.eu/geoserver/ogc/features/collections/ex:MainFT/items](https://service.datacove.eu/geoserver/ogc/features/collections/ex:MainFT/items?f=application%2Fgeo%2Bjson&limit=50)
+* OtherFT: [https://service.datacove.eu/geoserver/ogc/features/collections/ex:OtherFT/items](https://service.datacove.eu/geoserver/ogc/features/collections/ex:OtherFT/items?f=application%2Fgeo%2Bjson&limit=50)
+
 ## App Schema Base
 
 The base information within the App Schema configuration always follows the same pattern, providing information on the following concepts:
