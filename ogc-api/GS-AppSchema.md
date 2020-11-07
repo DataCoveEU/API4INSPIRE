@@ -44,6 +44,9 @@ Feature Chaining is the mechanism for more complex mapping within GeoServer App 
 
 All information for mapping utilizing feature chaining available under [Feature Chaining Mapping](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaFeatureChaining.md)
 
+## Linking Features and Multiple xlinks
 
+Usually, feature chaining is used to include additional features with a multiplicity above one within a feature. However, this functionality can also be used to provide a list of xlinks referencing a related feature or alternative resource such as a codelist. 
 
+All information for linking features and providing multiple xlinks available under [Linking Features and Multiple xlinks](https://github.com/DataCoveEU/API4INSPIRE/blob/gh-pages/ogc-api/GS-AppSchemaLinkingFeatures.md)
 
