@@ -101,3 +101,8 @@ The Schema file for the types used in this example is available at [https://sche
 [SQL for Example DB](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/Example.sql)
 
 [App Schema Mapping for Example DB](https://raw.githubusercontent.com/DataCoveEU/API4INSPIRE/gh-pages/ogc-api/configs/MappingEX.xml)
+
+## Example Endpoints (OGC API - Features)
+Here two endpoints providing the OGC API - Features output of the Example types:
+* MainFT: [https://service.datacove.eu/geoserver/ogc/features/collections/ex:MainFT/items](https://service.datacove.eu/geoserver/ogc/features/collections/ex:MainFT/items?f=application%2Fgeo%2Bjson&limit=50)
+* OtherFT: [https://service.datacove.eu/geoserver/ogc/features/collections/ex:OtherFT/items](https://service.datacove.eu/geoserver/ogc/features/collections/ex:OtherFT/items?f=application%2Fgeo%2Bjson&limit=50)
