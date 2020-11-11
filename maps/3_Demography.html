@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Demography Demo</title>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+		integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+		crossorigin="" />
+	<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+		integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+		crossorigin=""></script>
+	<style>
+		.map {
+			height: 800px;
+			width: 100%;
+		}
+	</style>
+
+	<!-- script src="https://unpkg.com/sta-map"></script -->
+	<script src="stam.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="map"></div>
+	<script>
+		var map = L.map('map', {
+			preferCanvas: true
+		}).setView([52, 20], 6);
+
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(map);
+
+		L.stam({
+			baseUrl: "https://service.datacove.eu/DemographyThings/v1.1",
+			cluster: true,
+			// cachingDuration: 10,
+			clusterMin: 2000,
+			markerClick: function (feature) {
+				console.log("Clicked: ");
+				var div = document.createElement('div');
+				div.innerHTML = '<h3>' + feature.properties.name + '</h3>';
+				var list = document.createElement('ul');
+				for (let i = 0;i<feature.properties.Observations.length; i++) {
+					let obs = feature.properties.Observations[i];
+					var li = document.createElement('li');
+					li.innerText = obs.Datastream.ObservedProperty.name + ": " + obs.result;
+					list.appendChild(li);
+				}
+				div.appendChild(list);
+				return div;
+			},
+			clusterStyle: function (feature) {
+				return {
+					polygon: {
+						hover: { //Path interface
+							color: "#FFFF00" //Border color
+						},
+						default: { //Path interface
+							color: "#00FFFF" //Border color
+						}
+					}
+				}
+			},
+			polygonStyle: function (feature) {
+				let col;
+				let dsList = feature.properties.Observations;
+				let result = Math.round(dsList[0].result);
+				if (result === 0) {
+					col = '#808080';
+				} else {
+					let fraction = result / (100 + result);
+					fraction = (fraction - 0.5) * 3 + 0.5;
+					fraction = Math.min(fraction, 1);
+					fraction = Math.max(fraction, 0);
+					let red = Math.round(255 * fraction);
+					let blue = Math.round(255 * (1-fraction));
+					let green = Math.min(red,blue);
+
+					let sub1 = Math.round(red).toString(16).padStart(2, '0');
+					let sub2 = Math.round(green).toString(16).padStart(2, '0');
+					let sub3 = Math.round(blue).toString(16).padStart(2, '0');
+					col = "#" + sub1 + sub2 + sub3;
+				}
+				return {fillOpacity: 0.5, color: col, stroke: false};
+			},
+			queryObject: [
+				{
+					zoomLevel: {
+						from: 0,
+						to: 20
+					},
+					query: {
+						count: false,
+						skip: 0,
+						entityType: 'FeaturesOfInterest',
+						filter: "properties/NUTS eq 'PL'",
+						select: ["id","name","encodingType","feature"],
+						expand: [
+							{
+								count: false,
+								skip: 0,
+								top: 20,
+								entityType: 'Observations',
+//								filter: "Datastream/id eq 10015",
+								orderby: "Datastream/id desc",
+								select: ["id","result","phenomenonTime"],
+								expand: [
+									{
+										entityType: 'Datastream',
+										select: ["id", "name", "unitOfMeasurement"],
+										expand: [{
+											entityType: 'ObservedProperty',
+											select: ['name']
+										}]
+									}
+								]
+							}
+						]
+					}
+				}
+			]
+		}).addTo(map);
+	</script>
+</body>
+
+</html>
