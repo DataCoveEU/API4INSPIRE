@@ -2,6 +2,7 @@
 layout: default
 title: GeoServer Black Box Configuration for HY-N and TN-W
 category: GC-BB
+topCategory: ogc-api
 order: 1
 ---
 

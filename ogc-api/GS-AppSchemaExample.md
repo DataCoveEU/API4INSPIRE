@@ -2,6 +2,7 @@
 layout: default
 title: Mapping - Example Overview
 category: GC-AppSchema
+topCategory: ogc-api
 order: 2
 ---
 

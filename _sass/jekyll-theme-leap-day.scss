@@ -10,7 +10,6 @@ by Matt Graham
 body {
   font:14px/22px 'Quattrocento Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
   color:#444;
-  font-weight:300;
   margin: 0px;
   padding:0px 0 20px 0px;
   background: url(../images/body-background.png) #eae6d1;
@@ -57,7 +56,6 @@ h3 {
 
 a {
   color:#3399cc;
-  font-weight:400;
   text-decoration:none;
 }
 
@@ -326,10 +324,25 @@ nav, nav2 {
   border-radius: 3px;
   border: 1px solid #cbcbcb;
   box-shadow: 0px 1px 2px rgba(0,0,0,.09), inset 0px 0px 2px 2px rgba(255,255,255,.5), inset 0 0 5px 5px rgba(255,255,255,.4);
+  
+  .current {
+    font-weight: bold;
+  }
+  li .current {
+    background: #eee;
+  }
+  .normal {
+    font-weight: normal;
+  }
+  li .collapse {
+    display:none;
+  }
+  li:hover .collapse {
+    display:block;
+  }
 
   ul {
     list-style: none;
-    list-style-image:none;
     font-size: 14px;
     line-height:24px;
     padding: 0 0 0 20px;
@@ -338,13 +351,13 @@ nav, nav2 {
       padding: 0px 0px;
       margin:  5px 0px 15px 0px;
       line-height: 16px;
+      color:#3399cc;
       // padding-right:17px;
       // position:relative;
       // right:-12px;
 
       &.tag-h1 {
         font-size: 1.2em;
-        font-weight: bold;
 
         ul {
           list-style-image:url('../images/bullet.png');
@@ -373,11 +386,6 @@ nav, nav2 {
 
       &:hover { color: #999; }
     }
-
-    // .active {
-    //   border-right:solid 4px #39C;
-    //   padding-right:13px;
-    // }
   }
 }
 

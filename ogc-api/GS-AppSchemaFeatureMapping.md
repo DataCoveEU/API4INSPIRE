@@ -2,6 +2,7 @@
 layout: default
 title: Basic Feature Mapping
 category: GC-AppSchema
+topCategory: ogc-api
 order: 4
 ---
 

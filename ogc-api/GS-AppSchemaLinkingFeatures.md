@@ -2,6 +2,7 @@
 layout: default
 title: Linking Features and Multiple xlinks
 category: GC-AppSchema
+topCategory: ogc-api
 order: 6
 ---
 

@@ -2,6 +2,7 @@
 layout: default
 title: Mapping File Base
 category: GC-AppSchema
+topCategory: ogc-api
 order: 3
 ---
 # App Schema Schema

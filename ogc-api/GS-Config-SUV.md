@@ -2,6 +2,7 @@
 layout: default
 title: GeoServer Black Box Configuration for SU-V
 category: GC-BB
+topCategory: ogc-api
 order: 2
 ---
 

@@ -2,6 +2,7 @@
 layout: default
 title: Feature Chaining Mapping
 category: GC-AppSchema
+topCategory: ogc-api
 order: 5
 ---
 
