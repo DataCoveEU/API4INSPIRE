@@ -1,8 +1,9 @@
 ---
 layout: default
 title: Example Queries
-category: STA
-order: 6
+category: gettingData
+topCategory: STA
+order: 7
 ---
 
 # Example Queries

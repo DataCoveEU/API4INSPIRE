@@ -2,10 +2,10 @@
 layout: default
 title: OGC SensorThings API
 category: STA
-order: 0
+order: 1
 ---
 
-## The OGC SensorThings API
+# The OGC SensorThings API
 
 To quote the standard itself:
 
@@ -22,14 +22,9 @@ SensorThings API provides access to up-to-date measurement information that is:
 This means that data from the API can be easily viewed using a normal Web Browser. One can simply navigate from one object to the next by clicking the URLs provided within the data.
 
 For more information, please see the following sections:
-* [Data Model](STA-Data-Model)
-* [Basic Requests](STA-Basic-Requests)
-* [Tailoring Requests](STA-Tailoring-Requests)
-* [Filtering](STA-Filtering)
-* [Expading](STA-Expading)
-* [Example Queries](STA-Example-Queries)
-* [Creating entities](STA-Creating-Entities)
-* [Implementations](STA-Implementations)
+* [Deployment](2_Deploy.html)
+* [Requesting Data](3_GettingData.html)
+* [Creating Maps](4_Mapping.html)
 
 
 If you're more for a hands-on approach, you can also just start playing with some of our services. Here's the link for near-real-time air quality data:
@@ -37,3 +32,14 @@ If you're more for a hands-on approach, you can also just start playing with som
 
 For context, a viewer operating on this endpoint:
 * https://api4inspire.k8s.ilt-dmz.iosb.fraunhofer.de/servlet/is/127/
+
+## REST Cheat Sheet
+
+|                   | GET             | POST   | PATCH  | DELETE |
+|-------------------|-----------------|--------|--------|--------|
+| __v1.1__          | Get index       |        |        |        |
+| __v1.1/Type__     | Get all of type | Create |        |        |
+| __v1.1/Type(id)__ | Get one of type |        | Update | Delete |
+
+
+

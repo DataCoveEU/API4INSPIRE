@@ -15,9 +15,14 @@ body {
   background: url(../images/body-background.png) #eae6d1;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1 {
   color:#333;
-  margin:0 0 10px;
+  margin:20px 0 10px;
+}
+
+h2, h3, h4, h5, h6 {
+  color:#333;
+  margin:15px 0 10px;
 }
 
 p, ol, table, pre, dl {
@@ -45,13 +50,13 @@ h2 {
   color:#393939;
 }
 
-h3, h4, h5, h6 {
-  color:#666666;
-}
-
 h3 {
   font-size: 18px;
   line-height: 24px;
+}
+
+h3, h4, h5, h6 {
+  color:#666666;
 }
 
 a {
@@ -119,7 +124,6 @@ pre {
 }
 
 table {
-  width:100%;
   border-collapse:collapse;
 }
 
@@ -127,7 +131,13 @@ th {
   text-align:left;
   padding:5px 10px;
   border-bottom:1px solid #e5e5e5;
+  border-left: 1px solid #ffcc00;
+  border-bottom: 1px solid #ffcc00;
   color: #444;
+
+  &:first-child {
+    border-left: none;
+  }
 }
 
 td {
@@ -279,7 +289,7 @@ header {
 
 section {
   width:690px;
-  padding: 30px 30px 50px 30px;
+  padding: 10px 30px 50px 30px;
   margin: 20px 0;
   margin-top: 190px;
   position:relative;
@@ -333,6 +343,9 @@ nav, nav2 {
   }
   .normal {
     font-weight: normal;
+  }
+  li .current > ul {
+    background: #fbfbfb;
   }
   li .collapse {
     display:none;
