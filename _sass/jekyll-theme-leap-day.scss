@@ -341,17 +341,25 @@ nav, nav2 {
   li .current {
     background: #eee;
   }
-  .normal {
-    font-weight: normal;
-  }
   li .current > ul {
     background: #fbfbfb;
   }
-  li .collapse {
+  .normal {
+    font-weight: normal;
+  }
+  li.normal.tag-h1 {
+    padding-bottom: 15px;
+    margin-bottom: 5px;
+  }
+  ul.collapse {
     display:none;
+    float:right;
+    background-color: #fbfbfb;
+    border-left: 1px solid #e5e5e5;
   }
   li:hover .collapse {
     display:block;
+    position: absolute;
   }
 
   ul {
@@ -372,10 +380,14 @@ nav, nav2 {
       &.tag-h1 {
         font-size: 1.2em;
 
+        ul.collapse {
+          margin: 5px 0px 5px 10px;
+        }
+
         ul {
           list-style-image:url('../images/bullet.png');
-          margin:  5px 0px;
-          li {margin:  5px 0px;}
+          margin: 5px 0px;
+          li {margin: 5px 0px;}
         }
         a {
           color: #333;
