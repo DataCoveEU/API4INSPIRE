@@ -3,7 +3,7 @@ layout: default
 title: Example Queries
 category: gettingData
 topCategory: STA
-order: 7
+order: 8
 ---
 
 # Example Queries

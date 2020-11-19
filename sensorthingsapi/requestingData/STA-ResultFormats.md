@@ -3,7 +3,7 @@ layout: default
 title: CSV &amp; GeoJSON
 category: gettingData
 topCategory: STA
-order: 6
+order: 7
 ---
 
 # ResultFormats
