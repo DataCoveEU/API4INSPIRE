@@ -366,25 +366,24 @@ nav, nav2 {
     list-style: none;
     font-size: 14px;
     line-height:24px;
-    padding: 0 0 0 20px;
+    padding: 0;
 
     li {
       padding: 0px 0px;
       margin:  5px 0px 15px 0px;
       line-height: 16px;
       color:#3399cc;
-      // padding-right:17px;
-      // position:relative;
-      // right:-12px;
 
       &.tag-h1 {
         font-size: 1.2em;
+        padding-left: 20px;
 
         ul.collapse {
           margin: 5px 0px 5px 10px;
         }
 
         ul {
+          padding-left: 20px;
           list-style-image:url('../images/bullet.png');
           margin: 5px 0px;
           li {margin: 5px 0px;}
