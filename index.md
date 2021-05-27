@@ -54,6 +54,7 @@ The following deliverables have been created during this project:
 * [D0 Inception Report](files/D0-InceptionReport-v1.2.pdf) provides the reader with an overview of the API4INSPIRE project. 
 * Within [D1 Evaluation Methodology](files/D1-EvaluationMethodology_1.1.pdf), the methodology by with we shall evaluate the potential of the APIs under evaluation is described including all evaluation criteria. At the same time, we show how this methodology is embedded within the wider context of the evaluation process.
 * For the deployment of the APIs under evaluation by our associated data providers, we have developed a set of deployment strategies that have been documented within [D2 Deployment Strategies](files/D2-DeploymentStrategy_1.1.pdf). This document provides details on both the software utilized as well as approaches for efficiently configuring these systems based on the data providers requirements.
+* The technical documentation of the APIs and the project itself is on this very website, but an overview can be found in [D3 Documentation And Prototypes](files/D3-DocumentationAndPrototypes_1.1.pdf)
 
 
 ## ELISE
