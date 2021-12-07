@@ -38,11 +38,13 @@ For context, a viewer operating on this endpoint:
 The OGC SensorThings API is a RESTful API.
 Here is a quick table that lists the major functions of the API:
 
-|                   | GET             | POST   | PATCH  | DELETE |
-|-------------------|-----------------|--------|--------|--------|
-| __v1.1__          | Get index       |        |        |        |
-| __v1.1/Type__     | Get all of type | Create |        |        |
-| __v1.1/Type(id)__ | Get one of type |        | Update | Delete |
+|                             | GET               | POST          | PATCH  | DELETE |
+|-----------------------------|-------------------|---------------|--------|--------|
+| __v1.1__                    | Get index         |               |        |        |
+| __v1.1/Type__               | Get all of type   | Create        |        |        |
+| __v1.1/Type(id)__           | Get one of type   |               | Update | Delete |
+| __v1.1/Type(id)/Entity__    | Get linked entity |               |        |        |
+| __v1.1/Type(id)/EntitySet__ | Get all linked    | Create Linked |        |        |
 
 
 
