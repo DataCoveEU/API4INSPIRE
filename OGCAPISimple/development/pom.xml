@@ -138,7 +138,7 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.9.1</version>
                 <configuration>
-                    <nodeVersion>v12.14.1</nodeVersion>
+                    <nodeVersion>v18.16.0</nodeVersion>
                     <workingDirectory>src/../frontend/</workingDirectory>
                 </configuration>
                 <executions>
